@@ -19,9 +19,6 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-
-    
-  
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -65,104 +62,6 @@ export default function TabLayout() {
         headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
-      <Tabs.Screen
-        name="see_note"
-        options={{
-          title: 'Просмотр',
-         // tabBarLabel: 'jjj',
-          headerTitleAlign: 'center',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-          headerLeft: () => (
-            <Link href="/two" asChild>
-            
-            <Pressable style={{paddingLeft: 8}}>
-              
-              {({ pressed }) => (
-                
-                <FontAwesome
-                  name="angle-left"
-                  
-                  size={25}
-                  color={Colors[colorScheme ?? 'light'].text}
-                  style={{ marginRight: 15, color: pressed ? '#0072C8' : '#334155' }}
-                />
-              )}
-            </Pressable>
-          </Link>
-          ),
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        }}
-      />
-      <Tabs.Screen
-        name="create_note"
-        options={{
-          title: 'Создание замечания',
-         // tabBarLabel: 'jjj',
-          headerTitleAlign: 'center',
-          tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
-          //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-          headerLeft: () => (
-            <Link href="/two" asChild>
-            
-            <Pressable style={{paddingLeft: 8}}>
-              
-              {({ pressed }) => (
-                
-                <FontAwesome
-                  name="angle-left"
-                  
-                  size={25}
-                  //color={Colors[colorScheme ?? 'light'].text}
-                 // color='#1E1E1E'
-                  style={{ marginRight: 15,  color: pressed ? '#0072C8' : '#334155'}}
-                />
-              )}
-            </Pressable>
-          </Link>
-          ),
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        }}
-      />
-      <Tabs.Screen
-        name="add_photo"
-        options={{
-          title: 'Добавить фото',
-         // tabBarLabel: 'jjj',
-          headerTitleAlign: 'center',
-          tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-          headerLeft: () => (
-            <Link href="/two" asChild>
-            
-            <Pressable style={{paddingLeft: 8}}>
-              
-              {({ pressed }) => (
-                
-                <FontAwesome
-                  name="angle-left"
-                  
-                  size={25}
-                  //color={Colors[colorScheme ?? 'light'].text}
-                 // color='#1E1E1E'
-                  style={{ marginRight: 15,  color: pressed ? '#0072C8' : '#334155'}}
-                />
-              )}
-            </Pressable>
-            </Link>
-          ),
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        }}
-      />
+      
     </Tabs>
-
- 
-
-  );
-}
+  )}
