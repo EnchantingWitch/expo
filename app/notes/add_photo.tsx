@@ -1,4 +1,69 @@
-import { View, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Button, Image, StyleSheet } from 'react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+
+const ImagePickerExample: React.FC = () => {
+  const [imageUri, setImageUri] = useState<string | null>(null);
+
+  const selectImage = () => {
+    launchImageLibrary({ quality: 0.5, mediaType: 'photo' }, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.assets) {
+        setImageUri(response.assets[0].uri);
+      }
+    });
+  };
+
+  const takePhoto = () => {
+    launchCamera({ quality: 0.5, mediaType: 'photo' }, response => {
+      if (response.didCancel) {
+        console.log('User cancelled camera');
+      } else if (response.error) {
+        console.log('Camera Error: ', response.error);
+      } else if (response.assets) {
+        setImageUri(response.assets[0].uri);
+      }
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button title="Выбрать изображение" onPress={selectImage} />
+      <Button title="Сделать фото" onPress={takePhoto} />
+
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+    borderRadius: 10,
+  },
+  but:{ 
+    borderRadius: 8, 
+    backgroundColor: '#0072C8', 
+    width: 272, 
+    height: 40, 
+    paddingVertical: 8, 
+    alignSelf: 'center', 
+    marginBottom: 5 },
+});
+
+export default ImagePickerExample;
+/*import { View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useEffect, useState } from 'react';
@@ -51,7 +116,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
+*/
 
 
 /*

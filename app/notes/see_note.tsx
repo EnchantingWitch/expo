@@ -4,6 +4,10 @@ import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, To
 import { Link, Tabs } from 'expo-router';
 import DropdownComponent1 from '@/components/list_system';
 import DropdownComponent2 from '@/components/list_categories';
+import DateInputWithPicker from '@/components/calendar';
+import DateInputWithPicker2 from '@/components/calendar+10';
+import FormField from '@/components/FormField';
+
 
 
 export default function listOfNotes() {
@@ -11,7 +15,6 @@ export default function listOfNotes() {
 
     <ScrollView>
       <View style={[styles.container]}>
-
 
         <View style={{
           flex: 1,
@@ -29,55 +32,58 @@ export default function listOfNotes() {
             justifyContent: 'space-between', paddingTop: 10
           }}>
 
-            <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 123, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+            <FormField
               // onChangeText={"W"}
               placeholder="№ замечания"
-              keyboardType="numeric"
+              keyboardtype="numeric"
               returnKeyType='next'
-              editable={false}
+              theme='min'
+             
             />
 
-            <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 123, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+            <FormField
               // onChangeText={"W"}
               placeholder="№ акта ИИ"
-              keyboardType="numeric"
+              keyboardtype="numeric"
               returnKeyType='next'
-              editable={false}
+              theme='min'
             />
           </View>
 
-
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Объект</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-
+          <FormField
+            title='Объект'
             returnKeyType='next'
-
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Система</Text>
-          <DropdownComponent1 />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Содержание замечания</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-
-          //  keyboardType="text"
+          <FormField
+            theme='dropdown'
+            title='Система'
+            returnKeyType='next'
+          />       
+          
+          <FormField
+            title='Содержание замечания'
           />
+
           <Link href='/notes/add_photo' asChild>
-            <Text style={{ marginBottom: 20 }}>Фото</Text>
+            <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Статус</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+          <FormField
+          title='Статус'
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
 
+          <FormField
+          title='Исполнитель'
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Дата выдачи</Text>
-          <TextInput keyboardType="number-pad" style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-            editable={false} />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Плановая дата устранения</Text>
-          <TextInput keyboardType="number-pad" style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-          /><Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
+          <DateInputWithPicker keyboardType="number-pad" editable={false} />
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения</Text>
+          <DateInputWithPicker2
+          />
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
 

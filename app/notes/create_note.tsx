@@ -1,10 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
-import { Link, Tabs } from 'expo-router';
+import { Link, Tabs, Redirect, router } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 import DropdownComponent1 from '@/components/list_system';
 import DropdownComponent2 from '@/components/list_categories';
+import DateInputWithPicker from '@/components/calendar';
+import DateInputWithPicker2 from '@/components/calendar+10';
+import FormField from '@/components/FormField';
+import CustomButton from '@/components/CustomButton';
 
 
 export default function listOfNotes() {
@@ -28,66 +32,63 @@ export default function listOfNotes() {
             justifyContent: 'space-between', paddingTop: 10
           }}>
 
-            <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 123, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+            <FormField
               // onChangeText={"W"}
+              theme='min'
               placeholder="№ замечания"
-              keyboardType="numeric"
+              keyboardtype="numeric"
               returnKeyType='next'
+              editable='false'
             />
 
-            <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 123, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+            <FormField
               // onChangeText={"W"}
+              theme='min'
               placeholder="№ акта ИИ"
-              keyboardType="numeric"
+              keyboardtype="numeric"
               returnKeyType='next'
             />
           </View>
 
-
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Объект</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-
+          <FormField
+            title='Объект'
             returnKeyType='next'
-
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Система</Text>
-          <DropdownComponent1 />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Содержание замечания</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-
-          //  keyboardType="text"
+          <FormField
+            theme='dropdown'
+            title='Система'
+            returnKeyType='next'
+          />       
+          
+          <FormField
+            title='Содержание замечания'
           />
 
           <Link href='/notes/add_photo' asChild>
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Статус</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-          />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
+         
 
+          <FormField
+          title='Исполнитель'
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Дата выдачи</Text>
-          <TextInput keyboardType="number-pad" style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-          />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Плановая дата устранения</Text>
-          <TextInput keyboardType="number-pad" style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', width: 272, height: 40, paddingTop: 12, paddingLeft: 16, paddingRight: 16, paddingBottom: 12, color: '#B3B3B3', textAlign: 'center', marginBottom: 20 }}
-          /><Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
+          
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
+          <DateInputWithPicker />
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
-
+          
 
           <View style={{
             width: 272, height: 40, justifyContent: 'center', alignContent: 'center'
             //alignItems: 'center', backgroundColor: 'powderblue',
           }}>
-            <Link href='/two' asChild>
-              <TouchableOpacity style={{ borderRadius: 8, backgroundColor: '#0072C8', width: 272, height: 40, paddingVertical: 8, alignSelf: 'center', marginBottom: 15 }}>
-                <Text style={{ fontSize: 16, fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>Добавить замечание</Text>
-              </TouchableOpacity>
-            </Link>
+            <CustomButton
+              title="Добавить замечание"
+              handlePress={() => router.push('/(tabs)/two')} />
           </View>
         </View>
       </View>
