@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback } from 'react-native';
 import type { PropsWithChildren } from 'react';
-import { Link, Tabs } from 'expo-router';
+import { Link, Tabs, Redirect, router } from 'expo-router';
 import tw from 'tailwind-rn'
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
+import CustomButton from '@/components/CustomButton';
+import FormField from '@/components/FormField';
+import Note from '@/components/Note';
 
 
 import EditScreenInfo from '@/components/EditScreenInfo';
@@ -22,52 +25,51 @@ const DirectionLayout = () => {
 
         <PreviewLayout
           selectedValue={direction}
-          values={['Объект', <DropdownComponent/>]}
+          values={['Объект', <DropdownComponent />]}
           setSelectedValue={setDirection}>
 
           
-
           <View style={{ flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 16, color: '#1E1E1E' }}>№</Text>
-            <Text style={{ fontSize: 16, color: '#1E1E1E' }} >Содержание</Text>
+            <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Содержание</Text>
             <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Статус</Text>
           </View>
 
 
 
-          <View style={{ flex: 15 }}>
-            <Link href='/notes/see_note' asChild>
-              <TouchableWithoutFeedback>
-                <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'space-between', marginVertical: 38 }}>
-                  <Text style={{ fontSize: 14, color: '#334155', paddingLeft: 4 }}>1</Text>
-                  <Text style={{ fontSize: 14, color: '#334155' }}>Текст замечания</Text>
-                  <Text style={{ fontSize: 14, color: '#334155', paddingEnd: 4 }}>Статус</Text>
-                </View>
+          <View style={{ flex: 15, marginTop: 48}}>
+            <Note 
+            id={1}
+            number={1}
+            note='Текст замечания'
+            status='-'
+            theme='click'
+            onPress={() => router.push('/notes/see_note')}
+            ></Note>
 
-              </TouchableWithoutFeedback>
-            </Link>
+            <Note 
+            id={2}
+            number={1}
+            note='Текст замечания'
+            status='-'
+            theme='click'
+            onPress={() => router.push('/notes/see_note')}
+            ></Note>
 
-            <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 14, color: '#334155', paddingLeft: 4 }}>2</Text>
-              <Text style={{ fontSize: 14, color: '#334155' }}>Текст замечания</Text>
-              <Text style={{ fontSize: 14, color: '#334155', paddingEnd: 4 }}>Статус</Text>
-            </View>
           </View>
 
           <View style={{
             width: 272, height: 40, justifyContent: 'center',
             //alignItems: 'center', backgroundColor: 'powderblue',
           }}>
-            <Link href='/notes/create_note' asChild>
-              <TouchableOpacity style={{ borderRadius: 8, backgroundColor: '#0072C8', width: 272, height: 40, paddingVertical: 8, alignSelf: 'center', marginBottom: 5 }}>
-                <Text style={{ fontSize: 16, fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>Добавить замечание</Text>
-              </TouchableOpacity>
-            </Link>
+            <CustomButton
+              title="Добавить замечание"
+              handlePress={() => router.push('/notes/create_note')} />
           </View>
-        </PreviewLayout>
+        </PreviewLayout >
 
-      </View>
-    </SafeAreaView>
+      </View >
+    </SafeAreaView >
 
   );
 };
