@@ -27,7 +27,51 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
 
       }}>
+      
       <Tabs.Screen
+        name="object"
+        options={{
+          title: 'Объект',
+          headerTitleAlign: 'center',
+          tabBarActiveTintColor: '#1E1E1E',
+          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+        headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+      <Tabs.Screen
+        name="structure"
+        options={{
+          title: 'Структура',
+          headerTitleAlign: 'center',
+          tabBarActiveTintColor: '#1E1E1E',
+          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+        headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+      <Tabs.Screen
+        name="two"
+        options={{
+          title: 'Замечания',
+          headerTitleAlign: 'center',
+          tabBarActiveTintColor: '#1E1E1E',
+          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+        headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+    </Tabs>
+  )}
+
+  /*
+   <Tabs.Screen
         name="index"
         options={{
           title: 'Стартовый экран',
@@ -49,19 +93,4 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Замечания',
-          headerTitleAlign: 'center',
-          tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
-          //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        }}
-      />
-      
-    </Tabs>
-  )}
+      */

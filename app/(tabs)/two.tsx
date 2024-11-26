@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback } from 'react-native';
 import type { PropsWithChildren } from 'react';
-import { Link, Tabs, Redirect, router } from 'expo-router';
+import {  router } from 'expo-router';
 import tw from 'tailwind-rn'
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
-import FormField from '@/components/FormField';
 import Note from '@/components/Note';
 
 
