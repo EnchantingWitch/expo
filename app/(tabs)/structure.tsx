@@ -1,11 +1,9 @@
 import React, { Component, useState } from 'react';
-import { ScrollView,  Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
+import { ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { router } from 'expo-router';
 
 import CustomButton from '@/components/CustomButton';
-import { FlatList } from 'react-native-reanimated/lib/typescript/Animated';
-
 
 const structure = [
   {
@@ -15,46 +13,69 @@ const structure = [
     numberofnotes: "2",
     status: "Снято"
   },
-  {
-    id: "2",
-    numberKO: "2",
-    subobj: "ГПА-2",
-    numberofnotes: "3",
-    status: "Снято",
-  }
+
 ];
 
 const Structure = () => {
-  const [isSelected, setSelected] = useState(false);
+  const [isSelected, setSelected] = useState(true);
   
     return(
       <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.container}>
 
-        <Text> Список систем по объекту</Text>
+        <View style={{   flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
+            <View style={{width: '25%', }}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>№ АКО</Text>
+            </View>
+
+            <View style={{width: '25%', }}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Объект</Text>
+            </View>
+
+            <View style={{width: '25%', }}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
+            </View>
+
+            <View style={{width: '25%', }}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
+            </View>
+          </View>
 
         <FlatList
             data = {structure}
             renderItem={({item, index})=>(
-              <View>
+              <View  >
                 {isSelected ? (
-                  <TouchableOpacity
-                  onPress={() => setSelected}
+                  <TouchableOpacity 
+                  onPress={() => setSelected(false)}
                   >
-                    <Text>Объект 1</Text>
+                    <Text style={{ fontSize: 16, color: '#334155', paddingStart: '2%' }}>Объект</Text>
                    </TouchableOpacity> 
                 ) : (
-                  <TouchableOpacity
-                  onPress = {() => setSelected}
+                  <TouchableOpacity 
+                  onPress = {() => setSelected(true)}
                   >
-                    <View style={{width: '25%', }}>
-                    <Text>{item.numberKO}</Text></View>
-                    <View style={{width: '25%', }}>
-                    <Text>{item.subobj}</Text></View>
-                    <View style={{width: '25%', }}>
-                    <Text>{item.numberofnotes}</Text></View>
-                    <View style={{width: '25%', }}>
-                    <Text>{item.status}</Text></View>
+                    <Text style={{ fontSize: 16, color: '#334155', textAlign: 'left', paddingStart: '2%'  }}>Объект </Text>
+
+                    <View style={{ alignSelf: 'center',   backgroundColor: '#F8FAFC', flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+          
+                      <View style={{width: '25%', }}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      </View>
+          
+                      <View style={{width: '25%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      </View>
+                      
+                      <View style={{width: '25%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.numberofnotes}</Text>
+                      </View>
+
+                      <View style={{width: '25%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
+                      </View>
+                  </View>
+ 
                   </TouchableOpacity>
                 )}
               </View>  
@@ -71,8 +92,9 @@ const Structure = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+   // alignItems: 'center',
+    //justifyContent: 'center',
+    
   },
   title: {
     fontSize: 20,

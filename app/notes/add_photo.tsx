@@ -63,6 +63,8 @@ const styles = StyleSheet.create({
 });
 
 export default ImagePickerExample;*/
+
+
 import { View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -91,7 +93,7 @@ export default function Index() {
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
@@ -128,7 +130,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
 
 
 /*

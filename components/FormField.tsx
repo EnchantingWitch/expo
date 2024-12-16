@@ -11,7 +11,7 @@ type Props = {
     keyboardtype: string;
     editable: string;
     numberOfLines: number;
-    theme?: ;
+    theme?: 'min';
     handleChangeText?: () => void;
   };
   
