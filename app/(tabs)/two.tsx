@@ -1,18 +1,58 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {  router } from 'expo-router';
 import tw from 'tailwind-rn'
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
+import listOfNotes from '../notes/see_note';
 
 
 import EditScreenInfo from '@/components/EditScreenInfo';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 //import { Text, View } from '@/components/Themed';
+
+type Note = {
+  commentId: number; //id замечания , генерируется на сервере
+  serialNumber: number;//номер замечания
+  subObject: string;
+  systemName: string;
+  description: string;
+  commentStatus: string;
+  commentCategory: string;
+  startDate: string;
+  endDatePlan: string;
+  endDateFact: string;
+  commentExplanation: string;//комментарий к замечанию
+  //userName: string;//не увидела в бд у Сергея
+  iinumber: number;//номер акта ИИ
+};
+
+
 
 const DirectionLayout = () => {
   const [direction, setDirection] = useState('Объект');
+  
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<Note[]>([]);
+
+  const getNotes = async () => {
+    try {
+      const response = await fetch('http://188.225.77.195:8080/getAllComments');
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getNotes();
+  }, []);
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -37,24 +77,38 @@ const DirectionLayout = () => {
 
 
           <View style={{ flex: 15, marginTop: 48}}>
-            <Note 
-            id={1}
-            number={1}
-            note='Текст замечания'
-            status='-'
-            theme='click'
-            onPress={() => router.push('/notes/see_note')}
-            ></Note>
 
-            <Note 
-            id={2}
-            number={1}
-            note='Текст замечания'
-            status='-'
-            theme='click'
-            onPress={() => router.push('/notes/see_note')}
-            ></Note>
+               { isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <FlatList
+                data={data}
+                keyExtractor={({commentId}) => commentId}
+                renderItem={({item}) => (
 
+                  <TouchableWithoutFeedback onPress={() =>{ listOfNotes(item.commentId); router.push('/notes/see_note')}}>
+                  <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+          
+                      <View style={{width: '15%', }}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
+                      </View>
+          
+                      <View style={{width: '75%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.description}</Text>
+                      </View>
+                      
+                      <View style={{width: '7%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.commentStatus}</Text>
+                      </View>
+                  </View>
+                  </TouchableWithoutFeedback>
+
+          )}
+              />
+            )}
+
+            
+           
           </View>
 
           <View style={{
@@ -198,3 +252,15 @@ const styles = StyleSheet.create({
 });
 
 export default DirectionLayout;
+
+/*
+ <Note 
+            id={1}
+            number={1}
+            note='Текст замечания'
+            status='-'
+            theme='click'
+            onPress={() => router.push('/notes/see_note')}
+            ></Note>
+
+            */

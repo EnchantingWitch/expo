@@ -8,9 +8,23 @@ import DateInputWithPicker from '@/components/calendar';
 import DateInputWithPicker2 from '@/components/calendar+10';
 import FormField from '@/components/FormField';
 
+type Props = {
+  commentId: number; //id замечания , генерируется на сервере
+  serialNumber: string;//номер замечания
+  subObject: string;
+  systemName: string;
+  description: string;
+  commentStatus: string;
+  commentCategory: string;
+  startDate: string;
+  endDatePlan: string;
+  endDateFact: string;
+  commentExplanation: string;//комментарий к замечанию
+  //userName: string;//не увидела в бд у Сергея
+  iinumber: string;//номер акта ИИ
+};
 
-
-export default function listOfNotes() {
+export default function listOfNotes({ commentId, serialNumber, subObject, systemName, description, commentStatus, commentCategory, startDate, endDatePlan, endDateFact, commentExplanation, iinumber }: Props) {
   return (
 
     <ScrollView>
@@ -31,15 +45,16 @@ export default function listOfNotes() {
             flexDirection: 'row',
             justifyContent: 'space-between', paddingTop: 10
           }}>
-
+            
             <FormField
               // onChangeText={"W"}
               placeholder="№ замечания"
               keyboardtype="numeric"
               returnKeyType='next'
               theme='min'
-             
+              value={commentId}
             />
+            
 
             <FormField
               // onChangeText={"W"}
@@ -47,22 +62,26 @@ export default function listOfNotes() {
               keyboardtype="numeric"
               returnKeyType='next'
               theme='min'
+              value={iinumber}
             />
           </View>
-
+          <Text>xnj {commentId}</Text>
           <FormField
             title='Объект'
             returnKeyType='next'
+            value={subObject}
           />
 
           <FormField
             theme='dropdown'
             title='Система'
             returnKeyType='next'
+            value={systemName}
           />       
           
           <FormField
             title='Содержание замечания'
+            value={description}
           />
 
           <Link href='/notes/add_photo' asChild>
@@ -71,10 +90,12 @@ export default function listOfNotes() {
 
           <FormField
           title='Статус'
+          value={commentStatus}
           />
 
           <FormField
           title='Исполнитель'
+
           />
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>

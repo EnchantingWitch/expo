@@ -12,7 +12,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3}} {...props} />;
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -27,7 +27,7 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
 
       }}>
-      
+
       <Tabs.Screen
         name="object"
         options={{
@@ -38,7 +38,7 @@ export default function TabLayout() {
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-        headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
       <Tabs.Screen
@@ -51,7 +51,7 @@ export default function TabLayout() {
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-        headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
       <Tabs.Screen
@@ -64,33 +64,35 @@ export default function TabLayout() {
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-        headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: '#FFFFFF' },
+
         }}
       />
     </Tabs>
-  )}
+  )
+}
 
-  /*
-   <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Стартовый экран',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-            
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      */
+/*
+ <Tabs.Screen
+      name="index"
+      options={{
+        title: 'Стартовый экран',
+        tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        headerRight: () => (
+          <Link href="/modal" asChild>
+          
+            <Pressable>
+              {({ pressed }) => (
+                <FontAwesome
+                  name="info-circle"
+                  size={25}
+                  color={Colors[colorScheme ?? 'light'].text}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          </Link>
+        ),
+      }}
+    />
+    */

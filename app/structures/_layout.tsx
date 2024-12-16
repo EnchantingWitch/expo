@@ -10,7 +10,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3}} {...props} />;
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -26,17 +26,19 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
 
       }}>
-      
+
+
+
       <Stack.Screen
         name="load_registry"
         options={{
-            title: 'Загрузка реестра',
-    
+          title: 'Загрузка реестра',
+
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-         
-        headerStyle: { backgroundColor: '#FFFFFF' },
+
+          headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
       <Stack.Screen
@@ -48,10 +50,23 @@ export default function TabLayout() {
 
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          
-        headerStyle: { backgroundColor: '#FFFFFF' },
+
+          headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
-     
+      <Stack.Screen
+        name="structure_search"
+        options={{
+          title: 'Структура',
+
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+
+          headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+
     </Stack>
-  )}
+  )
+}

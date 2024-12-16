@@ -16,8 +16,9 @@ const data = [
 const DropdownComponent = () => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
-
+ 
     return (
+       
         <View style={styles.container}>
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
@@ -41,6 +42,7 @@ const DropdownComponent = () => {
                 }}
             />
         </View>
+            
     );
 };
 

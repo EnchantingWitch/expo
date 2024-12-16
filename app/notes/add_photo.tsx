@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 import { View, Button, Image, StyleSheet } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
@@ -62,8 +62,8 @@ const styles = StyleSheet.create({
     marginBottom: 5 },
 });
 
-export default ImagePickerExample;
-/*import { View, StyleSheet } from 'react-native';
+export default ImagePickerExample;*/
+import { View, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useEffect, useState } from 'react';
@@ -76,6 +76,18 @@ import ImageViewer from '@/components/ImageViewer';
 
 export default function Index() {
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+  const request = fetch('http://188.225.77.195:8080/', {
+    method: 'POST',
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        iiNumer: {selectedImage},
+    })
+  });
+
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -94,7 +106,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       
-      <Button theme="primary" label="Добавить фотографию" onPress={pickImageAsync} />
+      <Button theme="primary" label="Добавить фотографию" onPress={() => {pickImageAsync; request;}} />
       <View style={styles.imageContainer}>
         <ImageViewer selectedImage={selectedImage} />
       </View>
@@ -116,7 +128,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-*/
+
 
 
 /*

@@ -6,12 +6,12 @@ import DateInputWithPicker from '@/components/calendar';
 type Props = {
 
     title: string;
-    value: string;
+    value: any;
     placeholder: string;
     keyboardtype: string;
     editable: string;
     numberOfLines: number;
-    theme?: 'min';
+    theme?: ;
     handleChangeText?: () => void;
   };
   
