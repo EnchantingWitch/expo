@@ -57,8 +57,10 @@ const Structure = () => {
                   >
                     <Text style={{ fontSize: 16, color: '#334155', textAlign: 'left', paddingStart: '2%'  }}>Объект </Text>
 
+                    <TouchableOpacity onPress={() =>{ router.push('./structures/system')}}>
                     <View style={{ alignSelf: 'center',   backgroundColor: '#F8FAFC', flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
           
+                    
                       <View style={{width: '25%', }}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
@@ -74,7 +76,9 @@ const Structure = () => {
                       <View style={{width: '25%', marginStart: 2}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
                       </View>
-                  </View>
+                  
+
+                  </View></TouchableOpacity>
  
                   </TouchableOpacity>
                 )}
@@ -83,6 +87,9 @@ const Structure = () => {
             keyExtractor={item => item.id}
         />
       </View>
+       <CustomButton
+                    title="Загрузить"
+                    handlePress={() => router.push('./structures/load_registry')} />
       </ScrollView>
     );
   };
@@ -92,6 +99,7 @@ const Structure = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '80%',
    // alignItems: 'center',
     //justifyContent: 'center',
     

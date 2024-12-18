@@ -14,7 +14,7 @@ export default function TabOneScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
 
-                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object.tsx')}}>
+                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object')}}>
                         <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
 
                             <View style={{width: '10%'}}>
@@ -34,7 +34,7 @@ export default function TabOneScreen() {
                         </View>
                         </TouchableOpacity>
       
-                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object.tsx')}}>
+                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object')}}>
                         <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
                         
                             <View style={{width: '10%'}}>
@@ -56,7 +56,7 @@ export default function TabOneScreen() {
                         </View>
                         </TouchableOpacity>
     </View>
-    <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects.tsx')}}/>
+    <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects')}}/>
     </ScrollView>
   );
 }

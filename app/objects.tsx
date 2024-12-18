@@ -7,39 +7,41 @@ import CustomButton from '@/components/CustomButton';
 export default function TabOneScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+      <Text style={{textAlign: 'center', fontSize: 16, paddingVertical: '4%'}}>Доступные объекты КС</Text>
     <View style={styles.container}>
 
-                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/object.tsx')}}>
+                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/structure')}}>
                         <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
                 
                             <View style={{width: '75%', }}>
-                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объетк 1</Text>
+                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объект 1</Text>
                             </View>
                                            
                         </View>
                         </TouchableWithoutFeedback>
       
-                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/object.tsx')}}>
+                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/structure')}}>
                         <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
                 
                             <View style={{width: '75%', }}>
-                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объетк 2</Text>
+                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объеке 2</Text>
                             </View>
                                            
                         </View>
                         </TouchableWithoutFeedback>
     </View>
-    <CustomButton title='Добавить объект' handlePress={() =>{router.push('./objects.tsx')}}/>
+    <CustomButton title='Добавить объект' handlePress={() =>{router.push('/add_obj')}}/>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: '10%',
     flex: 1,
     alignSelf: 'center',
     width: '96%',
-    height: '70%',
+    height: '100%',
   },
   title: {
     fontSize: 20,
