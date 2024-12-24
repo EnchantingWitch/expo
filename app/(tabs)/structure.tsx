@@ -11,7 +11,7 @@ const structure = [
     numberKO: "12",
     subobj: "ГПА-1",
     numberofnotes: "2",
-    status: "Снято"
+    status: "Проводится КО"
   },
 
 ];
@@ -23,23 +23,23 @@ const Structure = () => {
       <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.container}>
 
-        <View style={{   flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <View style={{width: '25%', }}>
+        <View style={{   flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
+            <View style={{width: '15%', }}>
             <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>№ АКО</Text>
             </View>
 
             <View style={{width: '25%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Объект</Text>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Подъобъект</Text>
             </View>
 
-            <View style={{width: '25%', }}>
+            <View style={{width: '23%', }}>
             <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
             </View>
 
-            <View style={{width: '25%', }}>
+            <View style={{width: '37%', }}>
             <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
             </View>
-          </View>
+        </View>
 
         <FlatList
             data = {structure}
@@ -49,32 +49,63 @@ const Structure = () => {
                   <TouchableOpacity 
                   onPress={() => setSelected(false)}
                   >
-                    <Text style={{ fontSize: 16, color: '#334155', paddingStart: '2%' }}>Объект</Text>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%' }}>
+                      
+                      <View style={{width: '15%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      </View>
+
+                      <View style={{width: '25%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      </View>
+
+                      <View style={{width: '23%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      </View>
+
+                      <View style={{width: '37%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.status}</Text>
+                      </View>
+
+                    </View>
                    </TouchableOpacity> 
                 ) : (
                   <TouchableOpacity 
                   onPress = {() => setSelected(true)}
                   >
-                    <Text style={{ fontSize: 16, color: '#334155', textAlign: 'left', paddingStart: '2%'  }}>Объект </Text>
-
-                    <TouchableOpacity onPress={() =>{ router.push('./structures/system')}}>
-                    <View style={{ alignSelf: 'center',   backgroundColor: '#F8FAFC', flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
-          
-                    
-                      <View style={{width: '25%', }}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%' }}>
+                      
+                      <View style={{width: '15%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
+
+                      <View style={{width: '25%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      </View>
+
+                      <View style={{width: '23%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      </View>
+
+                      <View style={{width: '37%'}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.status}</Text>
+                      </View>
+
+                    </View>
+
+                    <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
+                    <View style={{ alignSelf: 'flex-end',   backgroundColor: '#F8FAFC', flexDirection: 'row', width: '85%', height: 32, paddingTop: 6, justifyContent: 'flex-end', marginBottom: 41}}>
           
-                      <View style={{width: '25%', marginStart: 2}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      <View style={{width: '30%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>система1</Text>
                       </View>
                       
-                      <View style={{width: '25%', marginStart: 2}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.numberofnotes}</Text>
+                      <View style={{width: '28%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>2</Text>
                       </View>
 
-                      <View style={{width: '25%', marginStart: 2}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
+                      <View style={{width: '42%', marginStart: 2}}>
+                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>Проводится КО</Text>
                       </View>
                   
 
@@ -89,7 +120,7 @@ const Structure = () => {
       </View>
        <CustomButton
                     title="Загрузить"
-                    handlePress={() => router.push('./structures/load_registry')} />
+                    handlePress={() => router.push('/structures/load_registry')} />
       </ScrollView>
     );
   };

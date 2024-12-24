@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import { Link, Tabs } from 'expo-router';
 import DropdownComponent1 from '@/components/list_system';
@@ -9,27 +9,18 @@ import DateInputWithPicker2 from '@/components/calendar+10';
 import FormField from '@/components/FormField';
 
 type Props = {
-  commentId: number; //id замечания , генерируется на сервере
-  serialNumber: string;//номер замечания
-  subObject: string;
-  systemName: string;
-  description: string;
-  commentStatus: string;
-  commentCategory: string;
-  startDate: string;
-  endDatePlan: string;
-  endDateFact: string;
-  commentExplanation: string;//комментарий к замечанию
-  //userName: string;//не увидела в бд у Сергея
-  iinumber: string;//номер акта ИИ
-};
 
-export default function listOfNotes({ commentId, serialNumber, subObject, systemName, description, commentStatus, commentCategory, startDate, endDatePlan, endDateFact, commentExplanation, iinumber }: Props) {
+  //iinumber: number;//номер акта ИИ
+};
+//{ route }: {route: any}
+const DetailsScreen = () => {
+ // const { variable } = route.params;
+  
   return (
 
     <ScrollView>
       <View style={[styles.container]}>
-
+        
         <View style={{
           flex: 1,
           //marginLeft: 60.5,
@@ -52,7 +43,7 @@ export default function listOfNotes({ commentId, serialNumber, subObject, system
               keyboardtype="numeric"
               returnKeyType='next'
               theme='min'
-              value={commentId}
+              value={variable}
             />
             
 
@@ -62,26 +53,26 @@ export default function listOfNotes({ commentId, serialNumber, subObject, system
               keyboardtype="numeric"
               returnKeyType='next'
               theme='min'
-              value={iinumber}
+             // value={iinumber}
             />
           </View>
-          <Text>xnj {commentId}</Text>
+  
           <FormField
             title='Объект'
             returnKeyType='next'
-            value={subObject}
+         //   value={subObject}
           />
 
           <FormField
             theme='dropdown'
             title='Система'
             returnKeyType='next'
-            value={systemName}
+           // value={systemName}
           />       
           
           <FormField
             title='Содержание замечания'
-            value={description}
+         //   value={description}
           />
 
           <Link href='/notes/add_photo' asChild>
@@ -90,7 +81,7 @@ export default function listOfNotes({ commentId, serialNumber, subObject, system
 
           <FormField
           title='Статус'
-          value={commentStatus}
+        //  value={commentStatus}
           />
 
           <FormField
@@ -162,3 +153,5 @@ const styles = StyleSheet.create({
     minWidth: 120,
   },
 });
+
+export default DetailsScreen;

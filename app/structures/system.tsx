@@ -1,37 +1,79 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput  } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { } from '@/components/Themed';
 import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/calendar';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { router } from 'expo-router';
+import DropdownComponent from '@/components/list_system';
+import React from 'react';
+
 
 export default function TabOneScreen() {
   return (
+    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <FormField value ="Статус системы"/>
-      <FormField theme ="date" value="План передачи в ПНР"/>
+
+      <View style={styles.separator}/>
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
+      <DropdownComponent/>
+
+       <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400' }}>План передачи в ПНР</Text>
       <DateInputWithPicker/>
-      <FormField theme ="date" value="Факт передачи в ПНР"/>
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>Факт передачи в ПНР</Text>
       <DateInputWithPicker/>
-      <FormField theme ="date" value="План ИИ"/>
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>План ИИ</Text>
       <DateInputWithPicker/>
-      <FormField theme ="date" value="Факт ИИ"/>
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>Факт ИИ</Text>
       <DateInputWithPicker/>
-      <FormField theme ="date" value="План КО"/>
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>План КО</Text>
       <DateInputWithPicker/>
-      <FormField theme ="date" value="Факт КО"/>
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400' }}>Факт КО</Text>
       <DateInputWithPicker/>
-      <FormField theme = "min" value ="Не устранено замечаний"/>
-      <FormField theme = "min" value ="Не устранено дефектов"/>
-      <FormField value ="Исполнитель СМР"/>
-      <FormField value ="Исполнитель ПНР"/>
-      <CustomButton title='Подтвердить'  handlePress={() => router.push('./(tabs)/structure.tsx')} />
-      <CustomButton title='Отменить'  handlePress={() => router.push('./(tabs)/structure.tsx')} />
+
+      <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', paddingTop: 6,  marginBottom: 8}}>
+          
+                      <View style={{width: '50%', marginStart: 2}}>
+                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
+                      <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#111"
+                />
+                      </View>
+
+                      <View style={{width: '50%', marginStart: 2}}>
+                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
+                      <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#111"
+                />
+                      
+                      </View>
+      </View>
+      
+
+       <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#111"
+                />
+
+      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#111"
+                />
+ 
+      <CustomButton title='Подтвердить'  handlePress={() => router.push('/(tabs)/structure')} />
+      <CustomButton title='Отменить'  handlePress={() => router.push('/(tabs)/structure')} />
     </View>
+    </ScrollView>
   );
 }
 
@@ -46,8 +88,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   separator: {
-    marginVertical: 30,
+
     height: 1,
     width: '80%',
+  },
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    width: '96%',
+    height: 42,
+    paddingVertical: 'auto',
+    color: '#B3B3B3',
+    textAlign: 'center',
+    marginBottom: 20,
   },
 });

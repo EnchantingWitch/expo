@@ -30,7 +30,7 @@ export default function TabOneScreen() {
                         </View>
                         </TouchableWithoutFeedback>
     </View>
-    <CustomButton title='Добавить объект' handlePress={() =>{router.push('/add_obj')}}/>
+    <CustomButton title='Добавить объект' handlePress={() =>{router.push('./objs/add_obj')}}/>
     </ScrollView>
   );
 }

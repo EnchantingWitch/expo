@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         paddingBottom: 16,
+        width: '96%',
     },
     dropdown: {
         height: 40,
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderRadius: 8,
         paddingHorizontal: 8,
-        width: 272,
+        
 
     },
     icon: {
@@ -73,6 +74,7 @@ const styles = StyleSheet.create({
         zIndex: 999,
         paddingHorizontal: 8,
         fontSize: 14,
+        
     },
     placeholderStyle: {
         fontSize: 16,

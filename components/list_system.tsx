@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         paddingBottom: 16,
+        width: '96%',
     },
     dropdown: {
         height: 40,
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderRadius: 8,
         paddingHorizontal: 8,
-        width: 272,
+        
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',

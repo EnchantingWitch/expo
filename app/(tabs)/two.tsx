@@ -7,6 +7,7 @@ import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
 import listOfNotes from '../notes/see_note';
+//import { useNavigation } from '@react-navigation/native';
 
 
 import EditScreenInfo from '@/components/EditScreenInfo';
@@ -30,8 +31,11 @@ type Note = {
 };
 
 
-
+//{ navigation }: {navigation: any} было в круглых скобках
 const DirectionLayout = () => {
+  
+  //const navigation = useNavigation();
+
   const [direction, setDirection] = useState('Объект');
   
   const [isLoading, setLoading] = useState(true);
@@ -39,7 +43,7 @@ const DirectionLayout = () => {
 
   const getNotes = async () => {
     try {
-      const response = await fetch('http://188.225.77.195:8080/getAllComments');
+      const response = await fetch('http://188.225.77.195:8080/comments/getAllComments');
       const json = await response.json();
       setData(json);
     } catch (error) {
@@ -85,8 +89,8 @@ const DirectionLayout = () => {
                 data={data}
                 keyExtractor={({commentId}) => commentId}
                 renderItem={({item}) => (
-
-                  <TouchableWithoutFeedback onPress={() =>{ listOfNotes(item.commentId); router.push('/notes/see_note')}}>
+/*<TouchableWithoutFeedback onPress={() =>{ navigation.navigate('Details', {variable: {item.commentId}}); router.push('/notes/see_note')}}>*/
+                  <TouchableWithoutFeedback onPress={() =>{  router.push('/notes/see_note')}}>
                   <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
           
                       <View style={{width: '15%', }}>

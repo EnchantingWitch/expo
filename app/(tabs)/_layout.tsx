@@ -1,7 +1,7 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Stack, Tabs } from 'expo-router';
-import { Pressable, Button } from 'react-native';
+import { Pressable, Button, Image } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -34,7 +34,19 @@ export default function TabLayout() {
           title: 'Объект',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          //tabBarIcon: ({size,focused,color}) => {
+           // return (
+            //  <Image
+             //   style={{ width: size, height: size }}
+             //    src={'/assets/images/building-2'}
+                  //uri:
+                   // 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAYAAAA6oTAqAAAAEXRFWHRTb2Z0d2FyZQBwbmdjcnVzaEB1SfMAAABQSURBVGje7dSxCQBACARB+2/ab8BEeQNhFi6WSYzYLYudDQYGBgYGBgYGBgYGBgYGBgZmcvDqYGBgmhivGQYGBgYGBgYGBgYGBgYGBgbmQw+P/eMrC5UTVAAAAABJRU5ErkJggg==',
+                
+             // />
+           // );
+        //  },
+        tabBarIcon: () => <TabBarIcon name="building-o" color='#1E1E1E' />,
+          //tabBarIcon: () => <Image src={'/assets/images/building-2'} style={{width: 10}}/>, 
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
@@ -47,7 +59,7 @@ export default function TabLayout() {
           title: 'Структура',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          tabBarIcon: () => <TabBarIcon name="sticky-note-o" color='#1E1E1E' />,
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
@@ -60,7 +72,7 @@ export default function TabLayout() {
           title: 'Замечания',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="code" color='#1E1E1E' />,
+          tabBarIcon: () => <TabBarIcon name="pencil-square-o" color='#1E1E1E' />,
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
