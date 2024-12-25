@@ -43,7 +43,7 @@ const DirectionLayout = () => {
 
   const getNotes = async () => {
     try {
-      const response = await fetch('http://188.225.77.195:8080/comments/getAllComments');
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments');
       const json = await response.json();
       setData(json);
     } catch (error) {

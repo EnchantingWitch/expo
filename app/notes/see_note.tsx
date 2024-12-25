@@ -7,6 +7,8 @@ import DropdownComponent2 from '@/components/list_categories';
 import DateInputWithPicker from '@/components/calendar';
 import DateInputWithPicker2 from '@/components/calendar+10';
 import FormField from '@/components/FormField';
+import { styles } from './create_note';
+
 
 type Props = {
 
@@ -21,79 +23,61 @@ const DetailsScreen = () => {
     <ScrollView>
       <View style={[styles.container]}>
         
-        <View style={{
-          flex: 1,
-          //marginLeft: 60.5,
-          //marginRight: 60.5,
-          alignItems: 'center',
-
-        }}>
-
-          <View style={{
-            // backgroundColor: 'gray',
-            alignItems: 'center',
-            width: '80%',
-            flexDirection: 'row',
-            justifyContent: 'space-between', paddingTop: 10
-          }}>
+        <View style={{flex: 1, alignItems: 'center'}}>
             
-            <FormField
-              // onChangeText={"W"}
-              placeholder="№ замечания"
-              keyboardtype="numeric"
-              returnKeyType='next'
-              theme='min'
-             // value={variable}
-            />
+            <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания</Text>
+          <TextInput
+            style={styles.input}
+            //placeholder="№ акта ИИ"
+            placeholderTextColor="#111"
+          />
             
-
-            <FormField
-              // onChangeText={"W"}
-              placeholder="№ акта ИИ"
-              keyboardtype="numeric"
-              returnKeyType='next'
-              theme='min'
-             // value={iinumber}
-            />
-          </View>
-  
-          <FormField
-            title='Объект'
-            returnKeyType='next'
-         //   value={subObject}
+            <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
           />
 
-          <FormField
-            theme='dropdown'
-            title='Система'
-            returnKeyType='next'
-           // value={systemName}
-          />       
+  
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+          />
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+          />     
           
-          <FormField
-            title='Содержание замечания'
-         //   value={description}
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
           />
 
           <Link href='/notes/add_photo' asChild>
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
 
-          <FormField
-          title='Статус'
-        //  value={commentStatus}
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
           />
 
-          <FormField
-          title='Исполнитель'
-
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
           />
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
           <DateInputWithPicker keyboardType="number-pad" editable={false} />
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения</Text>
-          <DateInputWithPicker2
+          <DateInputWithPicker
           />
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
@@ -138,7 +122,7 @@ const AlignContentLayout = () => {
     },
   });
 }
-
+/*
 const styles = StyleSheet.create({
   container: {
     //display: flattenDiagnosticMessageText,
@@ -152,6 +136,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: 120,
   },
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    width: '96%',
+    height: 42,
+    paddingVertical: 'auto',
+    color: '#B3B3B3',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
 });
-
+*/
 export default DetailsScreen;

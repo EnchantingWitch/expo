@@ -13,7 +13,7 @@ export default function structure_search() {
 
                 <View>
                     <Text>
-
+                    Пустая форма, заготовка для поиска форм реестров.
                     </Text>
                 </View>
 

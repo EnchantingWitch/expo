@@ -3,14 +3,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
+    { label: 'Влияет на ИИ', value: '1' },
+    { label: 'Влияет на АИИ', value: '2' },
+    { label: 'Влияет на КО', value: '3' },
+    { label: 'Влияет на АКО', value: '4' },
+    { label: 'Влияет на под. ЭЭ', value: '5' },
+    { label: 'Влияет на под. газа', value: '6' },
+    { label: 'Влияет', value: '7' },
+    { label: 'Не влияет на ПНР', value: '8' },
+    { label: 'Не влияет', value: '9' },
 ];
 
 const DropdownComponent = () => {

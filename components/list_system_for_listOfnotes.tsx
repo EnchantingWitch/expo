@@ -4,14 +4,23 @@ import { Dropdown } from 'react-native-element-dropdown';
 
 
 const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
+    { label: 'ТО', value: '1' },
+    { label: 'ЭО', value: '2' },
+    { label: 'АСУ', value: '3' },
+    { label: 'ПБ', value: '4' },
+    { label: 'ОВиК', value: '5' },
+    { label: 'ТЭО', value: '6' },
+    { label: 'ВК', value: '7' },
+    { label: 'ЭХЗ', value: '8' },
+    { label: 'МО', value: '9' },
+    { label: 'КИТСО', value: '10' },
+    { label: 'ПТО', value: '11' },
+    { label: 'МОО', value: '12' },
+    { label: 'ХиКУ', value: '13' },
+    { label: 'ГТМ', value: '14' },
+    { label: 'ПЭМ', value: '15' },
+    { label: 'ИБ', value: '16' },
+    { label: 'КЗ', value: '17' },
 ];
 
 

@@ -17,7 +17,6 @@ export default function TabOneScreen() {
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View style={styles.container}>
         <Text style={{ padding: 20 }}>Выбрать документ</Text>
-        <input type='file' aria-label='Выбрать документ'/>
         <CustomButton title='Форма реестра' handlePress={() => router.push('../structures/structure_search')} />
 
       </View>
@@ -25,7 +24,7 @@ export default function TabOneScreen() {
       <View style={{ padding: 20 }}>
         <RedCustomButton
           title='Отменить'
-          handlePress={() => router.push('../(tabs)/structure'
+          handlePress={() => router.push('/(tabs)/structure'
           )} />
       </View>
       <View>

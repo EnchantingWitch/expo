@@ -24,7 +24,7 @@ export default function CreateNote() {
     if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
       { 
     try {
-      const response = await fetch('http://188.225.77.195:8080/comments/createComment', {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -99,7 +99,7 @@ export default function CreateNote() {
             onChangeText={setDescription}
             value={description}
           />
-          <Link href='/notes/add_photo' asChild>
+         {/* <Link href='/notes/add_photo' asChild>
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
           <TouchableOpacity>
@@ -111,7 +111,7 @@ export default function CreateNote() {
             {form.image ? (
               <Image source={{ uri: form.image.uri }} />
             ) : null}
-          </TouchableOpacity>
+          </TouchableOpacity>*/}
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
@@ -173,7 +173,7 @@ export default function CreateNote() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',

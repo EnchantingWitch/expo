@@ -20,7 +20,7 @@ const Structure = () => {
   const [isSelected, setSelected] = useState(true);
   
     return(
-      <ScrollView style={{ backgroundColor: 'white' }}>
+      <View style={{ backgroundColor: 'white', flex: 1 }}>
       <View style={styles.container}>
 
         <View style={{   flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
@@ -121,7 +121,7 @@ const Structure = () => {
        <CustomButton
                     title="Загрузить"
                     handlePress={() => router.push('/structures/load_registry')} />
-      </ScrollView>
+      </View>
     );
   };
 
@@ -130,7 +130,7 @@ const Structure = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: '80%',
+    //height: 520,
    // alignItems: 'center',
     //justifyContent: 'center',
     
