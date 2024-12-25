@@ -1,3 +1,4 @@
+/*
 import { StyleSheet, View, Text, TextInput, Keyboard, TouchableOpacity, Alert } from "react-native";
 import React, { useState } from "react";
 import DropdownComponent1 from '@/components/list_system';
@@ -33,7 +34,7 @@ const Search_Input = ({ initialQuery }) => {
                 else router.push(`/search/${query}`)
             }}>
                 <Image
-                    source={require('../../expo-main-2/assets/images/751463.png')}
+                  //  source={require('../../expo-main-2/assets/images/751463.png')}
                     style={{ width: 50, height: 50 }}
                 />
             </TouchableOpacity>
@@ -47,3 +48,4 @@ const Search_Input = ({ initialQuery }) => {
 
 
 export default Search_Input
+*/

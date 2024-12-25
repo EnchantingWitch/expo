@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import React from 'react';
-import Search_Input from '@/components/Search_Input';
+//import Search_Input from '@/components/Search_Input';
 
 
 
@@ -9,7 +9,7 @@ export default function structure_search() {
         <ScrollView style={{ backgroundColor: 'white' }}>
             <View style={styles.container}>
 
-                <Search_Input />
+              {/*  <Search_Input />*/}
 
                 <View>
                     <Text>

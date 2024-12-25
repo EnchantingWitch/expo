@@ -43,7 +43,7 @@ const DetailsScreen = () => {
               keyboardtype="numeric"
               returnKeyType='next'
               theme='min'
-              value={variable}
+             // value={variable}
             />
             
 
