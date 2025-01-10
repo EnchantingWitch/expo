@@ -21,7 +21,7 @@ export default function CreateNote() {
   const [form, setForm] = useState({ video: null, image: null });
 
   const submitData = async () => {
-    if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
+   // if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
       { 
     try {
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
@@ -53,11 +53,11 @@ export default function CreateNote() {
       setUpLoading(false);
       router.push('/(tabs)/two'); 
     }}
-    else{
-      Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
-        {text: 'OK', onPress: () => console.log('OK Pressed')},
-      ])
-    }
+    //else{
+    //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
+      //  {text: 'OK', onPress: () => console.log('OK Pressed')},
+     // ])
+ //   }
   };
 
   return (
@@ -173,7 +173,7 @@ export default function CreateNote() {
   );
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
