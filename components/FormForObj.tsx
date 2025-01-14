@@ -22,7 +22,7 @@ export default function FormForObj({title, number1, number2, number3, text1, tex
             
        
 
-        <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 48, paddingTop: 6, justifyContent: 'center', marginBottom: 41,}}>
+        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 48, paddingTop: 6, justifyContent: 'center', marginBottom: 41,}}>
 
             <View style={{width: '33%', }}>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text1}</Text>

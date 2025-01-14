@@ -3,7 +3,11 @@ import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Ima
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomButton from '@/components/CustomButton';
 
-const DateInputWithPicker = () => {
+type Props = {
+    theme?: 'min';
+  };
+
+const DateInputWithPicker = ({theme }: Props) => {
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
 
@@ -23,7 +27,30 @@ const DateInputWithPicker = () => {
         const yyyy = date.getFullYear();
         return `${dd}.${mm}.${yyyy}`;
     };
-
+    if (theme === 'min'){ return(
+        <View style={styles.containerrowMin}>
+            <TextInput style={styles.inputMin}
+                        //placeholder="Исполнитель"
+                placeholderTextColor="#111"
+                value={formatDate(date)}
+            />
+      
+            
+            <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+            <Image src={'./assets/images/building-2'} style={{alignSelf: 'flex-end'}}/> 
+            {showPicker && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChange}
+                />
+            )}
+            </TouchableOpacity>
+      
+        </View>
+    );
+    }
     return (
         <View style={styles.containerrow}>
             <TextInput style={styles.input}
@@ -69,6 +96,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 8,
     },
+    containerrowMin: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingTop: 11,
+        paddingBottom: 12,
+        backgroundColor: '#fff',
+        width:'50%',
+        flexDirection: 'row',
+        marginBottom: 8,
+    },
     resultText: {
         fontSize: 14,
     },
@@ -79,14 +116,18 @@ const styles = StyleSheet.create({
         borderColor: '#D9D9D9',
         width: '85%',
         height: 40,
-       // paddingVertical: 'auto',
-       // paddingTop: 11,
-        //paddingLeft: 16,
-       // paddingRight: 16,
-       // paddingBottom: 12,
         color: '#B3B3B3',
         textAlign: 'center',
-       // marginBottom: 20,
+      },
+      inputMin: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#D9D9D9',
+        width: '50%',
+        height: 40,
+        color: '#B3B3B3',
+        textAlign: 'center',
       },
 });
 

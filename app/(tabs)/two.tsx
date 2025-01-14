@@ -91,7 +91,7 @@ const DirectionLayout = () => {
                 renderItem={({item}) => (
 /*<TouchableWithoutFeedback onPress={() =>{ navigation.navigate('Details', {variable: {item.commentId}}); router.push('/notes/see_note')}}>*/
                   <TouchableWithoutFeedback onPress={() =>{  router.push('/notes/see_note')}}>
-                  <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
           
                       <View style={{width: '15%', }}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
     paddingRight: 8,
     paddingLeft: 8,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#E0F2FE',
     marginHorizontal: '10%',
     marginBottom: 16,
     width: 103,
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   //background: #F8FAFC;
 
   selected: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#E0F2FE',
 
     borderWidth: 0,
   },

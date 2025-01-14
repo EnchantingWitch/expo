@@ -17,25 +17,54 @@ export default function TabOneScreen() {
 
       <View style={styles.separator}/>
       <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
-      <DropdownComponent/>
+      <DropdownComponent />
 
-       <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400' }}>План передачи в ПНР</Text>
-      <DateInputWithPicker/>
+<View style={{flexDirection: 'row',width: '100%',}}>
+      <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
+       </View>
 
-      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>Факт передачи в ПНР</Text>
-      <DateInputWithPicker/>
+       <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт в ПНР</Text>
+       </View>
+</View>
 
-      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>План ИИ</Text>
-      <DateInputWithPicker/>
+<View style={{flexDirection: 'row',}}>
+<DateInputWithPicker theme = 'min'/>{/* Дата плана передачи в ПНР*/}
+<DateInputWithPicker theme = 'min'/>{/* Дата факта передачи в ПНР*/}
+</View>
 
-      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>Факт ИИ</Text>
-      <DateInputWithPicker/>
+<View style={{flexDirection: 'row',width: '100%',}}>
+      <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
+       </View>
 
-      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400'}}>План КО</Text>
-      <DateInputWithPicker/>
+       <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт ИИ</Text>
+       </View>
+</View>
 
-      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400' }}>Факт КО</Text>
-      <DateInputWithPicker/>
+<View style={{flexDirection: 'row',}}>
+<DateInputWithPicker theme = 'min'/>{/* Дата плана ИИ*/}
+<DateInputWithPicker theme = 'min'/>{/* Дата факта ИИ*/}
+</View>
+
+<View style={{flexDirection: 'row',width: '100%',}}>
+      <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
+       </View>
+
+       <View style={{width: '50%', }}>
+        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт КО</Text>
+       </View>
+</View>
+
+<View style={{flexDirection: 'row',}}>
+<DateInputWithPicker theme = 'min'/>{/* Дата плана КО*/}
+<DateInputWithPicker theme = 'min'/>{/* Дата факта КО*/}
+</View>
+
+
 
       <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', paddingTop: 6,  marginBottom: 8}}>
           

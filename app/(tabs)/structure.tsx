@@ -94,7 +94,7 @@ const Structure = () => {
                     </View>
 
                     <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
-                    <View style={{ alignSelf: 'flex-end',   backgroundColor: '#F8FAFC', flexDirection: 'row', width: '85%', height: 32, paddingTop: 6, justifyContent: 'flex-end', marginBottom: 41}}>
+                    <View style={{ alignSelf: 'flex-end',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '85%', height: 32, paddingTop: 6, justifyContent: 'flex-end', marginBottom: 41}}>
           
                       <View style={{width: '30%', marginStart: 2}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>система1</Text>

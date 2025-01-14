@@ -21,7 +21,7 @@ export default function CreateNote() {
   const [form, setForm] = useState({ video: null, image: null });
 
   const submitData = async () => {
-   // if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
+    //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
       { 
     try {
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
@@ -35,14 +35,14 @@ export default function CreateNote() {
           subObject: subObject,
           systemName: systemName,
           description: description,
-          commentStatus: 'Не устранено',
+          commentStatus: "Не устранено",
           userName: userName,
           //startDate: startDate,
-          startDate: '10.01.2025',
+          startDate: "10.01.2025",
           //commentCategory: category,
-          commentCategory: 'Влияет',
+          commentCategory: "Влияет",
           commentExplanation: comExp,
-          codeCCS: '051-2000973.0023',
+          codeCCS: "051-2000973.0023",
         }),
       });
       // Обработка ответа, если необходимо
@@ -53,12 +53,12 @@ export default function CreateNote() {
       setUpLoading(false);
       router.push('/(tabs)/two'); 
     }}
-    //else{
+   // else{
     //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
-      //  {text: 'OK', onPress: () => console.log('OK Pressed')},
-     // ])
- //   }
-  };
+     //   {text: 'OK', onPress: () => console.log('OK Pressed')},
+      //])
+   // }
+  }
 
   return (
     <ScrollView>
@@ -173,7 +173,7 @@ export default function CreateNote() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',

@@ -17,6 +17,20 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
 
       }}>
+        
+        <Stack.Screen
+        name="objects"
+        options={{
+          title: 'Объекты',
+
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+
+          headerStyle: { backgroundColor: '#FFFFFF' },
+        }}
+      />
+
       <Stack.Screen
         name="add_obj"
         options={{
@@ -29,6 +43,7 @@ export default function TabLayout() {
           headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
+     
      
     </Stack>
   )
