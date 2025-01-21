@@ -12,8 +12,8 @@ import CustomButton from '@/components/CustomButton';
 //const PlaceholderImage = require('@/assets/images/0056.jpg');
 
 export default function Index() {
-  const [selectedImage, setSelectedImage] = useState('');
-  //const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  //const [selectedImage, setSelectedImage] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
 
   const formData = new FormData();
   //formData.append

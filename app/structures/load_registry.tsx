@@ -19,19 +19,26 @@ import FileViewer from "@/components/FileViewer";
       const fileToUpload = singleFile;
       const data = new FormData();
       //data.append('name', 'Image Upload');
-      data.append('file_attachment', fileToUpload);
+      data.append("file", {
+        uri: fileToUpload.uri,
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        name: 'fileToUpload'
+      });
+      //data.append("file", fileToUpload )
       // Please change file upload URL
       let res = await fetch(
         'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0003',
         {
           method: 'post',
           body: data,
-         /* headers: {
+          /*headers: {
             'Content-Type': 'multipart/form-data; ',
           },*/
         }
       );
       console.log('Response:', res);
+      console.log('FormData:', data);
+      console.log('fileToUpload:', fileToUpload);
       let responseJson = await res.json();
       if (responseJson.status == 1) {
         alert('Upload Successful');
@@ -60,7 +67,7 @@ import FileViewer from "@/components/FileViewer";
       console.log('res : ' + JSON.stringify(res));
       // Setting the state to show single file attributes
       if (!res.canceled) {
-      setSingleFile(res.assets[0].uri); }
+      setSingleFile(res.assets[0]); }
     } catch (err) {
       setSingleFile('');
       // Handling any exception (If any)

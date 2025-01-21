@@ -6,6 +6,8 @@ import DropdownComponent2 from '@/components/list_categories';
 import DateInputWithPicker from '@/components/calendar';
 import CustomButton from '@/components/CustomButton';
 import { Video } from 'react-native-video';
+import ImageViewer from '@/components/ImageViewer';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateNote() {
   const [upLoading, setUpLoading] = useState(false);
@@ -20,51 +22,124 @@ export default function CreateNote() {
 
   const [form, setForm] = useState({ video: null, image: null });
 
-  const submitData = async () => {
-    //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
-      { 
+  const TwoFunction = () => {
+    submitData();
+    uploadImage();
+  };
+
+  const [singlePhoto, setSinglePhoto] = useState<any>('');
+
+  const uploadImage = async () => {
+
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          iiNumber: numberII,
-          subObject: subObject,
-          systemName: systemName,
-          description: description,
-          commentStatus: "Не устранено",
-          userName: userName,
-          //startDate: startDate,
-          startDate: "10.01.2025",
-          //commentCategory: category,
-          commentCategory: "Влияет",
-          commentExplanation: comExp,
-          codeCCS: "051-2000973.0023",
-        }),
-      });
-      // Обработка ответа, если необходимо
-      console.log('Response:', response);
+      // Check if any file is selected or not
+
+      // If file selected then create FormData
+      const photoToUpload = singlePhoto;
+      const body = new FormData();
+      //data.append('name', 'Image Upload');
+      /*body.append("photo", {
+        uri: photoToUpload.uri,
+        type: 'photo',
+        name: 'photoToUpload'
+      })*/
+      body.append("photo", photoToUpload);
+      // Please change file upload URL
+      let res = await fetch(
+        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/2',
+        {
+          method: 'post',
+          body: body,
+          headers: {
+            'Content-Type': 'multipart-form/data'
+          }
+        }
+      );
+      console.log('Response:', res);
+      let responseJson = await res.json();
+      if (responseJson.status == 1) {
+        alert('Upload Successful');
+      }
     } catch (error) {
       console.error('Error:', error);
-    } finally {
-      setUpLoading(false);
-      router.push('/(tabs)/two'); 
-    }}
-   // else{
+    }
+    finally { router.push('/(tabs)/two'); }
+  };
+
+  const selectPhoto = async () => {
+    // Opening Document Picker to select one file
+    try {
+      const res = await ImagePicker.launchImageLibraryAsync({
+
+      });
+      // Printing the log realted to the file
+      console.log('res : ' + JSON.stringify(res));
+      // Setting the state to show single file attributes
+      if (!res.canceled) {
+        setSinglePhoto(res.assets[0].file);
+      }
+    } catch (err) {
+      setSinglePhoto('');
+      // Handling any exception (If any)
+      if (ImagePicker.Cancel(err)) {
+        // If user canceled the document selection
+        alert('Canceled');
+      } else {
+        // For Unknown Error
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
+
+  const submitData = async () => {
+    //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
+    {
+      try {
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            iiNumber: numberII,
+            subObject: subObject,
+            systemName: systemName,
+            description: description,
+            commentStatus: "Не устранено",
+            userName: userName,
+            //startDate: startDate,
+            startDate: "10.01.2025",
+            //commentCategory: category,
+            commentCategory: "Влияет",
+            commentExplanation: comExp,
+            codeCCS: "051-2000973.0023",
+          }),
+        });
+        // Обработка ответа, если необходимо
+        console.log('Response:', response);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setUpLoading(false);
+        router.push('/(tabs)/two');
+      }
+    }
+    // else{
     //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
-     //   {text: 'OK', onPress: () => console.log('OK Pressed')},
-      //])
-   // }
+    //   {text: 'OK', onPress: () => console.log('OK Pressed')},
+    //])
+    // }
   }
+
+
 
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
-        <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
           <TextInput
             style={styles.input}
             //placeholder="№ акта ИИ"
@@ -72,7 +147,6 @@ export default function CreateNote() {
             onChangeText={setNumber}
             value={numberII}
           />
-
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
           <TextInput
             style={styles.input}
@@ -81,6 +155,14 @@ export default function CreateNote() {
             onChangeText={setSubObject}
             value={subObject}
           />
+
+          <View>
+            <CustomButton
+              title="Выбрать фото"
+              handlePress={selectPhoto}
+            />
+           {/*<ImageViewer selectedImage={singlePhoto} />*/} 
+          </View>
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <TextInput
@@ -99,7 +181,7 @@ export default function CreateNote() {
             onChangeText={setDescription}
             value={description}
           />
-         {/* <Link href='/notes/add_photo' asChild>
+          {/* <Link href='/notes/add_photo' asChild>
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
           <TouchableOpacity>
@@ -128,10 +210,10 @@ export default function CreateNote() {
             onChangeText={setStartDate}
             value={startDate}
           />*/}
-          
+
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
-          
-{ /*         <View style={{ flexDirection: 'row', width: '80%', height: 32, paddingTop: 6, }}>
+
+          { /*         <View style={{ flexDirection: 'row', width: '80%', height: 32, paddingTop: 6, }}>
           <TextInput
             style={styles.input}
             //placeholder="Исполнитель"
@@ -139,12 +221,12 @@ export default function CreateNote() {
             onChangeText={setUserName}
           />*/}
           <DateInputWithPicker />
-        { /* </View>*/}
+          { /* </View>*/}
 
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
-{ /*         <TextInput
+          { /*         <TextInput
             style={styles.input}
             placeholder="Категория замечания"
             placeholderTextColor="#111"
@@ -155,16 +237,16 @@ export default function CreateNote() {
           <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
             style={styles.input}
-           // placeholder="Комментарий"
+            // placeholder="Комментарий"
             placeholderTextColor="#111"
             onChangeText={setComExp}
-            value={comExp}/>
+            value={comExp} />
 
           <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>
             <CustomButton
               title="Добавить замечание"
-              handlePress={submitData} // Вызов функции отправки данных
-             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
+              handlePress={TwoFunction} // Вызов функции отправки данных
+            // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
             />
           </View>
         </View>

@@ -52,7 +52,7 @@ function RootLayoutNav() {
    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         
-        <Stack.Screen name="objs"  options={{ headerShown: false}} />
+       {/**<Stack.Screen name="objs"  options={{ headerShown: false}} /> */} 
         <Stack.Screen name="(tabs)"  options={{ headerShown: false}} />
         <Stack.Screen name="notes"  options={{ headerShown: false}} />
         <Stack.Screen name="structures"  options={{ headerShown: false}} />
