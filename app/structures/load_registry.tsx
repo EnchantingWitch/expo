@@ -1,20 +1,22 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity,} from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator,} from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
 import FileViewer from "@/components/FileViewer";
+import { isLoading } from "expo-font";
 
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
   const [singleFile, setSingleFile] = useState<any>('');
+  const [load, setLoad]= useState<boolean>(false);
 
   const uploadImage = async () => {
     
       try {
     // Check if any file is selected or not
-   
+      setLoad(true);
       // If file selected then create FormData
       const fileToUpload = singleFile;
       const data = new FormData();
@@ -31,22 +33,26 @@ import FileViewer from "@/components/FileViewer";
         {
           method: 'post',
           body: data,
-          /*headers: {
+          headers: {
             'Content-Type': 'multipart/form-data; ',
-          },*/
+          },
         }
       );
       console.log('Response:', res);
       console.log('FormData:', data);
       console.log('fileToUpload:', fileToUpload);
-      let responseJson = await res.json();
-      if (responseJson.status == 1) {
-        alert('Upload Successful');
+      //alert(res.status);
+      //Обратная связь пользователю по загрузке дока
+      if (res.status == 200){
+        alert('Структура загружена успешно');
+      }
+      if (res.status == 400) {
+        alert('Структура не загружена');
       }
       } catch (error) {
         console.error('Error:', error);
       }
-      finally{router.push('/(tabs)/structure');}  
+      finally{router.push('/(tabs)/structure'); setLoad(false);}  
   };
 
   const selectFile = async () => {
@@ -55,6 +61,8 @@ import FileViewer from "@/components/FileViewer";
       const res = await DocumentPicker.getDocumentAsync({
         // Provide which type of file you want user to pick
         //type: "*/*",
+        //Ограничение загружаемых типов файлов (mime type)
+        type: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' ],
         // There can me more options as well
         // DocumentPicker.types.allFiles
         // DocumentPicker.types.images
@@ -62,9 +70,10 @@ import FileViewer from "@/components/FileViewer";
         // DocumentPicker.types.audio
         // DocumentPicker.types.pdf
         copyToCacheDirectory: true, 
+        
       });
       // Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
+      console.log('res of DocumentPicker : ' + JSON.stringify(res));
       // Setting the state to show single file attributes
       if (!res.canceled) {
       setSingleFile(res.assets[0]); }
@@ -125,7 +134,6 @@ import FileViewer from "@/components/FileViewer";
 
   return (
     <View style={styles.background}>
-      <Text style={styles.file}></Text>
       <View style={styles.button}>
        
           <CustomButton
@@ -133,15 +141,26 @@ import FileViewer from "@/components/FileViewer";
                     handlePress={selectFile} // Вызов функции отправки данных
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
-          <FileViewer selectedImage={singleFile}/>
+        <View >
+        {singleFile ? (<Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', }}>
+          Выбран файл: {singleFile.name}</Text>):(
+            <Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', }}>Файл не выбран</Text>)
+        }
+        </View>
+          
+          {/*<FileViewer selectedImage={singleFile}/>*/}
 
-          <CustomButton
+          
+        <View>
+        {load ? ( <ActivityIndicator/>):(<View/>)
+        }
+        </View>
+      </View>
+      <CustomButton
                     title="Отправить"
                     handlePress={uploadImage} // Вызов функции отправки данных
-                   // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
-                  />
-        
-      </View>
+                    isLoad={load} // Можно добавить индикатор загрузки, если нужно
+      />
     </View>
   );
 };
@@ -157,7 +176,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 145,
   },
   button: {
-    marginHorizontal: 60,
+
+    flex: 2/5,
+    marginTop: 30,
+   
   },
 });
 

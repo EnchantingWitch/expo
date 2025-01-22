@@ -19,6 +19,7 @@ export default function CreateNote() {
   const [startDate, setStartDate] = useState('');
   const [category, setCategory] = useState('');
   const [comExp, setComExp] = useState('');
+  const [id, setId] = useState('');
 
   const [form, setForm] = useState({ video: null, image: null });
 
@@ -38,15 +39,15 @@ export default function CreateNote() {
       const photoToUpload = singlePhoto;
       const body = new FormData();
       //data.append('name', 'Image Upload');
-      /*body.append("photo", {
+      body.append("photo", {
         uri: photoToUpload.uri,
         type: 'photo',
         name: 'photoToUpload'
-      })*/
-      body.append("photo", photoToUpload);
+      })
+      //body.append("photo", photoToUpload);
       // Please change file upload URL
       let res = await fetch(
-        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/2',
+        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
         {
           method: 'post',
           body: body,
@@ -55,7 +56,7 @@ export default function CreateNote() {
           }
         }
       );
-      console.log('Response:', res);
+      console.log('ResponsePhoto:', res);
       let responseJson = await res.json();
       if (responseJson.status == 1) {
         alert('Upload Successful');
@@ -76,7 +77,7 @@ export default function CreateNote() {
       console.log('res : ' + JSON.stringify(res));
       // Setting the state to show single file attributes
       if (!res.canceled) {
-        setSinglePhoto(res.assets[0].file);
+        setSinglePhoto(res.assets[0]);
       }
     } catch (err) {
       setSinglePhoto('');
@@ -117,7 +118,11 @@ export default function CreateNote() {
             codeCCS: "051-2000973.0023",
           }),
         });
+        const ID = await response.text();
+        setId(ID);
         // Обработка ответа, если необходимо
+        console.log(ID);
+        console.log(id);//не выводится в консоль
         console.log('Response:', response);
       } catch (error) {
         console.error('Error:', error);
