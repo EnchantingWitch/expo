@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignSelf: 'center',
-    width: '96%',
+    width: '98%',
+    justifyContent: 'center',
 
   },
   title: {

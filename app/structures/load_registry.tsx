@@ -142,25 +142,28 @@ import { isLoading } from "expo-font";
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
         <View >
-        {singleFile ? (<Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', }}>
+        {singleFile ? (<Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>
           Выбран файл: {singleFile.name}</Text>):(
-            <Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', }}>Файл не выбран</Text>)
+            <Text style={{fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>Файл не выбран</Text>)
         }
         </View>
           
           {/*<FileViewer selectedImage={singleFile}/>*/}
 
           
+        
+      </View>
+      <View>
+        <CustomButton
+                      title="Отправить"
+                      handlePress={uploadImage} // Вызов функции отправки данных
+                  //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
+        />
         <View>
-        {load ? ( <ActivityIndicator/>):(<View/>)
-        }
+          {load ? ( <ActivityIndicator size={'large'} style={{paddingTop: 10, }}/>):(<View/>)
+          }
         </View>
       </View>
-      <CustomButton
-                    title="Отправить"
-                    handlePress={uploadImage} // Вызов функции отправки данных
-                    isLoad={load} // Можно добавить индикатор загрузки, если нужно
-      />
     </View>
   );
 };
@@ -177,7 +180,7 @@ const styles = StyleSheet.create({
   },
   button: {
 
-    flex: 2/5,
+    flex: 2/8,
     marginTop: 30,
    
   },

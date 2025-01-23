@@ -19,18 +19,19 @@ export default function CreateNote() {
   const [startDate, setStartDate] = useState('');
   const [category, setCategory] = useState('');
   const [comExp, setComExp] = useState('');
-  const [id, setId] = useState('');
+  //const [id, setId] = useState('0');
 
   const [form, setForm] = useState({ video: null, image: null });
 
   const TwoFunction = () => {
     submitData();
-    uploadImage();
+    //setTimeout( uploadImage, 1000);
+    //uploadImage(id);
   };
 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
-  const uploadImage = async () => {
+  /*const uploadImage = async () => {
 
     try {
       // Check if any file is selected or not
@@ -46,6 +47,9 @@ export default function CreateNote() {
       })
       //body.append("photo", photoToUpload);
       // Please change file upload URL
+      alert(id);
+
+
       let res = await fetch(
         'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
         {
@@ -65,7 +69,7 @@ export default function CreateNote() {
       console.error('Error:', error);
     }
     finally { router.push('/(tabs)/two'); }
-  };
+  };*/
 
   const selectPhoto = async () => {
     // Opening Document Picker to select one file
@@ -95,9 +99,9 @@ export default function CreateNote() {
 
   const submitData = async () => {
     //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
-    {
+    
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
+        let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -118,24 +122,100 @@ export default function CreateNote() {
             codeCCS: "051-2000973.0023",
           }),
         });
-        const ID = await response.text();
-        setId(ID);
+        const id = await response.text()
+        
         // Обработка ответа, если необходимо
-        console.log(ID);
-        console.log(id);//не выводится в консоль
+        console.log(id);
+        let numId = Number(id);
+        console.log(numId);
+        //setId(id);
+        //не выводится в консоль
         console.log('Response:', response);
+
+  //Тут добавила
+        const photoToUpload = singlePhoto;
+        const body = new FormData();
+        //data.append('name', 'Image Upload');
+        body.append("photo", {
+          uri: photoToUpload.uri,
+          type: 'image/*',
+          name: 'photoToUpload'
+        })
+        //body.append("photo", photoToUpload);
+        // Please change file upload URL
+        alert(id);
+  
+
+        let res = await fetch(
+          'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/'+id,
+          {
+            method: 'post',
+            body: body,
+            headers: {
+              'Content-Type': 'multipart-form/data'
+            }
+          }
+        );
+        console.log('ResponsePhoto:', res);
+       /* let responseJson = await res.json();
+        if (responseJson.status == 1) {
+          alert('Upload Successful');
+        }*/
+//до сюда
       } catch (error) {
         console.error('Error:', error);
       } finally {
         setUpLoading(false);
+      //  alert(id);
         router.push('/(tabs)/two');
       }
-    }
+    
+  
     // else{
     //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
     //   {text: 'OK', onPress: () => console.log('OK Pressed')},
     //])
     // }
+
+ /*   try {
+      // Check if any file is selected or not
+
+      // If file selected then create FormData
+      const photoToUpload = singlePhoto;
+      const body = new FormData();
+      //data.append('name', 'Image Upload');
+      body.append("photo", {
+        uri: photoToUpload.uri,
+        type: 'photo',
+        name: 'photoToUpload'
+      })
+      //body.append("photo", photoToUpload);
+      // Please change file upload URL
+      alert(id);
+
+
+      let res = await fetch(
+        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
+        {
+          method: 'post',
+          body: body,
+          headers: {
+            'Content-Type': 'multipart-form/data'
+          }
+        }
+      );
+      console.log('ResponsePhoto:', res);
+      let responseJson = await res.json();
+      if (responseJson.status == 1) {
+        alert('Upload Successful');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    finally { router.push('/(tabs)/two'); 
+
+    }*/
+
   }
 
 
@@ -169,7 +249,7 @@ export default function CreateNote() {
            {/*<ImageViewer selectedImage={singlePhoto} />*/} 
           </View>
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
           <TextInput
             style={styles.input}
             //placeholder="Система"

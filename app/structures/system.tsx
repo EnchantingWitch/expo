@@ -11,6 +11,54 @@ import React from 'react';
 
 
 export default function TabOneScreen() {
+
+   /*  const submitData = async () => {
+        //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
+        
+          try {
+            const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadSystem', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                iiNumber: numberII,
+                subObject: subObject,
+                systemName: systemName,
+                description: description,
+                commentStatus: "Не устранено",
+                userName: userName,
+                //startDate: startDate,
+                startDate: "10.01.2025",
+                //commentCategory: category,
+                commentCategory: "Влияет",
+                commentExplanation: comExp,
+                codeCCS: "051-2000973.0023",
+              }),
+            });
+            id = await response.text();
+            setId(id);
+            // Обработка ответа, если необходимо
+            //console.log(ID);
+            //не выводится в консоль
+            console.log('Response:', response);
+          } catch (error) {
+            console.error('Error:', error);
+          } finally {
+            setUpLoading(false);
+            alert(id);
+            router.push('/(tabs)/two');
+          }
+        };
+        // else{
+        //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
+        //   {text: 'OK', onPress: () => console.log('OK Pressed')},
+        //])
+        // }
+      
+*/
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>

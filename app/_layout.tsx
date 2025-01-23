@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import { useWindowDimensions } from 'react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -47,6 +48,11 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const fontScale = useWindowDimensions().fontScale;
+
+ /* const ts = (fontSize) => {
+    return (fontSize / fontScale)
+  }*/
 
   return (
    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -65,3 +71,4 @@ function RootLayoutNav() {
    // //<Stack.Screen name="objects"  options={{ headerShown: false}} />
   );
 }
+

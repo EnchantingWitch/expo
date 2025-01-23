@@ -23,9 +23,9 @@ const Structure = () => {
       <View style={{ backgroundColor: 'white', flex: 1 }}>
       <View style={styles.container}>
 
-        <View style={{   flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
+        <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
             <View style={{width: '15%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>№ АКО</Text>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>№</Text>
             </View>
 
             <View style={{width: '25%', }}>
@@ -49,9 +49,9 @@ const Structure = () => {
                   <TouchableOpacity 
                   onPress={() => setSelected(false)}
                   >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%' }}>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%', alignSelf: 'center', }}>
                       
-                      <View style={{width: '15%'}}>
+                      <View style={{width: '15%', }}>
                       <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
 
@@ -70,10 +70,10 @@ const Structure = () => {
                     </View>
                    </TouchableOpacity> 
                 ) : (
-                  <TouchableOpacity 
+                  <TouchableOpacity /*style={{borderColor: 'gray', borderRadius: 8, borderWidth: 2}}*/
                   onPress = {() => setSelected(true)}
                   >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%' }}>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%', alignSelf: 'center', }}>
                       
                       <View style={{width: '15%'}}>
                       <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
@@ -94,17 +94,21 @@ const Structure = () => {
                     </View>
 
                     <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
-                    <View style={{ alignSelf: 'flex-end',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '85%', height: 32, paddingTop: 6, justifyContent: 'flex-end', marginBottom: 41}}>
+                    <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
           
-                      <View style={{width: '30%', marginStart: 2}}>
+                      <View style={{width: '15%',  justifyContent: 'center',}}>
+                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      </View>
+                      
+                      <View style={{width: '25%',  justifyContent: 'center',}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>система1</Text>
                       </View>
                       
-                      <View style={{width: '28%', marginStart: 2}}>
+                      <View style={{width: '23%', justifyContent: 'center',}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>2</Text>
                       </View>
 
-                      <View style={{width: '42%', marginStart: 2}}>
+                      <View style={{width: '37%',  justifyContent: 'center',}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>Проводится КО</Text>
                       </View>
                   

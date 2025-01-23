@@ -72,7 +72,7 @@ const DirectionLayout = () => {
           setSelectedValue={setDirection}>
 
           
-          <View style={{ flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 16, color: '#1E1E1E' }}>№</Text>
             <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Содержание</Text>
             <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Статус</Text>
@@ -86,22 +86,23 @@ const DirectionLayout = () => {
               <ActivityIndicator />
             ) : (
               <FlatList
+                style={{width: '100%'}}
                 data={data}
                 keyExtractor={({commentId}) => commentId}
                 renderItem={({item}) => (
 /*<TouchableWithoutFeedback onPress={() =>{ navigation.navigate('Details', {variable: {item.commentId}}); router.push('/notes/see_note')}}>*/
                   <TouchableWithoutFeedback onPress={() =>{  router.push('/notes/see_note')}}>
-                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
           
-                      <View style={{width: '15%', }}>
+                      <View style={{width: '15%', justifyContent: 'center'}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
                       </View>
           
-                      <View style={{width: '75%', marginStart: 2}}>
+                      <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.description}</Text>
                       </View>
                       
-                      <View style={{width: '7%', marginStart: 2}}>
+                      <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
                       <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.commentStatus}</Text>
                       </View>
                   </View>
@@ -220,22 +221,24 @@ const styles = StyleSheet.create({
     //alignItems: 'center',
   },
   button: {
-    paddingVertical: 6,
+   /* paddingVertical: 6,
     paddingBottom: 6,
     paddingRight: 8,
-    paddingLeft: 8,
+    paddingLeft: 8,*/
     backgroundColor: '#E0F2FE',
     marginHorizontal: '10%',
     marginBottom: 16,
     width: 103,
     height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
 
   },
   //background: #F8FAFC;
 
   selected: {
     backgroundColor: '#E0F2FE',
-
+   // justifyContent: 'center',
     borderWidth: 0,
   },
   buttonLabel: {
@@ -247,6 +250,7 @@ const styles = StyleSheet.create({
   },
   selectedLabel: {
     color: '#334155',
+    //textAlign: 'center',
   },
   label: {
     textAlign: 'center',

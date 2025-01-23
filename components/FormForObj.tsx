@@ -22,19 +22,19 @@ export default function FormForObj({title, number1, number2, number3, text1, tex
             
        
 
-        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 48, paddingTop: 6, justifyContent: 'center', marginBottom: 41,}}>
+        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 52, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
 
-            <View style={{width: '33%', }}>
+            <View style={{width: '33%', justifyContent: 'center'}}>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text1}</Text>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number1}</Text>
             </View>
 
-            <View style={{width: '33%', }}>
+            <View style={{width: '33%', justifyContent: 'center'}}>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text2}</Text>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number2}</Text>
             </View>
             
-            <View style={{width: '33%', }}>
+            <View style={{width: '33%', justifyContent: 'center'}}>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text3}</Text>
             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number3}</Text>
             </View>
