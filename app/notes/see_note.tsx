@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { Link, Tabs } from 'expo-router';
 import DropdownComponent1 from '@/components/list_system';
 import DropdownComponent2 from '@/components/list_categories';
@@ -17,6 +17,10 @@ type Props = {
 //{ route }: {route: any}
 const DetailsScreen = () => {
  // const { variable } = route.params;
+ const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
   
   return (
 
@@ -25,33 +29,33 @@ const DetailsScreen = () => {
         
         <View style={{flex: 1, alignItems: 'center'}}>
             
-            <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания</Text>
           <TextInput
             style={styles.input}
             //placeholder="№ акта ИИ"
             placeholderTextColor="#111"
           />
             
-            <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
           />
 
   
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
           />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
           />     
           
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
@@ -61,25 +65,25 @@ const DetailsScreen = () => {
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
           />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={styles.input}
             placeholderTextColor="#111"
           />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
           <DateInputWithPicker keyboardType="number-pad" editable={false} />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения</Text>
           <DateInputWithPicker
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
 
@@ -89,7 +93,7 @@ const DetailsScreen = () => {
           }}>
             <Link href='/(tabs)/two' asChild>
               <TouchableOpacity style={{ borderRadius: 8, backgroundColor: '#0072C8', width: 272, height: 40, paddingVertical: 8, alignSelf: 'center', marginBottom: 15 }}>
-                <Text style={{ fontSize: 16, fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>Сохранить</Text>
+                <Text style={{ fontSize: ts(16), fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>Сохранить</Text>
               </TouchableOpacity>
             </Link>
           </View>

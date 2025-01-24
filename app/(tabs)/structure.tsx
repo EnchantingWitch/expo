@@ -2,6 +2,8 @@ import React, { Component, useState } from 'react';
 import { ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { router } from 'expo-router';
+import MonoSizeText from '@/components/FontSize'
+import { useWindowDimensions } from 'react-native';
 
 import CustomButton from '@/components/CustomButton';
 
@@ -16,28 +18,35 @@ const structure = [
 
 ];
 
+
+
 const Structure = () => {
   const [isSelected, setSelected] = useState(true);
-  
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
+
+  //const font16 = MonoSizeText(16);
     return(
       <View style={{ backgroundColor: 'white', flex: 1 }}>
       <View style={styles.container}>
 
         <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
-            <View style={{width: '15%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>№</Text>
+            <View style={{width: '10%', }}>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
             </View>
 
             <View style={{width: '25%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Подъобъект</Text>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Подъобъект</Text>
             </View>
 
             <View style={{width: '23%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
             </View>
 
-            <View style={{width: '37%', }}>
-            <Text style={{ fontSize: 14, color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
+            <View style={{width: '42%', }}>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
             </View>
         </View>
 
@@ -49,22 +58,22 @@ const Structure = () => {
                   <TouchableOpacity 
                   onPress={() => setSelected(false)}
                   >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%', alignSelf: 'center', }}>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '3%', alignSelf: 'center', }}>
                       
-                      <View style={{width: '15%', }}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      <View style={{width: '10%', }}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
 
                       <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
                       </View>
 
                       <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
                       </View>
 
-                      <View style={{width: '37%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.status}</Text>
+                      <View style={{width: '42%'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.status}</Text>
                       </View>
 
                     </View>
@@ -73,22 +82,22 @@ const Structure = () => {
                   <TouchableOpacity /*style={{borderColor: 'gray', borderRadius: 8, borderWidth: 2}}*/
                   onPress = {() => setSelected(true)}
                   >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '5%', alignSelf: 'center', }}>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '1%', alignSelf: 'center', }}>
                       
-                      <View style={{width: '15%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      <View style={{width: '10%'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
 
                       <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
                       </View>
 
                       <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
                       </View>
 
-                      <View style={{width: '37%'}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.status}</Text>
+                      <View style={{width: '42%'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.status}</Text>
                       </View>
 
                     </View>
@@ -96,20 +105,20 @@ const Structure = () => {
                     <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
                     <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
           
-                      <View style={{width: '15%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: 16, color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      <View style={{width: '10%',  justifyContent: 'center',}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
                       </View>
                       
                       <View style={{width: '25%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>система1</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>система1</Text>
                       </View>
                       
                       <View style={{width: '23%', justifyContent: 'center',}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>2</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>2</Text>
                       </View>
 
-                      <View style={{width: '37%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>Проводится КО</Text>
+                      <View style={{width: '42%',  justifyContent: 'center',}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>Проводится КО</Text>
                       </View>
                   
 

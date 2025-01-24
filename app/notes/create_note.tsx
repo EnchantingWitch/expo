@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions } from 'react-native';
 import { Link, router } from 'expo-router';
 import DropdownComponent2 from '@/components/list_categories';
 import DateInputWithPicker from '@/components/calendar';
@@ -20,6 +20,11 @@ export default function CreateNote() {
   const [category, setCategory] = useState('');
   const [comExp, setComExp] = useState('');
   //const [id, setId] = useState('0');
+
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
 
   const [form, setForm] = useState({ video: null, image: null });
 
@@ -97,6 +102,10 @@ export default function CreateNote() {
     }
   };
 
+  const cancelPhoto = async () => {
+    setSinglePhoto('');
+  };
+
   const submitData = async () => {
     //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
     
@@ -144,15 +153,17 @@ export default function CreateNote() {
         //body.append("photo", photoToUpload);
         // Please change file upload URL
         alert(id);
-  
+        
+        let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/'+id);
+        console.log(str);
 
         let res = await fetch(
-          'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/'+id,
+          str,
           {
             method: 'post',
             body: body,
             headers: {
-              'Content-Type': 'multipart-form/data'
+              'Content-Type': 'multipart/form-data'
             }
           }
         );
@@ -224,7 +235,7 @@ export default function CreateNote() {
     <ScrollView>
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
           <TextInput
             style={styles.input}
             //placeholder="№ акта ИИ"
@@ -232,7 +243,7 @@ export default function CreateNote() {
             onChangeText={setNumber}
             value={numberII}
           />
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
           <TextInput
             style={styles.input}
             //placeholder="Объект"
@@ -241,15 +252,36 @@ export default function CreateNote() {
             value={subObject}
           />
 
-          <View>
-            <CustomButton
-              title="Выбрать фото"
-              handlePress={selectPhoto}
-            />
-           {/*<ImageViewer selectedImage={singlePhoto} />*/} 
-          </View>
+          
+           <View >
+                  {singlePhoto ? (
+                    <View style={{paddingVertical: 8}}>
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
+                        <Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>
+                      Выбрано фото: {singlePhoto.fileName}</Text>
+                      
+                      <CustomButton
+                      title="Удалить фото"
+                      handlePress={cancelPhoto}
+                      />
+
+                    </View>
+                  ):(
+                  <View style={{paddingVertical: 8}}>
+
+                    <Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>Фото не выбрано</Text>
+                    
+                    <CustomButton
+                      title="Выбрать фото"
+                      handlePress={selectPhoto}
+                    />
+                    
+                  </View>
+                      )
+                  }
+            </View>
+
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
           <TextInput
             style={styles.input}
             //placeholder="Система"
@@ -258,7 +290,7 @@ export default function CreateNote() {
             value={systemName}
           />
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
             style={styles.input}
             //placeholder="Содержание замечания"
@@ -280,7 +312,7 @@ export default function CreateNote() {
             ) : null}
           </TouchableOpacity>*/}
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={styles.input}
             //placeholder="Исполнитель"
@@ -296,7 +328,7 @@ export default function CreateNote() {
             value={startDate}
           />*/}
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
 
           { /*         <View style={{ flexDirection: 'row', width: '80%', height: 32, paddingTop: 6, }}>
           <TextInput
@@ -308,7 +340,7 @@ export default function CreateNote() {
           <DateInputWithPicker />
           { /* </View>*/}
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
           { /*         <TextInput
@@ -319,7 +351,7 @@ export default function CreateNote() {
             value={category}
           />*/}
 
-          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
             style={styles.input}
             // placeholder="Комментарий"

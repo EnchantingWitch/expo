@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomButton from '@/components/CustomButton';
 
@@ -10,6 +10,11 @@ type Props = {
 const DateInputWithPicker = ({theme }: Props) => {
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+
+    const fontScale = useWindowDimensions().fontScale;
+
+    const ts = (fontSize: number) => {
+        return (fontSize / fontScale)};
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -29,17 +34,18 @@ const DateInputWithPicker = ({theme }: Props) => {
     };
     if (theme === 'min'){ return(
         <View style={styles.containerrowMin}>
-            <TextInput style={styles.inputMin}
+           
+            <TextInput style={[styles.inputMin, {fontSize: ts(16), textAlignVertical: 'center'}]}
                         //placeholder="Исполнитель"
                 placeholderTextColor="#111"
                 value={formatDate(date)}
             />
-      
+       
             
             <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-            <Image src={'./assets/images/building-2'} style={{alignSelf: 'flex-end'}}/> 
+           {/** <Image src={'./assets/images/building-2'} style={{alignSelf: 'flex-end'}}/> */} 
             {showPicker && (
-                <DateTimePicker
+                <DateTimePicker style={{}}
                     value={date}
                     mode="date"
                     display="default"
@@ -53,7 +59,7 @@ const DateInputWithPicker = ({theme }: Props) => {
     }
     return (
         <View style={styles.containerrow}>
-            <TextInput style={styles.input}
+            <TextInput style={[styles.input, {fontSize: ts(16)}]}
                         //placeholder="Исполнитель"
                 placeholderTextColor="#111"
                 value={formatDate(date)}
@@ -79,7 +85,7 @@ const DateInputWithPicker = ({theme }: Props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        //justifyContent: 'center',
         //paddingTop: 11,
         //paddingBottom: 12,
         backgroundColor: '#fff',
@@ -99,10 +105,11 @@ const styles = StyleSheet.create({
     containerrowMin: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'50%',
+        width:'0%',
         flexDirection: 'row',
         marginBottom: 8,
     },
@@ -114,8 +121,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '85%',
-        height: 40,
+        width: '88%',
+        height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
       },
@@ -124,8 +131,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '50%',
-        height: 40,
+        width: '66%',
+        height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
       },

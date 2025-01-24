@@ -1,6 +1,7 @@
-import { StyleSheet, View, TouchableWithoutFeedback, Text } from 'react-native';
+import { StyleSheet, View, TouchableWithoutFeedback, Text, useWindowDimensions } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link} from 'expo-router';
+import React from 'react';
 
 type Props = {
   title: string;
@@ -15,28 +16,33 @@ type Props = {
 
 export default function FormForObj({title, number1, number2, number3, text1, text2, text3, handlePress }: Props) {
  {
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
+
     return (
       <TouchableWithoutFeedback onPress={handlePress}>
         <View>
-            <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>{title}</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>{title}</Text>
             
        
 
         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 52, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
 
             <View style={{width: '33%', justifyContent: 'center'}}>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text1}</Text>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number1}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{text1}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{number1}</Text>
             </View>
 
             <View style={{width: '33%', justifyContent: 'center'}}>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text2}</Text>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number2}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{text2}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{number2}</Text>
             </View>
             
             <View style={{width: '33%', justifyContent: 'center'}}>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{text3}</Text>
-            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center' }}>{number3}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{text3}</Text>
+            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{number3}</Text>
             </View>
         </View> 
         </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {  router } from 'expo-router';
 import tw from 'tailwind-rn'
@@ -12,6 +12,7 @@ import listOfNotes from '../notes/see_note';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+
 //import { Text, View } from '@/components/Themed';
 
 type Note = {
@@ -34,6 +35,10 @@ type Note = {
 //{ navigation }: {navigation: any} было в круглых скобках
 const DirectionLayout = () => {
   
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
   //const navigation = useNavigation();
 
   const [direction, setDirection] = useState('Объект');
@@ -73,9 +78,9 @@ const DirectionLayout = () => {
 
           
           <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 16, color: '#1E1E1E' }}>№</Text>
-            <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Содержание</Text>
-            <Text style={{ fontSize: 16, color: '#1E1E1E' }}>Статус</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>№</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>Содержание</Text>
+            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>Статус</Text>
           </View>
 
 
@@ -95,15 +100,15 @@ const DirectionLayout = () => {
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
           
                       <View style={{width: '15%', justifyContent: 'center'}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
+                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
                       </View>
           
                       <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>{item.description}</Text>
+                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'left' }}>{item.description}</Text>
                       </View>
                       
                       <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: 14, color: '#334155', textAlign: 'center'  }}>{item.commentStatus}</Text>
+                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus}</Text>
                       </View>
                   </View>
                   </TouchableWithoutFeedback>
@@ -152,8 +157,6 @@ const PreviewName = (
 
   <View style={styles.row}>
     {values.map(value => (
-
-
       <Text key={value} style={styles.title}>
         {value}
       </Text>
@@ -179,7 +182,7 @@ const PreviewLayout = ({
           style={[styles.button, selectedValue === value && styles.selected]}>
           <Text
             style={[
-              styles.buttonLabel,
+              styles.buttonLabel , 
               selectedValue === value && styles.selectedLabel,
             ]}>
             {value}
@@ -193,7 +196,10 @@ const PreviewLayout = ({
 );
 
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create(
+  
+  
+  {
   container: {
     flex: 1,
     alignItems: 'center',

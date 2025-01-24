@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 
@@ -28,18 +28,24 @@ const DropdownComponent = () => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
 
+     const fontScale = useWindowDimensions().fontScale;
+
+    const ts = (fontSize: number) => {
+        return (fontSize / fontScale)};
+
     return (
         <View >
             <Dropdown
                
                 style={[styles.dropdown]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(16)}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(16)} ]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(16)}]}
                 iconStyle={styles.iconStyle}
                 data={data}
                 search
                 maxHeight={300}
+                itemTextStyle={{fontSize: ts(16)}}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? 'Система' : 'Система'}
@@ -63,6 +69,7 @@ const styles = StyleSheet.create({
     dropdown: {
         width: 95,
         marginLeft: -5,
+       // fontSize: 14,
     },
     icon: {
         marginRight: 5,
@@ -70,14 +77,14 @@ const styles = StyleSheet.create({
 
     placeholderStyle: {
         fontFamily: 'Inter',
-        fontSize: 14,
+       // fontSize: 14,
         fontWeight: '400',
         color: '#334155',
         textAlign: 'center',
     },
     selectedTextStyle: {
         fontFamily: 'Inter',
-        fontSize: 14,
+        //fontSize: 14,
         fontWeight: '400',
         color: '#334155',
         textAlign: 'center',
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
     },
     inputSearchStyle: {
         fontFamily: 'Inter',
-        fontSize: 14,
+        //fontSize: 14,
         fontWeight: '400',
         color: '#334155',
         textAlign: 'center',
