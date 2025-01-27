@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {  router } from 'expo-router';
+//import { Image } from 'expo-image';
 import tw from 'tailwind-rn'
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
@@ -12,9 +13,10 @@ import listOfNotes from '../notes/see_note';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { Ionicons } from '@expo/vector-icons';
 
 //import { Text, View } from '@/components/Themed';
-
+ 
 type Note = {
   commentId: number; //id замечания , генерируется на сервере
   serialNumber: number;//номер замечания
@@ -42,6 +44,7 @@ const DirectionLayout = () => {
   //const navigation = useNavigation();
 
   const [direction, setDirection] = useState('Объект');
+  const [iconstatus, setIcon]= useState<boolean>();
   
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Note[]>([]);
@@ -61,6 +64,13 @@ const DirectionLayout = () => {
   useEffect(() => {
     getNotes();
   }, []);
+
+
+  const iconFunction = () => {
+    
+    if (click == false) {submitData(); setClick(true); console.log(click);};
+    
+  };
 
 
   return (
@@ -108,7 +118,12 @@ const DirectionLayout = () => {
                       </View>
                       
                       <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus}</Text>
+                      
+                  {/**      {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}
+                       {iconstatus ? (<Ionicons/>): ( <Ionicons name="checkmark-circle" size={32} color="green" />)}
+                   */}
+                      
+                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>
                       </View>
                   </View>
                   </TouchableWithoutFeedback>

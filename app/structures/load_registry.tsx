@@ -43,9 +43,9 @@ import { isLoading } from "expo-font";
           },
         }
       );
-      console.log('Response:', res);
+      console.log('ResponseLoadRegistry:', res);
       console.log('FormData:', data);
-      console.log('fileToUpload:', fileToUpload);
+     // console.log('fileToUpload:', fileToUpload);
       //alert(res.status);
       //Обратная связь пользователю по загрузке дока
       if (res.status == 200){

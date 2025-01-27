@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { router } from 'expo-router';
@@ -18,14 +18,50 @@ const structure = [
 
 ];
 
+type Structure = {
+  id: number;
+  numberKO: string; //id замечания , генерируется на сервере
+  subObjectName: string;//номер замечания
+  comments: number;
+  status: string;
+  
+    systems:{
+      id: number;
+      numberII: string;
+      systemName: string;
+      comments: number;
+      status: string;
+    }
+  
+};
 
 
-const Structure = () => {
+const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<Structure[]>([]);
+
+  const getStructure = async () => {
+      try {
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/051-2004430.0005');
+        const json = await response.json();
+        setData(json);
+        console.log('ResponseSeeStructure:', response);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+      getStructure();
+    }, []);
 
   //const font16 = MonoSizeText(16);
     return(
@@ -51,7 +87,7 @@ const Structure = () => {
         </View>
 
         <FlatList
-            data = {structure}
+            data = {data}
             renderItem={({item, index})=>(
               <View  >
                 {isSelected ? (
@@ -65,11 +101,11 @@ const Structure = () => {
                       </View>
 
                       <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subObjectName}</Text>
                       </View>
 
                       <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.comments}</Text>
                       </View>
 
                       <View style={{width: '42%'}}>
@@ -89,11 +125,11 @@ const Structure = () => {
                       </View>
 
                       <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subobj}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subObjectName}</Text>
                       </View>
 
                       <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberofnotes}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.comments}</Text>
                       </View>
 
                       <View style={{width: '42%'}}>
@@ -102,28 +138,36 @@ const Structure = () => {
 
                     </View>
 
-                    <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
-                    <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
-          
-                      <View style={{width: '10%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
-                      </View>
-                      
-                      <View style={{width: '25%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>система1</Text>
-                      </View>
-                      
-                      <View style={{width: '23%', justifyContent: 'center',}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>2</Text>
-                      </View>
+                {/**    <FlatList
+                      data = {data.systems}
+                      renderItem={({item, index})=>(
 
-                      <View style={{width: '42%',  justifyContent: 'center',}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>Проводится КО</Text>
-                      </View>
+                        <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
+                        <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
+              
+                          <View style={{width: '10%',  justifyContent: 'center',}}>
+                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberII}</Text>
+                          </View>
+                          
+                          <View style={{width: '25%',  justifyContent: 'center',}}>
+                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.systemName}</Text>
+                          </View>
+                          
+                          <View style={{width: '23%', justifyContent: 'center',}}>
+                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.ncomments}</Text>
+                          </View>
+
+                          <View style={{width: '42%',  justifyContent: 'center',}}>
+                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
+                          </View>
                   
 
                   </View></TouchableOpacity>
- 
+
+                )}
+                keyExtractor={item => item.id}
+                />
+ */} 
                   </TouchableOpacity>
                 )}
               </View>  
@@ -159,7 +203,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Structure;
+export default Struct;
 
 /*export default function TabOneScreen() {
   const [menuIndex, setMenuIndex] = useState(-1);

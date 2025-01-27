@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateNote() {
   const [upLoading, setUpLoading] = useState(false);
+  const [click, setClick] = useState(false);
   const [numberII, setNumber] = useState('');
   const [subObject, setSubObject] = useState('');
   const [systemName, setSystemName] = useState('');
@@ -29,7 +30,10 @@ export default function CreateNote() {
   const [form, setForm] = useState({ video: null, image: null });
 
   const TwoFunction = () => {
-    submitData();
+    console.log(click);
+    if (click == false) {submitData(); setClick(true); console.log(click);};
+    
+    
     //setTimeout( uploadImage, 1000);
     //uploadImage(id);
   };
