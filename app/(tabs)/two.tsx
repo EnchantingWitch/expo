@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {  router } from 'expo-router';
+import { parse } from 'date-fns';
 //import { Image } from 'expo-image';
 import tw from 'tailwind-rn'
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
@@ -14,6 +15,7 @@ import listOfNotes from '../notes/see_note';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Ionicons } from '@expo/vector-icons';
+import { toFormData } from 'axios';
 
 //import { Text, View } from '@/components/Themed';
  
@@ -36,7 +38,15 @@ type Note = {
 
 //{ navigation }: {navigation: any} было в круглых скобках
 const DirectionLayout = () => {
-  
+
+  const currentDate = new Date; //console.log(currentDate);
+
+  const formatDate = (date) => {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+    const yyyy = date.getFullYear();
+    return `${dd}.${mm}.${yyyy}`;}
+
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -44,10 +54,15 @@ const DirectionLayout = () => {
   //const navigation = useNavigation();
 
   const [direction, setDirection] = useState('Объект');
-  const [iconstatus, setIcon]= useState<boolean>();
+  const [iconBlue, setIconBlue]= useState<boolean>(false);//Устранено без просрочки
+  const [iconOrange, setIconOrange]= useState<boolean>(false);//Устранено с просрочкой
+  const [iconEmpty, setIconEmpty]= useState<boolean>(true);//Не устранено без просрочки
+  const [iconEmptyOrange, setIconEmptyOrange]= useState<boolean>(false);//Не устранено с просрочкой
   
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Note[]>([]);
+
+  const customFormat = 'dd.MM.yyyy';
 
   const getNotes = async () => {
     try {
@@ -66,10 +81,35 @@ const DirectionLayout = () => {
   }, []);
 
 
-  const iconFunction = () => {
-    
-    if (click == false) {submitData(); setClick(true); console.log(click);};
-    
+  const iconFunction = (status: string, dateFact1: string, datePlan2: string) => {
+    const date1 = formatDate(currentDate); //console.log(date);
+    //const dateFact = parse(dateFact1, customFormat, new Date());
+    const datePlan = parse(datePlan2, customFormat, new Date());
+    const date = parse(date1, customFormat, new Date());
+
+   // console.log(dateFact);
+    console.log(datePlan2);
+    console.log(date);
+   // console.log(dateFact);
+    console.log((status == 'Не устранено'));
+    if ((status == 'Не устранено')==false){setIconBlue(true);}
+    if ((status == 'Не устранено')==true){setIconEmpty(true);}
+    //setIconEmpty((status == 'Не устранено'));
+    setIconBlue((status == 'Устранено'));
+
+
+  //  if (dateFact != '') {
+      //if (dateFact < datePlan){setIconBlue(true);}
+     //if (dateFact > datePlan){setIconOrange(true);}
+   // }
+   // else{
+      //if (datePlan < date){setIconEmpty(true);}
+     // if (dateFact > date){setIconEmptyOrange(true);}
+    //}
+    console.log(iconBlue);
+   // console.log(iconOrange);
+    console.log(iconEmpty);
+   // console.log(iconEmptyOrange);
   };
 
 
@@ -119,11 +159,18 @@ const DirectionLayout = () => {
                       
                       <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
                       
-                  {/**      {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}
-                       {iconstatus ? (<Ionicons/>): ( <Ionicons name="checkmark-circle" size={32} color="green" />)}
-                   */}
                       
-                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>
+                    {/**  {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}*/} 
+
+                  {/*}   {iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}*/}
+
+                       {iconBlue ? ( <Ionicons name="checkmark-circle" size={25} color="#0072C8" />): (<View/>) } 
+                       {iconOrange ?  ( <Ionicons name="checkmark-circle" size={25} color="#F59E0B" />):(<View/>)}
+                       {iconEmpty ? ( <Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />):(<View/>)}
+                       {iconEmptyOrange ? ( <Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />):(<View/>)}
+                      
+                      
+                     {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                       </View>
                   </View>
                   </TouchableWithoutFeedback>

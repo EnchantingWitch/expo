@@ -32,10 +32,6 @@ export default function CreateNote() {
   const TwoFunction = () => {
     console.log(click);
     if (click == false) {submitData(); setClick(true); console.log(click);};
-    
-    
-    //setTimeout( uploadImage, 1000);
-    //uploadImage(id);
   };
 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
@@ -125,7 +121,7 @@ export default function CreateNote() {
             subObject: subObject,
             systemName: systemName,
             description: description,
-            commentStatus: "Не устранено",
+            commentStatus: "Устранено",
             userName: userName,
             //startDate: startDate,
             startDate: "10.01.2025",

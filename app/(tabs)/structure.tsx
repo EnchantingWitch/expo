@@ -48,7 +48,7 @@ const Struct = () => {
 
   const getStructure = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/051-2004430.0005');
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStuctureCommonInf/051-2004430.0005');
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
@@ -118,7 +118,7 @@ const Struct = () => {
                   <TouchableOpacity /*style={{borderColor: 'gray', borderRadius: 8, borderWidth: 2}}*/
                   onPress = {() => setSelected(true)}
                   >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '1%', alignSelf: 'center', }}>
+                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '3%', alignSelf: 'center', }}>
                       
                       <View style={{width: '10%'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
@@ -138,7 +138,7 @@ const Struct = () => {
 
                     </View>
 
-                {/**    <FlatList
+                    <FlatList
                       data = {data.systems}
                       renderItem={({item, index})=>(
 
@@ -167,7 +167,7 @@ const Struct = () => {
                 )}
                 keyExtractor={item => item.id}
                 />
- */} 
+ 
                   </TouchableOpacity>
                 )}
               </View>  
