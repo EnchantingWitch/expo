@@ -34,7 +34,7 @@ import { isLoading } from "expo-font";
       //data.append("file", fileToUpload )
       // Please change file upload URL
       let res = await fetch(
-        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0005',
+        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0012',
         {
           method: 'post',
           body: data,

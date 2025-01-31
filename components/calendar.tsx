@@ -3,18 +3,20 @@ import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Ima
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomButton from '@/components/CustomButton';
 
+
 type Props = {
     theme?: 'min';
-  };
+};
 
-const DateInputWithPicker = ({theme }: Props) => {
+const DateInputWithPicker = ({ theme }: Props) => {
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
 
     const fontScale = useWindowDimensions().fontScale;
 
     const ts = (fontSize: number) => {
-        return (fontSize / fontScale)};
+        return (fontSize / fontScale)
+    };
 
     const onChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -32,53 +34,54 @@ const DateInputWithPicker = ({theme }: Props) => {
         const yyyy = date.getFullYear();
         return `${dd}.${mm}.${yyyy}`;
     };
-    if (theme === 'min'){ return(
-        <View style={styles.containerrowMin}>
-           
-            <TextInput style={[styles.inputMin, {fontSize: ts(16), textAlignVertical: 'center'}]}
-                        //placeholder="Исполнитель"
-                placeholderTextColor="#111"
-                value={formatDate(date)}
-            />
-       
-            
-            <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-           {/** <Image src={'./assets/images/building-2'} style={{alignSelf: 'flex-end'}}/> */} 
-            {showPicker && (
-                <DateTimePicker style={{}}
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
+    if (theme === 'min') {
+        return (
+            <View style={styles.containerrowMin}>
+
+                <TextInput style={[styles.inputMin, { fontSize: ts(16), textAlignVertical: 'center' }]}
+                    placeholderTextColor="#111"
+                    value={formatDate(date)}
                 />
-            )}
-            </TouchableOpacity>
-      
-        </View>
-    );
+
+
+                <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+                    <Image style={{ width: 50, height: 50 }}
+                        source={require('../assets/images/calendar1.png')} />
+                    {showPicker && (
+                        <DateTimePicker style={{}}
+                            value={date}
+                            mode="date"
+                            display="default"
+                            onChange={onChange}
+                        />
+                    )}
+                </TouchableOpacity>
+
+            </View>
+        );
     }
     return (
         <View style={styles.containerrow}>
-            <TextInput style={[styles.input, {fontSize: ts(16)}]}
-                        //placeholder="Исполнитель"
+            <TextInput style={[styles.input, { fontSize: ts(16) }]}
                 placeholderTextColor="#111"
                 value={formatDate(date)}
             />
-      
-            
-            <TouchableOpacity style={{width: '12%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-            <Image src={'./assets/images/building-2'} style={{alignSelf: 'flex-end'}}/> 
-            {showPicker && (
-                <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
-                />
-            )}
+
+
+            <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+                <Image style={{ width: 70, height: 40 }}
+                    source={require('../assets/images/calendar1.png')} />
+                {showPicker && (
+                    <DateTimePicker
+                        value={date}
+                        mode="date"
+                        display="default"
+                        onChange={onChange}
+                    />
+                )}
             </TouchableOpacity>
-      
-        </View>
+
+        </View >
     );
 };
 
@@ -89,8 +92,8 @@ const styles = StyleSheet.create({
         //paddingTop: 11,
         //paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'20%',
-        
+        width: '20%',
+
     },
     containerrow: {
         flex: 1,
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'96%',
+        width: '96%',
         flexDirection: 'row',
         marginBottom: 8,
     },
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'0%',
+        width: '0%',
         flexDirection: 'row',
         marginBottom: 8,
     },
@@ -121,12 +124,12 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '88%',
+        width: '50%',
         height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
-      },
-      inputMin: {
+    },
+    inputMin: {
         backgroundColor: '#FFFFFF',
         borderRadius: 8,
         borderWidth: 1,
@@ -135,7 +138,7 @@ const styles = StyleSheet.create({
         height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
-      },
+    },
 });
 
 export default DateInputWithPicker;

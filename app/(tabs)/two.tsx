@@ -170,13 +170,17 @@ const DirectionLayout = () => {
                       
                       
                     {/**  {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}*/} 
+                 {/*}   {{ if: (item.commentStatus ='Устранено') }}{<Ionicons name="checkmark-circle" size={25} color="#0072C8" />}
+                    {{ if: (item.commentStatus ='Устранено с просрочкой') }}{<Ionicons name="checkmark-circle" size={25} color="#F59E0B" />}
+                    {{ if: (item.commentStatus ='Не устранено') }}{<Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />}
+                    {{ if: (item.commentStatus ='Не устранено с просрочкой') }}{<Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />}
+                    
+                     {/*{iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}*/}
 
-                     {iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}
-
-                       {iconBlue ? ( <Ionicons name="checkmark-circle" size={25} color="#0072C8" />): (<View/>) } 
-                       {iconOrange ?  ( <Ionicons name="checkmark-circle" size={25} color="#F59E0B" />):(<View/>)}
-                       {iconEmpty ? ( <Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />):(<View/>)}
-                       {iconEmptyOrange ? ( <Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />):(<View/>)}
+                       {(item.commentStatus =='Устранено') ? ( <Ionicons name="checkmark-circle" size={25} color="#0072C8" />): ''} 
+                       {(item.commentStatus =='Устранено с просрочкой') ?  ( <Ionicons name="checkmark-circle" size={25} color="#F59E0B" />):''}
+                       {(item.commentStatus =='Не устранено') ? ( <Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />):''}
+                       {(item.commentStatus =='Не устранено с просрочкой') ? ( <Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />):''}
                       
                       
                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}

@@ -43,6 +43,7 @@ export default function TabLayout() {
       />
       <Stack.Screen
         name="system"
+        initialParams={{ idSystem: 1 }}
         options={{
           title: 'Система',
 

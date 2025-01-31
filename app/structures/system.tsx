@@ -5,13 +5,17 @@ import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/calendar';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import DropdownComponent from '@/components/list_system';
 import React from 'react';
 
 
 
-export default function TabOneScreen() {
+export default function TabOneScreen({/*{route}: any*/}) {
+  const navigation = useNavigation();
+
+  //const {idSystem} = route.params;
+  //console.log(idSystem);
 
   const fontScale = useWindowDimensions().fontScale;
 

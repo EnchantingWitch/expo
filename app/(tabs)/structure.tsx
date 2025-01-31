@@ -1,22 +1,11 @@
 import React, { Component, useState, useEffect } from 'react';
 import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
-import { router } from 'expo-router';
+import { Link, router, useNavigation } from 'expo-router';
 import MonoSizeText from '@/components/FontSize'
-import { useWindowDimensions } from 'react-native';
+import { useWindowDimensions,  } from 'react-native';
 
 import CustomButton from '@/components/CustomButton';
-
-const structure = [
-  {
-    id: "1",
-    numberKO: "12",
-    subobj: "ГПА-1",
-    numberofnotes: "2",
-    status: "Проводится КО"
-  },
-
-];
 
 type Structure = {
   id: number;
@@ -37,6 +26,8 @@ type Structure = {
 
 const Struct = () => {
   const [isSelected, setSelected] = useState(true);
+  const navigation = useNavigation();
+  
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -116,8 +107,8 @@ const Struct = () => {
                 
                   
                     renderItem={({item}) => (
-
-                      <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
+                     
+                      <TouchableOpacity onPress={() =>{[{/*navigation.navigate('(tabs)', {screen: 'system'}, {idSystem: item.id})*/}, router.push('/structures/system')]}} >
                       <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
             
                         <View style={{width: '10%',  justifyContent: 'center',}}>
@@ -134,6 +125,30 @@ const Struct = () => {
 
                         <View style={{width: '42%',  justifyContent: 'center',}}>
                         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
+                    {/*}    {(item.status =='Ведутся СМР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View>): ''} 
+                        {(item.status =='Завершены СМР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
+                          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>): ''} 
+                        {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+                            {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                              <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+                              {(item.status =='Ведутся в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
+                                <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+                                {(item.status =='Проведены ИИ') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
+                                  <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+                                  {(item.status =='Акт ИИ на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                                    <Text style={{ fontSize: ts(14), color: '#05ab42', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+                                    {(item.status =='Акт ИИ подписан') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#05ab42', borderRadius: '8'}}>
+                                      <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+                                      {(item.status =='Проводится КО') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>): ''}
+                                        {(item.status =='Проведено КО') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
+                                          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
+                                          {(item.status =='Акт КО на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
+                                            <Text style={{ fontSize: ts(14), color: '#05ab42', textAlign: 'center'  }}>КО</Text></View>): ''}
+                                            {(item.status =='Акт КО на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#05ab42', borderRadius: '8'}}>
+                                              <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''} */}
                         </View>
 
                       </View>

@@ -1,157 +1,293 @@
-import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Link, Tabs } from 'expo-router';
+import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import CustomButton from '@/components/CustomButton';
+import { router, Link, Tabs } from 'expo-router';
 import DropdownComponent1 from '@/components/list_system';
 import DropdownComponent2 from '@/components/list_categories';
 import DateInputWithPicker from '@/components/calendar';
 import DateInputWithPicker2 from '@/components/calendar+10';
 import FormField from '@/components/FormField';
 import { styles } from './create_note';
+import * as ImagePicker from 'expo-image-picker';
 
 
-type Props = {
+interface Data {
+  commentId: number;
+  serialNumber: number;
+  subObject: string;
+  systemName: string;
+  description: string;
+  commentStatus: string;
+  commentCategory: string;
+  startDate: string;
+  endDatePlan: string;
+  endDateFact: string;
+  commentExplanation: string;
+  iinumber: number;
+  UserName: string
+}
 
-  //iinumber: number;//номер акта ИИ
-};
-//{ route }: {route: any}
-const DetailsScreen = () => {
- // const { variable } = route.params;
- const fontScale = useWindowDimensions().fontScale;
+const EditDataScreen: React.FC = () => {
+  const [data, setData] = useState<Data | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editedCommentId, setEditedCommentId] = useState<number>(0);
+  const [editedSerialNumber, setEditedSerialNumber] = useState<number>(0);
+  const [editedSubObject, setEditedSubObject] = useState<string>('');
+  const [editedSystemName, setEditedSystemName] = useState<string>('');
+  const [editedDescription, setEditedDescription] = useState<string>('');
+  const [editedCommentStatus, setEditedCommentStatus] = useState<string>('');
+  const [editedCommentCategory, setEditedCommentCategory] = useState<string>('');
+  const [editedStartDate, setEditedStartDate] = useState<string>('');
+  const [editedEndDatePlan, setEditedEndDatePlan] = useState<string>('');
+  const [editedEndDateFact, setEditedEndDateFact] = useState<string>('');
+  const [editedCommentExplanation, setEditedCommentExplanation] = useState<string>('');
+  const [editedUserName, setEditedUserName] = useState<string>('');
+  const [editedIinumber, setEditedIinumber] = useState<number>(0);
 
-  const ts = (fontSize: number) => {
-    return (fontSize / fontScale)};
-  
-  return (
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-    <ScrollView>
-      <View style={[styles.container]}>
-        
-        <View style={{flex: 1, alignItems: 'center'}}>
-            
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания</Text>
-          <TextInput
-            style={styles.input}
-            //placeholder="№ акта ИИ"
-            placeholderTextColor="#111"
-          />
-            
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/1`);
+      const result: Data = await
+        response.json();
+      setData(result);
+      setEditedCommentCategory(result.commentCategory);
+      setEditedCommentExplanation(result.commentExplanation);
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />
-
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />     
-          
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />
-
-          <Link href='/notes/add_photo' asChild>
-            <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
-          </Link>
-
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />
-
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#111"
-          />
-
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи</Text>
-          <DateInputWithPicker keyboardType="number-pad" editable={false} />
-
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения</Text>
-          <DateInputWithPicker
-          />
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
-          <DropdownComponent2 />
+  const [singlePhoto, setSinglePhoto] = useState<any>('');
 
 
-          <View style={{
-            width: 272, height: 40, justifyContent: 'center', alignContent: 'center'
-            //alignItems: 'center', backgroundColor: 'powderblue',
-          }}>
-            <Link href='/(tabs)/two' asChild>
-              <TouchableOpacity style={{ borderRadius: 8, backgroundColor: '#0072C8', width: 272, height: 40, paddingVertical: 8, alignSelf: 'center', marginBottom: 15 }}>
-                <Text style={{ fontSize: ts(16), fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>Сохранить</Text>
-              </TouchableOpacity>
-            </Link>
-          </View>
-        </View>
+  const selectPhoto = async () => {
+    try {
+      const res = await ImagePicker.launchImageLibraryAsync({});
+      console.log('res : ' + JSON.stringify(res));
+      if (!res.canceled) {
+        setSinglePhoto(res.assets[0]);
+      }
+    } catch (err) {
+      setSinglePhoto('');
+      if (ImagePicker.Cancel(err)) {
+        alert('Canceled');
+      } else {
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+  };
+
+  const cancelPhoto = async () => {
+    setSinglePhoto('');
+  };
+
+
+  const handleEditClick = () => {
+    setEditing(true);
+    setEditedCommentId(data?.commentId || 0);
+    setEditedSerialNumber(data?.serialNumber || 0);
+    setEditedSubObject(data?.subObject || '');
+    setEditedSystemName(data?.systemName || '');
+    setEditedDescription(data?.description || '');
+    setEditedCommentStatus(data?.commentStatus || '');
+    setEditedCommentCategory(data?.commentCategory || '');
+    setEditedStartDate(data?.startDate || '');
+    setEditedEndDatePlan(data?.endDatePlan || '');
+    setEditedEndDateFact(data?.endDateFact || '');
+    setEditedCommentExplanation(data?.commentExplanation || '');
+    setEditedUserName(data?.UserName || '');
+    setEditedIinumber(data?.iinumber || 0);
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/1`, {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          commentId: editedCommentId,
+          serialNumber: editedSerialNumber,
+          subObject: editedSubObject,
+          systemName: editedSystemName,
+          description: editedDescription,
+          commentStatus: editedCommentStatus,
+          commentCategory: editedCommentCategory,
+          startDate: editedStartDate,
+          endDatePlan: editedEndDatePlan,
+          endDateFact: editedEndDateFact,
+          commentExplanation: editedCommentExplanation,
+          iinumber: editedIinumber
+        }),
+      });
+
+      if (response.ok) {
+        const jsonData: Data = await response.json();
+        setData(jsonData);
+        setEditing(false);
+        alert('Данные успешно сохранены!');
+      } else {
+        throw new Error('Не удалось сохранить данные.');
+      }
+    } catch (error) {
+      console.error('Ошибка при сохранении данных:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
+    );
+  }
+
+
+  return (
+    <ScrollView style={[styles.container]}>
+      <SafeAreaView>
+        <View style={[styles.container]}>
+
+
+          <>
+            <View style={[styles.container]}>
+
+              <View style={{ flex: 1, alignItems: 'center' }}>
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Редактирование данных</Text>
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания: {data?.iinumber}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedIinumber}`}
+                  onChangeText={(text) => setEditedIinumber(Number(text))}
+                />
+
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ: {data?.subObject}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedSubObject}`}
+                  onChangeText={(text) => setEditedSubObject(text)}
+                />
+
+
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект: {data?.systemName}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedSystemName}`}
+                  onChangeText={(text) => setEditedSystemName(text)}
+                />
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система: {data?.description}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedDescription}`}
+                  onChangeText={(text) => setEditedDescription(text)}
+                />
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус: {data?.commentStatus}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedCommentStatus}`}
+                  onChangeText={(text) => setEditedCommentStatus(text)}
+                />
+                <View >
+                  {singlePhoto ? (
+                    <View style={{ paddingVertical: 8 }}>
+
+                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
+                        Выбрано фото: {singlePhoto.fileName}</Text>
+
+                      <CustomButton
+                        title="Удалить фото"
+                        handlePress={cancelPhoto}
+                      />
+
+                    </View>
+                  ) : (
+                    <View style={{ paddingVertical: 8 }}>
+
+                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Фото не выбрано </Text>
+
+                      <CustomButton
+                        title="Выбрать фото"
+                        handlePress={selectPhoto}
+                      />
+
+                    </View>
+                  )
+                  }
+                </View>
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель: {data?.UserName}</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholderTextColor="#696969"
+                  value={`${editedUserName}`}
+                  onChangeText={(text) => setEditedUserName(text)}
+                />
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи: {data?.endDatePlan}</Text>
+                <DateInputWithPicker keyboardType="number-pad" editable={false} />
+
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения: {data?.endDateFact}</Text>
+                <DateInputWithPicker
+                />
+                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания: {data?.commentCategory}</Text>
+                <DropdownComponent2 />
+
+                <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>
+
+                </View>
+                <CustomButton
+                  title="Сохранить изменения"
+                  handlePress={handleSaveClick} />
+                <View>
+                  <CustomButton
+                    title="Отмена"
+                    handlePress={() => router.push('/(tabs)/two')} />
+                </View>
+              </View>
+            </View>
+          </>
+
+        </View>
+      </SafeAreaView>
     </ScrollView>
-    //</SafeAreaView>
-
   );
-}
-
-const AlignContentLayout = () => {
-  const [alignContent, setAlignContent] = useState('flex-start');
-
-  const stylHead = StyleSheet.create({
-    container: {
-      marginLeft: 8,
-      marginRight: 8,
-      paddingVertical: 8,
-      flex: 1,
-      //  rowGap: 30,
-      //   flexDirection: 'column',
-      //   justifyContent: 'flex-start',
-      backgroundColor: '#708fff',
-      alignItems: 'center',
-      // alignContent: 'space-around',
-      justifyContent: 'center',
-      // minWidth: 120, 
-      // flexWrap: 'wrap',
-    },
-  });
-}
-/*
-const styles = StyleSheet.create({
+};
+const stylHead = StyleSheet.create({
   container: {
-    //display: flattenDiagnosticMessageText,
-
+    marginLeft: 8,
+    marginRight: 8,
+    paddingVertical: 8,
     flex: 1,
-    rowGap: 30,
-
-    backgroundColor: '#fff',
+    //  rowGap: 30,
+    //   flexDirection: 'column',
+    //   justifyContent: 'flex-start',
+    backgroundColor: '#708fff',
     alignItems: 'center',
-    alignContent: 'space-around',
+    // alignContent: 'space-around',
     justifyContent: 'center',
-    minWidth: 120,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D9D9D9',
-    width: '96%',
-    height: 42,
-    paddingVertical: 'auto',
-    color: '#B3B3B3',
-    textAlign: 'center',
-    marginBottom: 20,
+    // minWidth: 120, 
+    // flexWrap: 'wrap',
   },
 });
-*/
-export default DetailsScreen;
+
+export default EditDataScreen;
