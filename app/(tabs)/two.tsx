@@ -56,7 +56,7 @@ const DirectionLayout = () => {
   const [direction, setDirection] = useState('Объект');
   const [iconBlue, setIconBlue]= useState<boolean>(false);//Устранено без просрочки
   const [iconOrange, setIconOrange]= useState<boolean>(false);//Устранено с просрочкой
-  const [iconEmpty, setIconEmpty]= useState<boolean>(true);//Не устранено без просрочки
+  const [iconEmpty, setIconEmpty]= useState<boolean>(false);//Не устранено без просрочки
   const [iconEmptyOrange, setIconEmptyOrange]= useState<boolean>(false);//Не устранено с просрочкой
   
   const [isLoading, setLoading] = useState(true);
@@ -91,11 +91,20 @@ const DirectionLayout = () => {
     console.log(datePlan2);
     console.log(date);
    // console.log(dateFact);
-    console.log((status == 'Не устранено'));
-    if ((status == 'Не устранено')==false){setIconBlue(true);}
-    if ((status == 'Не устранено')==true){setIconEmpty(true);}
-    //setIconEmpty((status == 'Не устранено'));
-    setIconBlue((status == 'Устранено'));
+ 
+    console.log((status == 'Устранено'));
+    const statBlue = (status === 'Устранено');
+    const statEmpty = (status === 'Не устранено');
+    console.log(statBlue);
+    console.log(statEmpty);
+
+   // if ((status == 'Не устранено')==false){setIconBlue(true);}
+   // if ((status == 'Не устранено')==true){setIconEmpty(true);}
+    setIconBlue(statBlue);
+    setIconEmpty(statEmpty);
+    
+    
+    
 
 
   //  if (dateFact != '') {
@@ -162,7 +171,7 @@ const DirectionLayout = () => {
                       
                     {/**  {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}*/} 
 
-                  {/*}   {iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}*/}
+                     {iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}
 
                        {iconBlue ? ( <Ionicons name="checkmark-circle" size={25} color="#0072C8" />): (<View/>) } 
                        {iconOrange ?  ( <Ionicons name="checkmark-circle" size={25} color="#F59E0B" />):(<View/>)}

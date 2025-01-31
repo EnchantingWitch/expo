@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
-import { ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
+import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { router } from 'expo-router';
 import MonoSizeText from '@/components/FontSize'
@@ -25,14 +25,13 @@ type Structure = {
   comments: number;
   status: string;
   
-    systems:{
-      id: number;
-      numberII: string;
-      systemName: string;
-      comments: number;
-      status: string;
-    }
-  
+    data:[{
+      id: number,
+      numberII: string,
+      systemName: string,
+      comments: number,
+      status: string
+}],
 };
 
 
@@ -48,10 +47,11 @@ const Struct = () => {
 
   const getStructure = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStuctureCommonInf/051-2004430.0005');
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStuctureCommonInf/051-2004430.0012');
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
+        console.log(typeof(json));
       } catch (error) {
         console.error(error);
       } finally {
@@ -62,6 +62,8 @@ const Struct = () => {
     useEffect(() => {
       getStructure();
     }, []);
+
+    
 
   //const font16 = MonoSizeText(16);
     return(
@@ -86,94 +88,60 @@ const Struct = () => {
             </View>
         </View>
 
-        <FlatList
-            data = {data}
-            renderItem={({item, index})=>(
-              <View  >
-                {isSelected ? (
-                  <TouchableOpacity 
-                  onPress={() => setSelected(false)}
-                  >
+        <SectionList
+            sections = {data}
+            keyExtractor={({id}) => id}
+                        
+             renderSectionHeader={({section: {numberKO, subObjectName, comments, status}}) => (
                     <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '3%', alignSelf: 'center', }}>
                       
                       <View style={{width: '10%', }}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{numberKO}</Text>
                       </View>
 
                       <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subObjectName}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{subObjectName}</Text>
                       </View>
 
                       <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.comments}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{comments}</Text>
                       </View>
 
                       <View style={{width: '42%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.status}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{status}</Text>
                       </View>
 
                     </View>
-                   </TouchableOpacity> 
-                ) : (
-                  <TouchableOpacity /*style={{borderColor: 'gray', borderRadius: 8, borderWidth: 2}}*/
-                  onPress = {() => setSelected(true)}
-                  >
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '3%', alignSelf: 'center', }}>
-                      
-                      <View style={{width: '10%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberKO}</Text>
-                      </View>
-
-                      <View style={{width: '25%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.subObjectName}</Text>
-                      </View>
-
-                      <View style={{width: '23%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.comments}</Text>
-                      </View>
-
-                      <View style={{width: '42%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.status}</Text>
-                      </View>
-
-                    </View>
-
-                    <FlatList
-                      data = {data.systems}
-                      renderItem={({item, index})=>(
-
-                        <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
-                        <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
-              
-                          <View style={{width: '10%',  justifyContent: 'center',}}>
-                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberII}</Text>
-                          </View>
-                          
-                          <View style={{width: '25%',  justifyContent: 'center',}}>
-                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.systemName}</Text>
-                          </View>
-                          
-                          <View style={{width: '23%', justifyContent: 'center',}}>
-                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.ncomments}</Text>
-                          </View>
-
-                          <View style={{width: '42%',  justifyContent: 'center',}}>
-                          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
-                          </View>
+                   )}
+                
                   
+                    renderItem={({item}) => (
 
-                  </View></TouchableOpacity>
+                      <TouchableOpacity onPress={() =>{ router.push('/structures/system')}}>
+                      <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
+            
+                        <View style={{width: '10%',  justifyContent: 'center',}}>
+                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberII}</Text>
+                        </View>
+                        
+                        <View style={{width: '25%',  justifyContent: 'center',}}>
+                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.systemName}</Text>
+                        </View>
+                        
+                        <View style={{width: '23%', justifyContent: 'center',}}>
+                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.comments}</Text>
+                        </View>
 
-                )}
-                keyExtractor={item => item.id}
-                />
- 
-                  </TouchableOpacity>
-                )}
-              </View>  
-            )}
-            keyExtractor={item => item.id}
+                        <View style={{width: '42%',  justifyContent: 'center',}}>
+                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
+                        </View>
+
+                      </View>
+                      </TouchableOpacity>
+
+                    )}
         />
+       
       </View>
        <CustomButton
                     title="Загрузить"

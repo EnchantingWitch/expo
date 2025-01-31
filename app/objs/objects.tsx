@@ -10,21 +10,21 @@ export default function TabOneScreen() {
       <Text style={{textAlign: 'center', fontSize: 16, paddingVertical: '4%'}}>Доступные объекты КС</Text>
     <View style={styles.container}>
 
-                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/structure')}}>
-                        <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+                        <TouchableWithoutFeedback onPress={() =>{router.push('/(tabs)/object')}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
-                            <View style={{width: '75%', }}>
+                            <View style={{width: '98%', }}>
                             <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объект 1</Text>
                             </View>
                                            
                         </View>
                         </TouchableWithoutFeedback>
       
-                        <TouchableWithoutFeedback onPress={() =>{router.push('./(tabs)/structure')}}>
-                        <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+                        <TouchableWithoutFeedback onPress={() =>{router.push('/(tabs)/object')}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
-                            <View style={{width: '75%', }}>
-                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объеке 2</Text>
+                            <View style={{width: '98%', }}>
+                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объект 2</Text>
                             </View>
                                            
                         </View>
