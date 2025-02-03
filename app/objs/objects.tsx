@@ -1,20 +1,26 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import {  } from '@/components/Themed';
 import { Link, Tabs, Redirect, router } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
 import CustomButton from '@/components/CustomButton';
+import React from 'react';
 
 export default function TabOneScreen() {
+const fontScale = useWindowDimensions().fontScale;
+
+    const ts = (fontSize: number) => {
+        return (fontSize / fontScale)};
+  
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-      <Text style={{textAlign: 'center', fontSize: 16, paddingVertical: '4%'}}>Доступные объекты КС</Text>
+      {/*<Text style={{textAlign: 'center', fontSize: ts(14), paddingVertical: '4%'}}>Доступные объекты КС</Text>*/}
     <View style={styles.container}>
 
                         <TouchableWithoutFeedback onPress={() =>{router.push('/(tabs)/object')}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
-                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объект 1</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 1</Text>
                             </View>
                                            
                         </View>
@@ -24,7 +30,7 @@ export default function TabOneScreen() {
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
-                            <Text style={{ fontSize: 14, color: '#334155', textAlign: 'left' }}>Объект 2</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 2</Text>
                             </View>
                                            
                         </View>

@@ -137,9 +137,9 @@ const DirectionLayout = () => {
 
           
           <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>№</Text>
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>Содержание</Text>
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E' }}>Статус</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>№</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Содержание</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Статус</Text>
           </View>
 
 
@@ -156,33 +156,23 @@ const DirectionLayout = () => {
                 renderItem={({item}) => (
 /*<TouchableWithoutFeedback onPress={() =>{ navigation.navigate('Details', {variable: {item.commentId}}); router.push('/notes/see_note')}}>*/
                   <TouchableWithoutFeedback onPress={() =>{  router.push('/notes/see_note')}}>
-                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
+                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
                       <View style={{width: '15%', justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.serialNumber}</Text>
                       </View>
           
                       <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'left' }}>{item.description}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.description}</Text>
                       </View>
                       
                       <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
                       
+                       {(item.commentStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
+                       {(item.commentStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
+                       {(item.commentStatus =='Не устранено с просрочкой') ? ( <Ionicons name="square" size={25} color="#F59E0B" />):''}
                       
-                    {/**  {if(item.commentStatus ='Не устранено'){ setIcon(false)} else {setIcon(true)}}*/} 
-                 {/*}   {{ if: (item.commentStatus ='Устранено') }}{<Ionicons name="checkmark-circle" size={25} color="#0072C8" />}
-                    {{ if: (item.commentStatus ='Устранено с просрочкой') }}{<Ionicons name="checkmark-circle" size={25} color="#F59E0B" />}
-                    {{ if: (item.commentStatus ='Не устранено') }}{<Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />}
-                    {{ if: (item.commentStatus ='Не устранено с просрочкой') }}{<Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />}
-                    
-                     {/*{iconFunction(item.commentStatus, item.endDateFact, item.endDatePlan)}*/}
-
-                       {(item.commentStatus =='Устранено') ? ( <Ionicons name="checkmark-circle" size={25} color="#0072C8" />): ''} 
-                       {(item.commentStatus =='Устранено с просрочкой') ?  ( <Ionicons name="checkmark-circle" size={25} color="#F59E0B" />):''}
-                       {(item.commentStatus =='Не устранено') ? ( <Ionicons name="checkmark-circle" size={25} color="#F0F9FF" />):''}
-                       {(item.commentStatus =='Не устранено с просрочкой') ? ( <Ionicons name="checkmark-circle" size={25} color="#FCA5A5" />):''}
-                      
-                      
+                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                       </View>
                   </View>

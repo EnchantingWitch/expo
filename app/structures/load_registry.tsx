@@ -147,9 +147,9 @@ import { isLoading } from "expo-font";
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
         <View >
-        {singleFile ? (<Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>
+        {singleFile ? (<Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>
           Выбран файл: {singleFile.name}</Text>):(
-            <Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>Файл не выбран</Text>)
+            <Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>Файл не выбран</Text>)
         }
         </View>     
         

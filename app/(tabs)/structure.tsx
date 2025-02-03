@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
-import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, UIManager, View } from 'react-native'
+import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableWithoutFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Link, router, useNavigation } from 'expo-router';
 import MonoSizeText from '@/components/FontSize'
@@ -61,20 +61,20 @@ const Struct = () => {
       <View style={{ backgroundColor: 'white', flex: 1 }}>
       <View style={styles.container}>
 
-        <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '100%', height: 32, paddingTop: 6 }}>
+        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 32, paddingTop: 6 }}>
             <View style={{width: '10%', }}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
             </View>
 
-            <View style={{width: '25%', }}>
+            <View style={{width: '55%', }}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Подъобъект</Text>
             </View>
 
-            <View style={{width: '23%', }}>
-            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
+            <View style={{width: '21%', }}>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Замеч</Text>
             </View>
 
-            <View style={{width: '42%', }}>
+            <View style={{width: '14%', }}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
             </View>
         </View>
@@ -84,21 +84,21 @@ const Struct = () => {
             keyExtractor={({id}) => id}
                         
              renderSectionHeader={({section: {numberKO, subObjectName, comments, status}}) => (
-                    <View style={{flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, marginBottom: '3%', alignSelf: 'center', }}>
+                    <View style={{flexDirection: 'row', backgroundColor: '#E0F2FE', width: '98%', height: 37,  marginBottom: '5%', alignItems: 'center', borderRadius: 8, alignSelf: 'center'}}>
                       
                       <View style={{width: '10%', }}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{numberKO}</Text>
                       </View>
 
-                      <View style={{width: '25%'}}>
+                      <View style={{width: '55%'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{subObjectName}</Text>
                       </View>
 
-                      <View style={{width: '23%'}}>
+                      <View style={{width: '21%'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{comments}</Text>
                       </View>
 
-                      <View style={{width: '42%'}}>
+                      <View style={{width: '14%'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{status}</Text>
                       </View>
 
@@ -108,47 +108,50 @@ const Struct = () => {
                   
                     renderItem={({item}) => (
                      
-                      <TouchableOpacity onPress={() =>{[{/*navigation.navigate('(tabs)', {screen: 'system'}, {idSystem: item.id})*/}, router.push('/structures/system')]}} >
-                      <View style={{ alignSelf: 'center',   backgroundColor: '#E0F2FE', flexDirection: 'row', width: '98%', height: 32, marginBottom: 41, borderRadius: 8}}>
+                      <TouchableOpacity onPress={() =>{[navigation.navigate('(tabs)', {screen: 'system'}, {idSystem: item.id}), router.push('/structures/system')]}} style={{width: '99%'}}>
+                      <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '95%', height: 37, marginBottom: '5%', borderRadius: 8}}>
             
-                        <View style={{width: '10%',  justifyContent: 'center',}}>
+                        <View style={{width: '7%',  justifyContent: 'center',}}>
                         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberII}</Text>
                         </View>
                         
-                        <View style={{width: '25%',  justifyContent: 'center',}}>
+                        <View style={{width: '57%',  justifyContent: 'center', }}>
                         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.systemName}</Text>
                         </View>
                         
-                        <View style={{width: '23%', justifyContent: 'center',}}>
+                        <View style={{width: '22%', justifyContent: 'center',}}>
                         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.comments}</Text>
                         </View>
 
-                        <View style={{width: '42%',  justifyContent: 'center',}}>
-                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>
-                    {/*}    {(item.status =='Ведутся СМР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View>): ''} 
-                        {(item.status =='Завершены СМР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
-                          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>): ''} 
-                        {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-                            {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                              <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-                              {(item.status =='Ведутся в ПНР') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
-                                <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-                                {(item.status =='Проведены ИИ') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
-                                  <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-                                  {(item.status =='Акт ИИ на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                                    <Text style={{ fontSize: ts(14), color: '#05ab42', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-                                    {(item.status =='Акт ИИ подписан') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#05ab42', borderRadius: '8'}}>
-                                      <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-                                      {(item.status =='Проводится КО') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>): ''}
-                                        {(item.status =='Проведено КО') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: '8'}}>
-                                          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
-                                          {(item.status =='Акт КО на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: 'white', borderRadius: '8'}}>
-                                            <Text style={{ fontSize: ts(14), color: '#05ab42', textAlign: 'center'  }}>КО</Text></View>): ''}
-                                            {(item.status =='Акт КО на подписи') ? ( <View style={{width: '23%', justifyContent: 'center', backgroundColor: '#05ab42', borderRadius: '8'}}>
-                                              <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''} */}
+                        <View style={{width: '14%',  justifyContent: 'center'}}>
+                        {/*<Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>*/}
+                       {(item.status =='Ведутся СМР') ? ( <TouchableWithoutFeedback><View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View></TouchableWithoutFeedback>): ''} 
+                        {(item.status =='Завершены СМР') ? ( <View style={{width: '92%', height: '25',justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>): ''} 
+
+                        {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+                        {(item.status =='Принято в ПНР') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+                        {(item.status =='Ведутся ПНР') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
+
+                        {(item.status =='Проведены ИИ') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+                        {(item.status =='Акт ИИ на подписи') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+                        {(item.status =='Акт ИИ подписан') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
+
+                        {(item.status =='Проводится КО') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>): ''}
+                        {(item.status =='Проведено КО') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
+                        {(item.status =='Акт КО на подписи') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>КО</Text></View>): ''}
+                        {(item.status =='Акт КО на подписан') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+                        <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
                         </View>
 
                       </View>

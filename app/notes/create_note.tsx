@@ -121,7 +121,7 @@ export default function CreateNote() {
             subObject: subObject,
             systemName: systemName,
             description: description,
-            commentStatus: "Устранено",
+            commentStatus: "Не устранено",
             userName: userName,
             //startDate: startDate,
             startDate: "10.01.2025",
@@ -235,7 +235,7 @@ export default function CreateNote() {
     <ScrollView>
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
           <TextInput
             style={styles.input}
             //placeholder="№ акта ИИ"
@@ -243,7 +243,7 @@ export default function CreateNote() {
             onChangeText={setNumber}
             value={numberII}
           />
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
           <TextInput
             style={styles.input}
             //placeholder="Объект"
@@ -257,7 +257,7 @@ export default function CreateNote() {
                   {singlePhoto ? (
                     <View style={{paddingVertical: 8}}>
 
-                        <Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>
+                        <Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>
                       Выбрано фото: {singlePhoto.fileName}</Text>
                       
                       <CustomButton
@@ -269,7 +269,7 @@ export default function CreateNote() {
                   ):(
                   <View style={{paddingVertical: 8}}>
 
-                    <Text style={{fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>Фото не выбрано</Text>
+                    <Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>Фото не выбрано</Text>
                     
                     <CustomButton
                       title="Выбрать фото"
@@ -281,7 +281,7 @@ export default function CreateNote() {
                   }
             </View>
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
           <TextInput
             style={styles.input}
             //placeholder="Система"
@@ -290,7 +290,7 @@ export default function CreateNote() {
             value={systemName}
           />
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
             style={styles.input}
             //placeholder="Содержание замечания"
@@ -312,7 +312,7 @@ export default function CreateNote() {
             ) : null}
           </TouchableOpacity>*/}
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={styles.input}
             //placeholder="Исполнитель"
@@ -328,7 +328,7 @@ export default function CreateNote() {
             value={startDate}
           />*/}
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
 
           { /*         <View style={{ flexDirection: 'row', width: '80%', height: 32, paddingTop: 6, }}>
           <TextInput
@@ -340,7 +340,7 @@ export default function CreateNote() {
           <DateInputWithPicker />
           { /* </View>*/}
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
           { /*         <TextInput
@@ -351,7 +351,7 @@ export default function CreateNote() {
             value={category}
           />*/}
 
-          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
             style={styles.input}
             // placeholder="Комментарий"

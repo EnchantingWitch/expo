@@ -61,38 +61,38 @@ const RegistrationModal = () => {
     return (
 
         <View style={styles.modalContainer}>
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>ФИО</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>ФИО</Text>
             <TextInput
                 style={styles.input}
                 value={name}
                 onChangeText={(text) => setName(text)}
             />
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
             <TextInput
                 style={styles.input}
                 value={organization}
                 onChangeText={(text) => setOrganization(text)}
             />
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Телефон</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Телефон</Text>
             <TextInput
                 style={styles.input}
                 value={phone}
                 onChangeText={(text) => setPhone(text)}
             />
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите ваш Email</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите ваш Email</Text>
             <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={(text) => setEmail(text)}
             />
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите пароль</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите пароль</Text>
             <TextInput
                 style={styles.input}
                 secureTextEntry
                 value={password}
                 onChangeText={(text) => setPassword(text)}
             />
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Подтвердите пароль</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Подтвердите пароль</Text>
             <TextInput
                 style={styles.input}
                 secureTextEntry

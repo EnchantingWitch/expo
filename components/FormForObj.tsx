@@ -24,11 +24,11 @@ export default function FormForObj({title, number1, number2, number3, text1, tex
     return (
       <TouchableWithoutFeedback onPress={handlePress}>
         <View>
-            <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>{title}</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8 }}>{title}</Text>
             
        
 
-        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 52, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
+        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 52, justifyContent: 'center', marginBottom: '20', borderRadius: 8}}>
 
             <View style={{width: '33%', justifyContent: 'center'}}>
             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{text1}</Text>

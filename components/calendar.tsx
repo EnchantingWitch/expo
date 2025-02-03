@@ -38,7 +38,7 @@ const DateInputWithPicker = ({ theme }: Props) => {
         return (
             <View style={styles.containerrowMin}>
 
-                <TextInput style={[styles.inputMin, { fontSize: ts(16), textAlignVertical: 'center' }]}
+                <TextInput style={[styles.inputMin, { fontSize: ts(14), textAlignVertical: 'center' }]}
                     placeholderTextColor="#111"
                     value={formatDate(date)}
                 />
@@ -62,7 +62,7 @@ const DateInputWithPicker = ({ theme }: Props) => {
     }
     return (
         <View style={styles.containerrow}>
-            <TextInput style={[styles.input, { fontSize: ts(16) }]}
+            <TextInput style={[styles.input, { fontSize: ts(14) }]}
                 placeholderTextColor="#111"
                 value={formatDate(date)}
             />

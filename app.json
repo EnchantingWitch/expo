@@ -1,8 +1,8 @@
 
 {
   "expo": {
-    "name": "tablet_pnr",
-    "slug": "tablet_pnr",
+    "name": "pnr",
+    "slug": "pnr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo1.png",

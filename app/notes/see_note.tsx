@@ -164,9 +164,9 @@ const EditDataScreen: React.FC = () => {
 
               <View style={{ flex: 1, alignItems: 'center' }}>
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Редактирование данных</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Редактирование данных</Text>
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания: {data?.iinumber}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания: {data?.iinumber}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
@@ -175,7 +175,7 @@ const EditDataScreen: React.FC = () => {
                 />
 
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ: {data?.subObject}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ: {data?.subObject}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
@@ -185,7 +185,7 @@ const EditDataScreen: React.FC = () => {
 
 
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект: {data?.systemName}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект: {data?.systemName}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
@@ -193,7 +193,7 @@ const EditDataScreen: React.FC = () => {
                   onChangeText={(text) => setEditedSystemName(text)}
                 />
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система: {data?.description}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система: {data?.description}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
@@ -201,7 +201,7 @@ const EditDataScreen: React.FC = () => {
                   onChangeText={(text) => setEditedDescription(text)}
                 />
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус: {data?.commentStatus}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус: {data?.commentStatus}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
@@ -212,7 +212,7 @@ const EditDataScreen: React.FC = () => {
                   {singlePhoto ? (
                     <View style={{ paddingVertical: 8 }}>
 
-                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
+                      <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
                         Выбрано фото: {singlePhoto.fileName}</Text>
 
                       <CustomButton
@@ -224,7 +224,7 @@ const EditDataScreen: React.FC = () => {
                   ) : (
                     <View style={{ paddingVertical: 8 }}>
 
-                      <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Фото не выбрано </Text>
+                      <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Фото не выбрано </Text>
 
                       <CustomButton
                         title="Выбрать фото"
@@ -236,20 +236,20 @@ const EditDataScreen: React.FC = () => {
                   }
                 </View>
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель: {data?.UserName}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель: {data?.UserName}</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#696969"
                   value={`${editedUserName}`}
                   onChangeText={(text) => setEditedUserName(text)}
                 />
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи: {data?.endDatePlan}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи: {data?.endDatePlan}</Text>
                 <DateInputWithPicker keyboardType="number-pad" editable={false} />
 
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения: {data?.endDateFact}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения: {data?.endDateFact}</Text>
                 <DateInputWithPicker
                 />
-                <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания: {data?.commentCategory}</Text>
+                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания: {data?.commentCategory}</Text>
                 <DropdownComponent2 />
 
                 <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>

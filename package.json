@@ -1,5 +1,5 @@
 {
-  "name": "tablet_pnr",
+  "name": "pnr",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {

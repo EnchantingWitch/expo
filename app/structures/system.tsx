@@ -11,11 +11,11 @@ import React from 'react';
 
 
 
-export default function TabOneScreen({/*{route}: any*/}) {
+export default function TabOneScreen({route}: any) {
   const navigation = useNavigation();
 
-  //const {idSystem} = route.params;
-  //console.log(idSystem);
+  const {idSystem} = route.params;
+  console.log(idSystem);
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -74,16 +74,16 @@ export default function TabOneScreen({/*{route}: any*/}) {
     <View style={styles.container}>
 
       <View style={styles.separator}/>
-      <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
       <DropdownComponent />
 
 <View style={{flexDirection: 'row',width: '100%',}}>
       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
        </View>
 
        <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт в ПНР</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт в ПНР</Text>
        </View>
 </View>
 
@@ -94,11 +94,11 @@ export default function TabOneScreen({/*{route}: any*/}) {
 
 <View style={{flexDirection: 'row',width: '100%',}}>
       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
        </View>
 
        <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт ИИ</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт ИИ</Text>
        </View>
 </View>
 
@@ -109,11 +109,11 @@ export default function TabOneScreen({/*{route}: any*/}) {
 
 <View style={{flexDirection: 'row',width: '100%',}}>
       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
        </View>
 
        <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт КО</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт КО</Text>
        </View>
 </View>
 
@@ -127,7 +127,7 @@ export default function TabOneScreen({/*{route}: any*/}) {
       <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', paddingTop: 6,  marginBottom: 8}}>
           
                       <View style={{width: '50%', marginStart: 2}}>
-                      <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
+                      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
                       <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
@@ -135,7 +135,7 @@ export default function TabOneScreen({/*{route}: any*/}) {
                       </View>
 
                       <View style={{width: '50%', marginStart: 2}}>
-                      <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
+                      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
                       <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
@@ -145,13 +145,13 @@ export default function TabOneScreen({/*{route}: any*/}) {
       </View>
       
 
-       <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
+       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
                 />
 
-      <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"

@@ -38,14 +38,14 @@ const DropdownComponent = () => {
             <Dropdown
                
                 style={[styles.dropdown]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(16)}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(16)} ]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(16)}]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
                 iconStyle={styles.iconStyle}
                 data={data}
                 search
                 maxHeight={300}
-                itemTextStyle={{fontSize: ts(16)}}
+                itemTextStyle={{fontSize: ts(14)}}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? 'Система' : 'Система'}
