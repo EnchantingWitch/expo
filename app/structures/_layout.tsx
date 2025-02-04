@@ -33,7 +33,7 @@ export default function TabLayout() {
         name="load_registry"
         options={{
           title: 'Загрузка реестра',
-
+          
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
@@ -46,7 +46,6 @@ export default function TabLayout() {
         initialParams={{ idSystem: 1 }}
         options={{
           title: 'Система',
-
           headerTitleAlign: 'center',
 
           headerTintColor: '#1E1E1E',

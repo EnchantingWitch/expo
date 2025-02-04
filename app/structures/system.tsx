@@ -5,69 +5,112 @@ import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/calendar';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { router, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import DropdownComponent from '@/components/list_system';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
+export type SystemPUT = {
+  //numberII: number;
+  //systemName: string;
+ // comments: number;
+  //status: string;
+  //statusList: [];
+  //ccsnumber: string;
 
+  pnrsystemStatus: string;
+  ciwexecutor: string;//исполнитель СМР
+  cwexecutor: string;//исполнитель ПНР
+  pnrplanDate: string; 
+  pnrfactDate: string;
+  iiplanDate: string;
+  iifactDate: string;
+  koplanDate: string;
+  kofactDate: string;
+};
 
-export default function TabOneScreen({route}: any) {
-  const navigation = useNavigation();
+export default function TabOneScreen() {
+  const {post} = useLocalSearchParams();//получение id замечания
+  //const post = 255;
+  console.log(post);
 
-  const {idSystem} = route.params;
-  console.log(idSystem);
+  const [data, setData] = useState<SystemPUT[]>([]);
+
+  const [systemStat, setSystemStat] = useState<string>('');
+  const [ciwexecut, setCiwexecut] = useState<string>('');
+  const [cwexecut, setCwexecut] = useState<string>('');
+  const [pnrplan, setPnrplan] = useState<string>('');
+  const [pnrfact, setPnrfact] = useState<string>('');
+  const [iiplan, setIiplan] = useState<string>('');
+  const [iifact, setIifact] = useState<string>('');
+  const [koplan, setKoplan] = useState<string>('');
+  const [kofact, setKofact] = useState<string>('');
+
+  const handleEditClick = () => {
+ // setSystemStat(data?.pnrsystemStatus || '');
+ // setCiwexecut
+ // setCwexecut
+  //setPnrplan
+ // setPnrfact
+  //setIiplan
+ // setIifact
+ // setKoplan
+  //setKofact
+}
+
+  const putSystem = async () => {
+    try {
+      
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/systems/updateSystemInfo/'+post, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          pnrsystemStatus: systemStat,
+          ciwexecutor: ciwexecut,
+          cwexecutor: cwexecut,
+          pnrplanDate: pnrplan,
+          pnrfactDate: pnrfact,
+          iiplanDate: iiplan,
+          iifactDate: iifact,
+          koplanDate: koplan,
+          kofactDate: kofact,
+        })
+      }
+
+      );
+      const json = await response.json();
+      //setData(json.);
+      setSystemStat(json.pnrsystemStatus);
+      setCiwexecut(json.ciwexecutor);
+      setCwexecut(json.cwexecutor);
+      setPnrplan(json.pnrplanDate);
+      setPnrfact(json.pnrfactDate);
+      setIiplan(json.iiplanDate);
+      setIifact(json.iifactDate);
+      setKoplan(json.koplanDate);
+      setKofact(json.kofactDate);
+      console.log('ResponseSeeSystem:', response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+     // setLoading(false);
+    }
+  };
+// else{
+        //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
+        //   {text: 'OK', onPress: () => console.log('OK Pressed')},
+        //])
+        // }
+
+  useEffect(() => {
+    if (post) {
+      putSystem();//вызов функции при получении значения post
+    }
+  }, [post]);
 
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
-
-   /*  const submitData = async () => {
-        //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
-        
-          try {
-            const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadSystem', {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                iiNumber: numberII,
-                subObject: subObject,
-                systemName: systemName,
-                description: description,
-                commentStatus: "Не устранено",
-                userName: userName,
-                //startDate: startDate,
-                startDate: "10.01.2025",
-                //commentCategory: category,
-                commentCategory: "Влияет",
-                commentExplanation: comExp,
-                codeCCS: "051-2000973.0023",
-              }),
-            });
-            id = await response.text();
-            setId(id);
-            // Обработка ответа, если необходимо
-            //console.log(ID);
-            //не выводится в консоль
-            console.log('Response:', response);
-          } catch (error) {
-            console.error('Error:', error);
-          } finally {
-            setUpLoading(false);
-            alert(id);
-            router.push('/(tabs)/two');
-          }
-        };
-        // else{
-        //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
-        //   {text: 'OK', onPress: () => console.log('OK Pressed')},
-        //])
-        // }
-      
-*/
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -77,7 +120,7 @@ export default function TabOneScreen({route}: any) {
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
       <DropdownComponent />
 
-<View style={{flexDirection: 'row',width: '100%',}}>
+<View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
       <View style={{width: '50%', }}>
         <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
        </View>
@@ -92,7 +135,7 @@ export default function TabOneScreen({route}: any) {
 <DateInputWithPicker theme = 'min'/>{/* Дата факта передачи в ПНР*/}
 </View>
 
-<View style={{flexDirection: 'row',width: '100%',}}>
+<View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
       <View style={{width: '50%', }}>
         <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
        </View>
@@ -107,7 +150,7 @@ export default function TabOneScreen({route}: any) {
 <DateInputWithPicker theme = 'min'/>{/* Дата факта ИИ*/}
 </View>
 
-<View style={{flexDirection: 'row',width: '100%',}}>
+<View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
       <View style={{width: '50%', }}>
         <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
        </View>
@@ -131,6 +174,7 @@ export default function TabOneScreen({route}: any) {
                       <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
+                  
                 />
                       </View>
 
@@ -149,15 +193,19 @@ export default function TabOneScreen({route}: any) {
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
+                  onChangeText={setCiwexecut}
+                  value={ciwexecut}
                 />
 
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
                 <TextInput
                   style={styles.input}
                   placeholderTextColor="#111"
+                  onChangeText={setCwexecut}
+                  value={cwexecut}
                 />
  
-      <CustomButton title='Подтвердить'  handlePress={() => router.push('/(tabs)/structure')} />
+      <CustomButton title='Подтвердить'  handlePress={() => {[putSystem, {/*router.push('/(tabs)/structure')*/}]}} />
       <CustomButton title='Отменить'  handlePress={() => router.push('/(tabs)/structure')} />
     </View>
     </ScrollView>

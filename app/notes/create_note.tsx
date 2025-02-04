@@ -187,46 +187,6 @@ export default function CreateNote() {
     //   {text: 'OK', onPress: () => console.log('OK Pressed')},
     //])
     // }
-
- /*   try {
-      // Check if any file is selected or not
-
-      // If file selected then create FormData
-      const photoToUpload = singlePhoto;
-      const body = new FormData();
-      //data.append('name', 'Image Upload');
-      body.append("photo", {
-        uri: photoToUpload.uri,
-        type: 'photo',
-        name: 'photoToUpload'
-      })
-      //body.append("photo", photoToUpload);
-      // Please change file upload URL
-      alert(id);
-
-
-      let res = await fetch(
-        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
-        {
-          method: 'post',
-          body: body,
-          headers: {
-            'Content-Type': 'multipart-form/data'
-          }
-        }
-      );
-      console.log('ResponsePhoto:', res);
-      let responseJson = await res.json();
-      if (responseJson.status == 1) {
-        alert('Upload Successful');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    finally { router.push('/(tabs)/two'); 
-
-    }*/
-
   }
 
 
