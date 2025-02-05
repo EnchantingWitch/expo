@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
-
+import { parse } from 'date-fns';
 
 type Props = {
     theme?: 'min';
+    post?: string; //дата, которую получаем из бд - передача для вывода в текстинпут
 };
 
-const DateInputWithPicker = ({ theme }: Props) => {
+const DateInputWithPicker = ({ theme, post }: Props) => {
+    const router = useRouter();
+    //const {post} = useLocalSearchParams();
+
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+
+    if (post) {
+        const customFormat = 'dd.MM.yyyy';
+        const dateFnsDate = parse(post, customFormat, new Date());
+        setDate(dateFnsDate);
+    }
 
     const fontScale = useWindowDimensions().fontScale;
 
@@ -22,6 +33,7 @@ const DateInputWithPicker = ({ theme }: Props) => {
         const currentDate = selectedDate || date;
         setShowPicker(false);
         setDate(currentDate);
+        router.setParams({ date: currentDate });
     };
 
     const showDatePicker = () => {
@@ -34,6 +46,7 @@ const DateInputWithPicker = ({ theme }: Props) => {
         const yyyy = date.getFullYear();
         return `${dd}.${mm}.${yyyy}`;
     };
+
     if (theme === 'min') {
         return (
             <View style={styles.containerrowMin}>

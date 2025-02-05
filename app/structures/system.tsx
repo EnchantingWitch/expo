@@ -10,13 +10,6 @@ import DropdownComponent from '@/components/list_system';
 import React, {useEffect, useState} from 'react';
 
 export type SystemPUT = {
-  //numberII: number;
-  //systemName: string;
- // comments: number;
-  //status: string;
-  //statusList: [];
-  //ccsnumber: string;
-
   pnrsystemStatus: string;
   ciwexecutor: string;//исполнитель СМР
   cwexecutor: string;//исполнитель ПНР
@@ -28,13 +21,31 @@ export type SystemPUT = {
   kofactDate: string;
 };
 
+export type SystemGET = {
+  numberII: number;
+  systemName: string;
+  comments: number;
+  status: string;
+  statusList: [];
+  ccsnumber: string;
+  pnrplanDate: string; 
+  pnrfactDate: string;
+  pnrsystemId: number;
+  kofactDate: string;
+  ciwexecutor: string;//исполнитель СМР
+  iifactDate: string;
+  koplanDate: string;
+  iiplanDate: string;
+  cwexecutor: string;//исполнитель ПНР
+}
+
 export default function TabOneScreen() {
-  const {post} = useLocalSearchParams();//получение id замечания
-  //const post = 255;
+  //const {post} = useLocalSearchParams();//получение id замечания
+  const post = 256;
   console.log(post);
 
-  const [data, setData] = useState<SystemPUT[]>([]);
-
+  const [click, setclick] = useState<boolean>(false);
+  const [data, setData] = useState<SystemPUT | undefined>(undefined);
   const [systemStat, setSystemStat] = useState<string>('');
   const [ciwexecut, setCiwexecut] = useState<string>('');
   const [cwexecut, setCwexecut] = useState<string>('');
@@ -44,22 +55,10 @@ export default function TabOneScreen() {
   const [iifact, setIifact] = useState<string>('');
   const [koplan, setKoplan] = useState<string>('');
   const [kofact, setKofact] = useState<string>('');
-
-  const handleEditClick = () => {
- // setSystemStat(data?.pnrsystemStatus || '');
- // setCiwexecut
- // setCwexecut
-  //setPnrplan
- // setPnrfact
-  //setIiplan
- // setIifact
- // setKoplan
-  //setKofact
-}
+  const [comment, setComments] = useState<string>('');
 
   const putSystem = async () => {
     try {
-      
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/systems/updateSystemInfo/'+post, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -75,24 +74,12 @@ export default function TabOneScreen() {
           kofactDate: kofact,
         })
       }
-
       );
-      const json = await response.json();
-      //setData(json.);
-      setSystemStat(json.pnrsystemStatus);
-      setCiwexecut(json.ciwexecutor);
-      setCwexecut(json.cwexecutor);
-      setPnrplan(json.pnrplanDate);
-      setPnrfact(json.pnrfactDate);
-      setIiplan(json.iiplanDate);
-      setIifact(json.iifactDate);
-      setKoplan(json.koplanDate);
-      setKofact(json.kofactDate);
-      console.log('ResponseSeeSystem:', response);
+      console.log('ResponseUpdateSystem:', response);
     } catch (error) {
       console.error(error);
     } finally {
-     // setLoading(false);
+      router.push('/');
     }
   };
 // else{
@@ -101,11 +88,41 @@ export default function TabOneScreen() {
         //])
         // }
 
+  const getSystem = async () => {
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getSystemCommonInfo/'+post);
+      const json = await response.json();
+      setSystemStat(json.status);
+      setCiwexecut(json.ciwexecutor);
+      setCwexecut(json.cwexecutor);
+      setPnrplan(json.pnrplanDate);
+      setPnrfact(json.pnrfactDate);
+      setIiplan(json.iiplanDate);
+      setIifact(json.iifactDate);
+      setKoplan(json.koplanDate);
+      setKofact(json.kofactDate);
+      setComments(json.comments.toString());
+      console.log('ResponseSeeSystem:', response)
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error);
+    } finally {
+     // setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (post) {
-      putSystem();//вызов функции при получении значения post
+      //putSystem();
+      getSystem();//вызов функции при получении значения post
     }
   }, [post]);
+
+  useEffect(() => {
+    if (click) {
+      putSystem();
+     // getSystem();//вызов функции при получении значения post
+    }
+  }, []);
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -131,8 +148,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min'/>{/* Дата плана передачи в ПНР*/}
-<DateInputWithPicker theme = 'min'/>{/* Дата факта передачи в ПНР*/}
+<DateInputWithPicker theme = 'min' post={pnrplan}/>{/* Дата плана передачи в ПНР*/}
+<DateInputWithPicker theme = 'min'post={pnrfact}/>{/* Дата факта передачи в ПНР*/}
 </View>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
@@ -146,8 +163,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min'/>{/* Дата плана ИИ*/}
-<DateInputWithPicker theme = 'min'/>{/* Дата факта ИИ*/}
+<DateInputWithPicker theme = 'min' post = {iiplan}/>{/* Дата плана ИИ*/}
+<DateInputWithPicker theme = 'min' post = {iifact}/>{/* Дата факта ИИ*/}
 </View>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
@@ -161,8 +178,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min'/>{/* Дата плана КО*/}
-<DateInputWithPicker theme = 'min'/>{/* Дата факта КО*/}
+<DateInputWithPicker theme = 'min' post = {koplan}/>{/* Дата плана КО*/}
+<DateInputWithPicker theme = 'min' post = {kofact}/>{/* Дата факта КО*/}
 </View>
 
 
@@ -172,10 +189,13 @@ export default function TabOneScreen() {
                       <View style={{width: '50%', marginStart: 2}}>
                       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
                       <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#111"
-                  
-                />
+                        style={styles.input}
+                        placeholderTextColor="#111"
+                        //onChangeText={setComments}
+                        value={comment}
+                        editable={false}
+                        />
+                        
                       </View>
 
                       <View style={{width: '50%', marginStart: 2}}>
@@ -205,7 +225,7 @@ export default function TabOneScreen() {
                   value={cwexecut}
                 />
  
-      <CustomButton title='Подтвердить'  handlePress={() => {[putSystem, {/*router.push('/(tabs)/structure')*/}]}} />
+      <CustomButton title='Подтвердить'  handlePress={() => putSystem() }/>
       <CustomButton title='Отменить'  handlePress={() => router.push('/(tabs)/structure')} />
     </View>
     </ScrollView>

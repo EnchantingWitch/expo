@@ -34,7 +34,7 @@ const Struct = () => {
     return (fontSize / fontScale)};
 
   const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState<Structure[]>([]);
+  const [data_, setData] = useState<Structure[]>([]);
 
   const getStructure = async () => {
       try {
@@ -80,7 +80,7 @@ const Struct = () => {
         </View>
 
         <SectionList
-            sections = {data}
+            sections = {data_}
             keyExtractor={({id}) => id}
                         
              renderSectionHeader={({section: {numberKO, subObjectName, comments, status}}) => (
