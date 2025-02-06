@@ -15,11 +15,21 @@ export type Structure = {
   status: string;
   
     data:[{
-      id: number,
       numberII: string,
       systemName: string,
       comments: number,
-      status: string
+      status: string,
+      statusList: [],
+      pnrfactDate: string,
+      iiplanDate: string,
+      iifactDate: string,
+      koplanDate: string,
+      kofactDate: string,
+      ciwexecutor: string,
+      cwexecutor: string,
+      pnrplanDate: string,
+      pnrsystemId: number,
+      ccsnumber: string,
 }],
 };
 
@@ -81,7 +91,7 @@ const Struct = () => {
 
         <SectionList
             sections = {data_}
-            keyExtractor={({id}) => id}
+            keyExtractor={({pnrsystemId}) => pnrsystemId}
                         
              renderSectionHeader={({section: {numberKO, subObjectName, comments, status}}) => (
                     <View style={{flexDirection: 'row', backgroundColor: '#E0F2FE', width: '98%', height: 37,  marginBottom: '5%', alignItems: 'center', borderRadius: 8, alignSelf: 'center'}}>
@@ -138,7 +148,7 @@ const Struct = () => {
                     renderItem={({item, index}) => (
                      
                       
-                      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.id}})} style={{width: '99%'}}>
+                      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId}})} style={{width: '99%'}}>
                       <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '95%', height: 37, marginBottom: '5%', borderRadius: 8}}>
             
                         <View style={{width: '7%',  justifyContent: 'center',}}>

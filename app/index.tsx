@@ -35,11 +35,6 @@ import { isLoading } from "expo-font";
                       handlePress={()=>{router.push('/objs/objects')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-        <CustomButton
-                      title="Система"
-                      handlePress={()=>{router.push('/structures/system')}} 
-                  //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
-        />  
     </View>
   );
 };

@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, useWindowDimensions  } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, useWindowDimensions, Alert  } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { } from '@/components/Themed';
 import { Dropdown } from 'react-native-element-dropdown';
-import DateInputWithPicker from '@/components/calendar';
+import DateInputWithPicker from '@/components/Calendar+';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
@@ -40,8 +40,8 @@ export type SystemGET = {
 }
 
 export default function TabOneScreen() {
-  //const {post} = useLocalSearchParams();//получение id замечания
-  const post = 256;
+  const {post} = useLocalSearchParams();//получение id замечания
+ // const post = 256;
   console.log(post);
 
   const [click, setclick] = useState<boolean>(false);
@@ -75,18 +75,19 @@ export default function TabOneScreen() {
         })
       }
       );
+      if (response.ok) {
+        Alert.alert('', 'Данные по системе обновлены', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')}])
+      } else {
+        throw new Error('Не удалось сохранить данные.');
+      }
       console.log('ResponseUpdateSystem:', response);
     } catch (error) {
       console.error(error);
     } finally {
-      router.push('/');
+      router.push('/(tabs)/structure');
     }
   };
-// else{
-        //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
-        //   {text: 'OK', onPress: () => console.log('OK Pressed')},
-        //])
-        // }
 
   const getSystem = async () => {
     try {
