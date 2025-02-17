@@ -6,7 +6,7 @@ import DateInputWithPicker from '@/components/Calendar+';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import DropdownComponent from '@/components/list_system';
+import DropdownComponent from '@/components/ListStatusSystem';
 import React, {useEffect, useState} from 'react';
 
 export type SystemPUT = {
