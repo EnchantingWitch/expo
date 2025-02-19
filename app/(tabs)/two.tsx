@@ -298,8 +298,9 @@ export default function DirectionLayout() {
                           <View >
                             <>
                               <TouchableOpacity onPress={() => { setSelectedItem(null) }}>
-                                <Image style={{ width: 50, height: 50 }}
-                                  source={require('@/assets/images/krest.png')} />
+                                <Ionicons name='close' size={30}></Ionicons>
+                               {/*} <Image style={{ width: 50, height: 50 }}
+                                  source={require('@/assets/images/krest.png')} />*/}
                               </TouchableOpacity>
                               <View >
                                 <View style={{ flex: 1, alignItems: 'center' }}>

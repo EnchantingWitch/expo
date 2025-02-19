@@ -26,8 +26,6 @@ export type SystemGET = {
   systemName: string;
   comments: number;
   status: string;
-  statusList: [];
-  ccsnumber: string;
   pnrplanDate: string; 
   pnrfactDate: string;
   pnrsystemId: number;
@@ -49,20 +47,43 @@ export default function TabOneScreen() {
   const [systemStat, setSystemStat] = useState<string>('');
   const [ciwexecut, setCiwexecut] = useState<string>('');
   const [cwexecut, setCwexecut] = useState<string>('');
-  const [pnrplan, setPnrplan] = useState<string>('');
-  const [pnrfact, setPnrfact] = useState<string>('');
-  const [iiplan, setIiplan] = useState<string>('');
-  const [iifact, setIifact] = useState<string>('');
-  const [koplan, setKoplan] = useState<string>('');
-  const [kofact, setKofact] = useState<string>('');
+  const [pnrplan, setPnrplan] = useState<string | null>('');
+  const [pnrfact, setPnrfact] = useState<string | null>('');
+  const [iiplan, setIiplan] = useState<string | null>('');
+  const [iifact, setIifact] = useState<string | null>('');
+  const [koplan, setKoplan] = useState<string | null>('');
+  const [kofact, setKofact] = useState<string | null>('');
   const [comment, setComments] = useState<string>('');
+  const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
 
   const putSystem = async () => {
+    
+
     try {
+    //if (pnrplan == ' '){setPnrplan('null'); console.log('!!'); console.log(pnrplan)}
+    if (pnrfact == ' '){setPnrfact(null);}
+    if (iiplan == ' '){setIiplan(null);}
+    if (iifact == ' '){setIifact(null);}
+    if (koplan == ' '){setKoplan(null);}
+    if (kofact == ' '){setKofact(null);}
+    const js = JSON.stringify({ 
+      pnrsystemStatus: systemStat,
+      ciwexecutor: ciwexecut,
+      cwexecutor: cwexecut,
+      pnrplanDate: pnrplan,
+      pnrfactDate: pnrfact,
+      iiplanDate: iiplan,
+      iifactDate: iifact,
+      koplanDate: koplan,
+      kofactDate: kofact,
+    });
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/systems/updateSystemInfo/'+post, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: js
+      }
+      );
+      console.log(JSON.stringify({ 
           pnrsystemStatus: systemStat,
           ciwexecutor: ciwexecut,
           cwexecutor: cwexecut,
@@ -72,9 +93,8 @@ export default function TabOneScreen() {
           iifactDate: iifact,
           koplanDate: koplan,
           kofactDate: kofact,
-        })
-      }
-      );
+        }));
+        console.log(js);
       if (response.ok) {
         Alert.alert('', 'Данные по системе обновлены', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
@@ -102,10 +122,12 @@ export default function TabOneScreen() {
       setIifact(json.iifactDate);
       setKoplan(json.koplanDate);
       setKofact(json.kofactDate);
-      setComments(json.comments.toString());
+      setComments(''+json.comments.toString());
       console.log('ResponseSeeSystem:', response)
+      setstatusRequest(true);
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
+      setstatusRequest(false);
     } finally {
      // setLoading(false);
     }
@@ -120,6 +142,12 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     if (click) {
+   /* if (pnrplan == ' '){setPnrplan(null); console.log(setPnrplan(null));}
+    if (pnrfact == ' '){setPnrfact(null);}
+    if (iiplan == ' '){setIiplan(null);}
+    if (iifact == ' '){setIifact(null);}
+    if (koplan == ' '){setKoplan(null);}
+    if (kofact == ' '){setKofact(null);}*/
       putSystem();
      // getSystem();//вызов функции при получении значения post
     }
@@ -136,7 +164,7 @@ export default function TabOneScreen() {
 
       <View style={styles.separator}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
-      <DropdownComponent />
+      <DropdownComponent post = {systemStat} statusreq={statusRequest} pnrPlan={pnrplan} pnrFact={pnrfact} iiPlan={iiplan} iiFact={iifact} koPlan={koplan} koFact={kofact} onChange={(status) => setSystemStat(status)}/>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
       <View style={{width: '50%', }}>
@@ -149,8 +177,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min' post={pnrplan}/>{/* Дата плана передачи в ПНР*/}
-<DateInputWithPicker theme = 'min'post={pnrfact}/>{/* Дата факта передачи в ПНР*/}
+<DateInputWithPicker theme = 'min' post={pnrplan} statusreq={statusRequest} onChange={(dateString) => setPnrplan(dateString)}/>{/* Дата плана передачи в ПНР*/}
+<DateInputWithPicker theme = 'min'post={pnrfact} statusreq={statusRequest} onChange={(dateString) => setPnrfact(dateString)}/>{/* Дата факта передачи в ПНР*/}
 </View>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
@@ -164,8 +192,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min' post = {iiplan}/>{/* Дата плана ИИ*/}
-<DateInputWithPicker theme = 'min' post = {iifact}/>{/* Дата факта ИИ*/}
+<DateInputWithPicker theme = 'min' post = {iiplan} statusreq={statusRequest} onChange={(dateString) => setIiplan(dateString)}/>{/* Дата плана ИИ*/}
+<DateInputWithPicker theme = 'min' post = {iifact} statusreq={statusRequest} onChange={(dateString) => setIifact(dateString)}/>{/* Дата факта ИИ*/}
 </View>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
@@ -179,8 +207,8 @@ export default function TabOneScreen() {
 </View>
 
 <View style={{flexDirection: 'row',}}>
-<DateInputWithPicker theme = 'min' post = {koplan}/>{/* Дата плана КО*/}
-<DateInputWithPicker theme = 'min' post = {kofact}/>{/* Дата факта КО*/}
+<DateInputWithPicker theme = 'min' post = {koplan} statusreq={statusRequest} onChange={(dateString) => setKoplan(dateString)}/>{/* Дата плана КО*/}
+<DateInputWithPicker theme = 'min' post = {kofact} statusreq={statusRequest} onChange={(dateString) => setKofact(dateString)}/>{/* Дата факта КО*/}
 </View>
 
 

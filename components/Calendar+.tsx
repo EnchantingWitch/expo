@@ -3,29 +3,37 @@ import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Ima
 import DateTimePicker from '@react-native-community/datetimepicker';
 import minimumDate from '@react-native-community/datetimepicker';
 import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { parse } from 'date-fns';
+import { parse, format } from 'date-fns';
 
 type Props = {
     theme?: 'min';
+    statusreq: boolean;//для обновления значения даты при получении даты с запроса
     post?: string; //дата, которую получаем из бд - передача для вывода в текстинпут
+    onChange: (dateString: string) => void; // Функция для обновления даты
 };
 
-const DateInputWithPicker = ({ theme, post }: Props) => {
+const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//statusreq={statusRequest}
     const router = useRouter();
     //const {post} = useLocalSearchParams();
-    const [date, setDate] = useState<Date|string>(new Date() );
+    const [date, setDate] = useState<Date|string>(new Date());
+    const [check, setCheck] = useState<boolean>(false);//проверка на вывод пустого значения, если пришло null c бэка
     const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд                                                                                
-    const [valuePicker, setValuePicker]= useState<Date>(new Date(2025, 1, 1));//регулирует дату в DateTimePicker, чтобы не вызывалось с null
+    const [valuePicker, setValuePicker]= useState<Date>(new Date());//регулирует дату в DateTimePicker, чтобы не вызывалось с null
 
     const [showPicker, setShowPicker] = useState(false);
 
-    if (startD){
-        const customFormat = 'dd.MM.yyyy';
-        if (post === null){setDate('');}//проверка, что с бд пришло не пустое значение, 
+    if (statusreq && startD){//startD
+        //console.log('post', post);
+        statusreq=false;setStartD(false);
+        const customFormat = 'dd.MM.yyyy';//dd.MM.yyyy
+        if (post === ' '){setValuePicker(new Date(2025,1,1)); setDate(' '); console.log('!!!')}//проверка, что с бд пришло не пустое значение, 
         else{                           //добавить состояние для ограничения вызова датапикер или вызова по значению сегодняшнего числа
             const dateFnsDate = parse(post, customFormat, new Date());//установка значения из бд
+            console.log('dateFnsDate', dateFnsDate);
             setDate(dateFnsDate);
-            setStartD(false);
+            setCheck(true);//установка true для вывода даты с бэка в текстинпут
+            
+            
             //router.setParams({  dateFnsDate });
         }
     }
@@ -36,18 +44,23 @@ const DateInputWithPicker = ({ theme, post }: Props) => {
         return (fontSize / fontScale)
     };
 
-    const onChange = (event, selectedDate) => {
+    const handleDateChange = (event, selectedDate) => {
         
-        const currentDate = selectedDate || date;
+        const currentDate = selectedDate ;
         setShowPicker(false);
         setDate(currentDate);
-        const d = formatDate(currentDate);
-        console.log(d);//возращает строку в правильном формате
-        if (d != '') {router.setParams( {d} )};//возврат значения в функцию, не передает если переменную через formatDate пропускать
+        setCheck(true);//установка true для вывода selectedDate в текстинпут
+       // const d = formatDate(currentDate);
+      //  console.log(d);//возращает строку в правильном формате
+       // if (d != '') {router.setParams( {d} )};//возврат значения в функцию, не передает если переменную через formatDate пропускать
+        if (selectedDate) {
+                const dateString = format(selectedDate, 'dd.MM.yyyy') // Формат: YYYY-MM-DD
+                onChange(dateString); // Обновляем значение даты          
+        }
     };
 
     const showDatePicker = () => {
-        if (date === '') {setValuePicker(new Date(2000, 0, 1));}
+        if (date === ' ' || date === null) {setValuePicker(new Date());}
         else {setValuePicker(date);}
         setShowPicker(true);
     };
@@ -68,7 +81,9 @@ const DateInputWithPicker = ({ theme, post }: Props) => {
                 <TextInput style={[styles.inputMin, { fontSize: ts(14), textAlignVertical: 'center' }]}
                     placeholderTextColor="#111"
                      
-                    value={ typeof(date)? (formatDate(date)): '' }
+                    value={ check? (formatDate(date)): ' ' }
+                   // value={ check? (formatDate(date)): null }
+                   // value={ typeof(date)? (formatDate(date)): '' }
                   //value={date? (formatDate(date)) : '' }
                 />
                  
@@ -81,7 +96,7 @@ const DateInputWithPicker = ({ theme, post }: Props) => {
                             value={valuePicker}
                             mode="date"
                             display="default"
-                            onChange={onChange}
+                            onChange={handleDateChange}
                            // negativeButton={{label: 'Cancel', textColor: 'red'}}//only Android
                           //  neutralButton={{label: 'Clear', textColor: 'grey'}}//only Android
                         />
@@ -104,10 +119,10 @@ const DateInputWithPicker = ({ theme, post }: Props) => {
                     source={require('../assets/images/calendar1.png')} />
                 {showPicker && (
                     <DateTimePicker
-                        value={date}
+                        value={valuePicker}
                         mode="date"
                         display="default"
-                        onChange={onChange}
+                        onChange={handleDateChange}
                     />
                 )}
             </TouchableOpacity>

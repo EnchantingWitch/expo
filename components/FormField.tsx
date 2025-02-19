@@ -7,7 +7,7 @@ type Props = {
 
     title: string;
     value: any;
-    placeholder: string;
+    placeholder?: string;
     keyboardtype: string;
     editable: string;
     numberOfLines: number;

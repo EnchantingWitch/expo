@@ -15,24 +15,24 @@ type Props = {
 };
 
 const data1 = [
-    { label: 'Ведутся СМР', value: '1' },
-    { label: 'Завершены СМР', value: '2' },
-    { label: 'Предъявлено в ПНР', value: '3' },
-];
-const data2 = [
-    { label: 'Принято в ПНР', value: '4' },
-    { label: 'Ведутся ПНР', value: '5' },
-    { label: 'Проведены ИИ', value: '6' },
-    { label: 'Акт ИИ на подписи', value: '7' },
-];
-const data3 = [
-    { label: 'Акт ИИ подписан', value: '8' },
-    { label: 'Проводится КО', value: '9' },
-    { label: 'Проведено КО', value: '10' },
-    { label: 'Акт КО на подписи', value: '11' },
-];
-const data4 = [
-    { label: 'Акт КО подписан', value: '12' },
+    { label: 'Компрессорная станция', value: '1' },
+    { label: 'Дожимная компрессорная станция', value: '2' },
+    { label: 'Установка комлексной подготовки газа', value: '3' },
+    { label: 'Подземное хранилище газа', value: '4' },
+    { label: 'Газовой промысел. Кусты газовых скважин', value: '5' },
+    { label: 'Газовой промысел. Газосборные коллекторы', value: '6' },
+    { label: 'Магистральный газопровод', value: '7' },
+    { label: 'Газопровод-отвод', value: '8' },
+    { label: 'Газоизмерительная станция', value: '9' },
+    { label: 'Газораспределительная станция', value: '10' },
+    { label: 'Комплекс по ПХО СПГ', value: '11' },
+    { label: 'Нефтеперекачивающая станция', value: '12' },
+    { label: 'Центральный пункт сбора', value: '12' },
+    { label: 'Нефтеконденсатопровод', value: '12' },
+    { label: 'Газоконденсатное месторождение', value: '12' },
+    { label: 'Нефтеперекачивающая станция', value: '12' },
+    { label: 'Нефтеперекачивающая станция', value: '12' },
+    { label: 'Нефтеперекачивающая станция', value: '12' },
 ];
 
 const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, koPlan, koFact, onChange }: Props) => {
@@ -47,20 +47,20 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
     return (fontSize / fontScale)};
    //if (post) {if (pnrFact != null){setValue('4');}//Не работает так..
     //if (iiFact) {if (iiFact ){setValue('8');}}
-    useEffect(
+  /*  useEffect(
         () => {
 
         //если изменилось значение фактических дат, обновляем выпадающий список
-        if (pnrFact && pnrFact != " ") {setSwith(2); console.log(pnrFact);}
-        if (iiFact && iiFact != " ") {setSwith(3); console.log(iiFact);}
-        if (koFact && koFact != " ") {setSwith(4); console.log(koFact);}
+        if (pnrFact) {setSwith(2); console.log(pnrFact);}
+        if (iiFact) {setSwith(3); console.log(iiFact);}
+        if (koFact) {setSwith(4); console.log(koFact);}
         //условие на выбранное значение в зависимости от дат, проверка на выбранное значение из доступных статуов для соотвествующих дат
-        if (pnrFact && pnrFact != " ") { if (value != '5' && value != '6' && value != '7') {setValue('4'); console.log(setValue('4'));}}
-        if (iiFact && iiFact != " ") {if(value != '9' && value != '10' && value != '11') {setValue('8'); console.log(iiFact);}} 
-        if (koFact && koFact != " ") {setValue('12'); console.log(koFact);}
+        if (pnrFact){ if (value != '5' && value != '6' && value != '7') {setValue('4'); console.log(setValue('4'));}}
+        if (iiFact) {if(value != '9' && value != '10' && value != '11') {setValue('8'); console.log(iiFact);}} 
+        if (koFact) {setValue('12'); console.log(koFact);}
 
         }, [pnrFact, iiFact, koFact]
-    )
+    )*/
 
     if (statusreq && startD){
         setValue(post);
@@ -70,15 +70,15 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
     
         //ПРОВЕРИТЬ как это работает когда с бэка приходят значения
      //условие на выбор выпадащего списка (должен быть при useEffect еще)
-        if (pnrFact && pnrFact != " ") {setSwith(2)}
-        if (iiFact && iiFact != " ") {setSwith(3)}
-        if (koFact && koFact != " ") {setSwith(4)}
+        if (pnrFact) {setSwith(2)}
+        if (iiFact) {setSwith(3)}
+        if (koFact) {setSwith(4)}
      //условие на выбранное значение в зависимости от дат
         if (post != "  ") {setValue(post);}//значение из бд
         else{
-            if (pnrFact && pnrFact!= " ") {setValue('4');}
-            if (iiFact && iiFact != " ") {setValue('8');}
-            if (koFact && koFact != " ") {setValue('12');}
+            if (pnrFact) {setValue('4');}
+            if (iiFact) {setValue('8');}
+            if (koFact) {setValue('12');}
         }
     }
 
@@ -95,7 +95,7 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
                 selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
                 iconStyle={styles.iconStyle}
-                data={ (swith===2) ? (data2) : ( (swith===3)? (data3): ((swith===4)? (data4): (data1) ) )   }//|| swith===2 && {data2} || swith===3 && {data3} || swith===4 && {data4}
+                data={data}
                 search
                 maxHeight={300}
                 itemTextStyle={{fontSize: ts(14)}}

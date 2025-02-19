@@ -1,4 +1,3 @@
-
 {
   "expo": {
     "name": "pnr",
@@ -23,7 +22,8 @@
         "foregroundImage": "./assets/images/logo1.png",
         "backgroundColor": "#ffffff"
       },
-      "newArchEnabled": true
+      "newArchEnabled": true,
+      "package": "com.enchanting_witch.pnr"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +36,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c365cc04-aaf5-41ab-bd42-bf08a226b05f"
+      }
     }
   }
 }
