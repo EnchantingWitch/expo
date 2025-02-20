@@ -3,18 +3,10 @@ import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 type Props = {
-    post?: string;//значение из бд статуса для просмотра
-    statusreq: boolean;//для обновления значения даты при получении даты с запроса
-    pnrPlan?: string; 
-    pnrFact?: string;
-    iiPlan?: string;
-    iiFact?: string;
-    koPlan?: string;
-    koFact?: string;
     onChange: (status: string) => void; // Функция для обновления статуса
 };
 
-const data1 = [
+export const data = [
     { label: 'Компрессорная станция', value: '1' },
     { label: 'Дожимная компрессорная станция', value: '2' },
     { label: 'Установка комлексной подготовки газа', value: '3' },
@@ -25,62 +17,26 @@ const data1 = [
     { label: 'Газопровод-отвод', value: '8' },
     { label: 'Газоизмерительная станция', value: '9' },
     { label: 'Газораспределительная станция', value: '10' },
-    { label: 'Комплекс по ПХО СПГ', value: '11' },
+    { label: 'Комплекс по ПХиО СПГ', value: '11' },
     { label: 'Нефтеперекачивающая станция', value: '12' },
-    { label: 'Центральный пункт сбора', value: '12' },
-    { label: 'Нефтеконденсатопровод', value: '12' },
-    { label: 'Газоконденсатное месторождение', value: '12' },
-    { label: 'Нефтеперекачивающая станция', value: '12' },
-    { label: 'Нефтеперекачивающая станция', value: '12' },
-    { label: 'Нефтеперекачивающая станция', value: '12' },
+    { label: 'Центральный пункт сбора', value: '13' },
+    { label: 'Нефтеконденсатопровод', value: '14' },
+    { label: 'Газоконденсатное месторождение', value: '15' },
+    { label: 'Газоперерабатывающий завод', value: '16' },
+    { label: 'Нефтегазоконденсатное месторождение', value: '17' },
+    { label: 'Газопровод перемычка', value: '18' },
+    { label: 'Нефтепровод', value: '19' },
+    { label: 'Терминал отгрузки конденсата', value: '20' },
 ];
 
-const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, koPlan, koFact, onChange }: Props) => {
+const ListTypeObj = ({ onChange }: Props) => {
     const [value, setValue] = useState<string >();
     const [isFocus, setIsFocus] = useState(false);
-    const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд 
-    const [swith, setSwith] = useState<number>(1);
 
      const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
-   //if (post) {if (pnrFact != null){setValue('4');}//Не работает так..
-    //if (iiFact) {if (iiFact ){setValue('8');}}
-  /*  useEffect(
-        () => {
-
-        //если изменилось значение фактических дат, обновляем выпадающий список
-        if (pnrFact) {setSwith(2); console.log(pnrFact);}
-        if (iiFact) {setSwith(3); console.log(iiFact);}
-        if (koFact) {setSwith(4); console.log(koFact);}
-        //условие на выбранное значение в зависимости от дат, проверка на выбранное значение из доступных статуов для соотвествующих дат
-        if (pnrFact){ if (value != '5' && value != '6' && value != '7') {setValue('4'); console.log(setValue('4'));}}
-        if (iiFact) {if(value != '9' && value != '10' && value != '11') {setValue('8'); console.log(iiFact);}} 
-        if (koFact) {setValue('12'); console.log(koFact);}
-
-        }, [pnrFact, iiFact, koFact]
-    )*/
-
-    if (statusreq && startD){
-        setValue(post);
-        setStartD(false);
-        console.log(pnrFact != null && post === "  ");
-        //setValue(data[1].label);
-    
-        //ПРОВЕРИТЬ как это работает когда с бэка приходят значения
-     //условие на выбор выпадащего списка (должен быть при useEffect еще)
-        if (pnrFact) {setSwith(2)}
-        if (iiFact) {setSwith(3)}
-        if (koFact) {setSwith(4)}
-     //условие на выбранное значение в зависимости от дат
-        if (post != "  ") {setValue(post);}//значение из бд
-        else{
-            if (pnrFact) {setValue('4');}
-            if (iiFact) {setValue('8');}
-            if (koFact) {setValue('12');}
-        }
-    }
 
     if (value){
         onChange(value);
@@ -101,7 +57,7 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
                 itemTextStyle={{fontSize: ts(14)}}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Не выбрано' : 'Не выбрано'}
+                placeholder={!isFocus ? 'Тип ОКС' : 'Не выбрано'}
                 searchPlaceholder="Search..."
                 value={value}
                 onFocus={() => setIsFocus(true)}
@@ -116,9 +72,9 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
     );
 };
 
-export default DropdownComponent;
+export default ListTypeObj;
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         paddingBottom: 16,

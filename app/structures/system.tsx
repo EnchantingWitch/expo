@@ -5,9 +5,10 @@ import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/Calendar+';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation } from 'expo-router';
 import DropdownComponent from '@/components/ListStatusSystem';
 import React, {useEffect, useState} from 'react';
+
 
 export type SystemPUT = {
   pnrsystemStatus: string;
@@ -22,7 +23,7 @@ export type SystemPUT = {
 };
 
 export type SystemGET = {
-  numberII: number;
+  numberII: string;
   systemName: string;
   comments: number;
   status: string;
@@ -41,6 +42,8 @@ export default function TabOneScreen() {
   const {post} = useLocalSearchParams();//получение id замечания
  // const post = 256;
   console.log(post);
+  const {ID} = useLocalSearchParams();//получение id объекта
+  console.log(ID, 'ID system');
 
   const [click, setclick] = useState<boolean>(false);
   const [data, setData] = useState<SystemPUT | undefined>(undefined);
@@ -60,12 +63,12 @@ export default function TabOneScreen() {
     
 
     try {
-    //if (pnrplan == ' '){setPnrplan('null'); console.log('!!'); console.log(pnrplan)}
-    if (pnrfact == ' '){setPnrfact(null);}
-    if (iiplan == ' '){setIiplan(null);}
-    if (iifact == ' '){setIifact(null);}
-    if (koplan == ' '){setKoplan(null);}
-    if (kofact == ' '){setKofact(null);}
+    if (pnrplan == ' '){setPnrplan(''); }
+    if (pnrfact == ' '){setPnrfact(''); }
+    if (iiplan == ' '){setIiplan('');}
+    if (iifact == ' '){setIifact('');}
+    if (koplan == ' '){setKoplan('');}
+    if (kofact == ' '){setKofact('');}
     const js = JSON.stringify({ 
       pnrsystemStatus: systemStat,
       ciwexecutor: ciwexecut,
@@ -142,12 +145,6 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     if (click) {
-   /* if (pnrplan == ' '){setPnrplan(null); console.log(setPnrplan(null));}
-    if (pnrfact == ' '){setPnrfact(null);}
-    if (iiplan == ' '){setIiplan(null);}
-    if (iifact == ' '){setIifact(null);}
-    if (koplan == ' '){setKoplan(null);}
-    if (kofact == ' '){setKofact(null);}*/
       putSystem();
      // getSystem();//вызов функции при получении значения post
     }

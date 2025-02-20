@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
-import { router, useLocalSearchParams } from "expo-router";
-import FileViewer from "@/components/FileViewer";
-import { isLoading } from "expo-font";
+import { router } from "expo-router";
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
@@ -15,10 +13,7 @@ import { isLoading } from "expo-font";
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
 
-  const {ID} = useLocalSearchParams();//получение id объекта
-  console.log(ID, 'ID load_reistry');
-
-  const uploadImage = async () => {
+  const upload = async () => {
     
       try {
     // Check if any file is selected or not
@@ -46,14 +41,12 @@ import { isLoading } from "expo-font";
       );
       console.log('ResponseLoadRegistry:', res);
       console.log('FormData:', data);
-     // console.log('fileToUpload:', fileToUpload);
-      //alert(res.status);
       //Обратная связь пользователю по загрузке дока
       if (res.status == 200){
-        alert('Структура загружена успешно');
+        alert('Объекты загружены');
       }
       if (res.status == 400) {
-        alert('Структура не загружена');
+        alert('Объекты не загружены');
       }
       } catch (error) {
         console.error('Error:', error);
@@ -97,54 +90,13 @@ import { isLoading } from "expo-font";
     }
   };
 
-  /*
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const req = async () => {
-  try {
-  const request = fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0003', {
-    method: 'POST',
-    headers: {'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},
-    body: selectedImage
-  })
-   console.log('Response:', request);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      //router.push('/(tabs)/two'); 
-    }
- }*/
- // const pickDocument = async () => {
-   // let result = await DocumentPicker.getDocumentAsync({ 
-     // type: "*/*",
-      // all files
-      // type: "image/*" // all images files
-      // type: "audio/*" // all audio files
-      // type: "application/*" // for pdf, doc and docx
-      // type: "application/pdf" // .pdf
-      // type: "application/msword" // .doc
-      // type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
-      // type: "vnd.ms-excel" // .xls
-      // type: "vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
-      // type: "text/csv" // .csv
-   /*   multiple: true,
-      copyToCacheDirectory: true 
-    });
-    console.log(result.uri);
-    console.log(result);
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    } else {
-      //alert('You did not select any image.');
-    }
-  }*/
-
   return (
     <View style={styles.background}>
       <View style={styles.button}>
        
           <CustomButton
                     title="Выбрать файл"
-                    handlePress={selectFile} // Вызов функции отправки данных
+                    handlePress={selectFile} 
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
         <View >
@@ -157,8 +109,8 @@ import { isLoading } from "expo-font";
       </View>
       <View>
         <CustomButton
-                      title="Отправить"
-                      handlePress={uploadImage} // Вызов функции отправки данных
+                      title="Загрузить"
+                      handlePress={upload} // Вызов функции отправки данных
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
         <View>
@@ -169,7 +121,7 @@ import { isLoading } from "expo-font";
     </View>
   );
 };
-//router.push('./see_note');
+
 const styles = StyleSheet.create({
   background: {
     backgroundColor: "white",
@@ -187,6 +139,4 @@ const styles = StyleSheet.create({
    
   },
 });
-
-//export default UploadFile;
 

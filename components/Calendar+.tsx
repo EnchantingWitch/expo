@@ -15,7 +15,7 @@ type Props = {
 const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//statusreq={statusRequest}
     const router = useRouter();
     //const {post} = useLocalSearchParams();
-    const [date, setDate] = useState<Date|string>(new Date());
+    const [date, setDate] = useState<Date|string|null>(new Date());
     const [check, setCheck] = useState<boolean>(false);//проверка на вывод пустого значения, если пришло null c бэка
     const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд                                                                                
     const [valuePicker, setValuePicker]= useState<Date>(new Date());//регулирует дату в DateTimePicker, чтобы не вызывалось с null
@@ -26,7 +26,7 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//
         //console.log('post', post);
         statusreq=false;setStartD(false);
         const customFormat = 'dd.MM.yyyy';//dd.MM.yyyy
-        if (post === ' '){setValuePicker(new Date(2025,1,1)); setDate(' '); console.log('!!!')}//проверка, что с бд пришло не пустое значение, 
+        if (post === ' '){setValuePicker(new Date(2025,1,1));setDate(' '); {/*} console.log('setDate(" ")', date, ';', setDate(' '), ';')*/}}//выводит undefined //проверка, что с бд пришло не пустое значение, 
         else{                           //добавить состояние для ограничения вызова датапикер или вызова по значению сегодняшнего числа
             const dateFnsDate = parse(post, customFormat, new Date());//установка значения из бд
             console.log('dateFnsDate', dateFnsDate);

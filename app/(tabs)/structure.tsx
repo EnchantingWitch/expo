@@ -1,11 +1,11 @@
 import React, { Component, useState, useEffect } from 'react';
 import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableWithoutFeedback, TouchableOpacity, UIManager, View } from 'react-native'
 import EditScreenInfo from '@/components/EditScreenInfo';
-import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { Link, router, useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import MonoSizeText from '@/components/FontSize'
 import { useWindowDimensions,  } from 'react-native';
 
-import CustomButton from '@/components/CustomButton';
+import CustomButton from '@/components/CustomButton';;
 
 export type Structure = {
   id: number;
@@ -37,6 +37,8 @@ export type Structure = {
 const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
+  const {ID} = useGlobalSearchParams();//получение id объекта
+  console.log(ID, 'ID structure');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -139,7 +141,7 @@ const Struct = () => {
       if (!isExpanded) return null;
 
       return(
-      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId}})} style={{width: '99%'}}>
+      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, ID: ID}})} style={{width: '99%'}}>
       <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '95%', height: 37, marginBottom: '5%', borderRadius: 8}}>
 
         <View style={{width: '7%',  justifyContent: 'center',}}>
@@ -229,7 +231,7 @@ const Struct = () => {
       </View>
        <CustomButton
                     title="Загрузить"
-                    handlePress={() => router.push('/structures/load_registry')} />
+                    handlePress={() => router.push({pathname: '/structures/load_registry', params: {ID: ID}})} />
       </View>
     );
   };

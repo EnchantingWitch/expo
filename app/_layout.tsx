@@ -64,6 +64,7 @@ function RootLayoutNav() {
         <Stack.Screen name="notes"  options={{ headerShown: false}} />
         <Stack.Screen name="structures"  options={{ headerShown: false}} />
         <Stack.Screen name="sign"  options={{ headerShown: false}} />
+        <Stack.Screen name="admin"  options={{ headerShown: false}} />
         
         <Stack.Screen name="modal" options={{ presentation: 'modal'}} />
 

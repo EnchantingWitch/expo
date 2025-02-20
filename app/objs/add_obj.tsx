@@ -1,15 +1,16 @@
 import React, {useState} from 'react';
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
-import {  } from '@/components/Themed';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
+import Checkbox from 'expo-checkbox';
 import { Link, Tabs, Redirect, router } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
-import DropdownComponent from '@/components/list';
+import ListOfRoles from '@/components/ListOfRoles';
 import CustomButton from '@/components/CustomButton';
-import CheckBox from '@react-native-community/checkbox';
+//import CheckBox from '@react-native-community/checkbox';
 
 
 export default function TabOneScreen() {
     const [isSelected, setSelection] = useState(false);
+    const [role, setRole] = useState<string>('');
 
     const fontScale = useWindowDimensions().fontScale;
 
@@ -21,46 +22,26 @@ export default function TabOneScreen() {
     <View style={styles.container}>
 
                         <TouchableOpacity onPress={() =>{router.push('./(tabs)/object')}}>
-                        <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 20}}>
 
-                            <View style={{width: '10%'}}>
-                            <CheckBox
+                            <View style={{width: '10%', justifyContent: 'center'}}>
+                            <Checkbox
                                 value={isSelected}
                                 onValueChange={setSelection}
+                                color={isSelected ? '#0072C8' : undefined}
                             />
                             </View>
-                            <View style={{width: '50%', }}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объетк 1</Text>
+                            <View style={{width: '50%', justifyContent: 'center'}}>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 1</Text>
                             </View>
 
-                            <View style={{width: '40%', }}>
-                            <DropdownComponent/>
+                            <View style={{width: '40%', justifyContent: 'center'}}>
+                            <ListOfRoles onChange = {(value) => setRole(value)}/>
                             </View>
 
                         </View>
                         </TouchableOpacity>
       
-                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object')}}>
-                        <View style={{ backgroundColor: '#F8FAFC', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41}}>
-                        
-                            <View style={{width: '10%'}}>
-
-                            <CheckBox
-                                value={isSelected}
-                                onValueChange={setSelection}
-                            />
-                            </View>
-
-                            <View style={{width: '50%', }}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объетк 2</Text>
-                            </View>
-
-                            <View style={{width: '40%', }}>
-                            <DropdownComponent/>
-                            </View>
-                                           
-                        </View>
-                        </TouchableOpacity>
     </View>
     <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects')}}/>
     </ScrollView>
@@ -72,7 +53,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'center',
     width: '96%',
-    height: '70%',
+    //height: '70%',
 
   },
   title: {

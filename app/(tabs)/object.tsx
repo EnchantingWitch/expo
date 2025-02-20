@@ -1,8 +1,9 @@
 import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native';
-import {  } from '@/components/Themed';
-import { Link, Tabs, Redirect, router } from 'expo-router';
+import { Link, Tabs, Redirect, router, useGlobalSearchParams, useRouter, useLocalSearchParams } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
 import React, { Component, useState, useEffect } from 'react';
+
+
 
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
@@ -19,6 +20,12 @@ type Object = {
 };
 
 export default function TabOneScreen() {
+  const router = useRouter();
+  const {ID} = useGlobalSearchParams();//получение id объекта
+ /* console.log(Id, 'Id object');
+  const ID = Id;*/
+  console.log(ID, 'ID object');
+  //router.setParams({ ID: ID });
 
   const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<Object[]>([]);
@@ -38,6 +45,8 @@ export default function TabOneScreen() {
       useEffect(() => {
         getStructure();
       }, []);
+
+     
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>

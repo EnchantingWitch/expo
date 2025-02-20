@@ -21,25 +21,26 @@ import { isLoading } from "expo-font";
     <View style={styles.background}>
 
         <CustomButton
-                    title="Зарегистрироваться"
-                    handlePress={()=>{router.push('/sign/register')}} 
+                    title="Заявки"
+                    //handlePress={()=>{router.push('')}} 
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
         <CustomButton
-                      title="Войти"
-                      handlePress={()=>{router.push('/sign/sign_in')}} 
+                      title="Зарегистрированные пользователи"
+                  //    handlePress={()=>{router.push('')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
         <CustomButton
-                      title="Объекты"
-                      handlePress={()=>{router.push('/objs/objects')}} 
+                      title="Создать объект"
+                      handlePress={()=>{router.push('./create_obj')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
         <CustomButton
-                      title="Администрирование"
-                      handlePress={()=>{router.push('/admin/menu')}} 
+                      title="Загрузить объекты"
+                      handlePress={()=>{router.push('./load_objs')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
+
     </View>
   );
 };
