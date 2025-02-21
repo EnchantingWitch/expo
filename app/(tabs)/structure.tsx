@@ -37,8 +37,8 @@ export type Structure = {
 const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
-  const {ID} = useGlobalSearchParams();//получение id объекта
-  console.log(ID, 'ID structure');
+  const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
+  console.log(codeCCS, 'ID structure');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -141,7 +141,7 @@ const Struct = () => {
       if (!isExpanded) return null;
 
       return(
-      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, ID: ID}})} style={{width: '99%'}}>
+      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS}})} style={{width: '99%'}}>
       <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '95%', height: 37, marginBottom: '5%', borderRadius: 8}}>
 
         <View style={{width: '7%',  justifyContent: 'center',}}>

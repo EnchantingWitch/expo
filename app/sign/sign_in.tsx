@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, View, TextInput, Button, StyleSheet, Text, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
-import { router } from 'expo-router';
+import { router, useRouter } from 'expo-router';
+
 
 
 type LoginResponse = {
@@ -10,6 +11,9 @@ type LoginResponse = {
 };
 
 const LoginModal = () => {
+    const router = useRouter();
+   // const role = 'admin'
+
     const [isVisible, setIsVisible] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -80,6 +84,12 @@ const LoginModal = () => {
             <CustomButton
                 title="Закрыть"
                 handlePress={() => setIsVisible(false)} />
+           {/*} <CustomButton
+                title="Проверка передачи значения admin"
+                handlePress={() => {router.push({pathname: '/', params: {roleReq: 'admin' }})}} />
+            <CustomButton
+                title="Проверка передачи значения client"
+                handlePress={() => {router.push({pathname: '/', params: {roleReq: 'client' }})}} />*/}
 
         </View>
 

@@ -1,4 +1,4 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
 import {  } from '@/components/Themed';
 import { Link, Tabs, Redirect, router } from 'expo-router';
 import FormField from '@/components/FormField';
@@ -26,24 +26,44 @@ export default function TabOneScreen() {
   const [executorCmr, setExecutorCmr] = useState<string>();//исполнитель смр
   const [cuCmr, setCuCmr] = useState<string>();//куратор смр
 
-  const request = () => {
-    router.push('/admin/menu')
+  const request = async () => {
+    try {
+    let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/createObject', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        capitalCSName: oks,
+        codeCCS: key,
+        locationRegion: region,
+        objectType: typeObj,
+        customer: charterer,//заказчик
+        CIWExecutor: executorPnr,//исполнитель СМР
+        CWExecutor: executorCmr,//исполнитель ПНР
+        customerSupervisor: cuCharterer,// Куратор заказчика
+        CWSupervisor: dirPnr, // Куратор ПНР
+        CIWSupervisor: cuCmr, // куратор СМР 
+      }),
+    });
+    console.log('Response:', response);
+    if (response.status == 200){
+      Alert.alert('', 'Объект добавлен.', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    }
+    if (response.status == 400) {
+      Alert.alert('', 'Объект не добавлен (возможно ОКС с введенным кодом уже существует).', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    };
+    router.push('/admin/menu');
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    router.push('./menu');
   }
-   /* const getStructure = async () => {
-        try {
-          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/051-2000973.0023');
-          const json = await response.json();
-          setData(json);
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setLoading(false);
-        }
-      };
-    
-      useEffect(() => {
-        getStructure();
-      }, []);*/
+
+};
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -56,7 +76,7 @@ export default function TabOneScreen() {
       <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
       <FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
-      <FormField title='Исполнитеь СМР' onChange={(value) => setExecutorCmr(value)}/>
+      <FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
         <CustomButton title='Сохранить' handlePress={request}/>
     </View>

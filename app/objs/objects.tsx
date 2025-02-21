@@ -1,58 +1,82 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import {  } from '@/components/Themed';
-import { Link, Tabs, Redirect, router, useRouter } from 'expo-router';
+import { Link, Tabs, Redirect, router, useRouter, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
 import CustomButton from '@/components/CustomButton';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
+type Object = {
+  capitalCSName: string;
+  codeCCS: string;
+  locationRegion: string;
+  objectType: string;
+  customer: string;//заказчик
+  CIWExecutor: string;//исполнитель СМР
+  CWExecutor: string;//исполнитель ПНР
+  customerSupervisor: string;// Куратор заказчика
+  CWSupervisor: string; // Куратор ПНР
+  CIWSupervisor: string; // куратор СМР 
+};
 
 export default function TabOneScreen() {
 const fontScale = useWindowDimensions().fontScale;
 const router = useRouter();
+//const {roleReq} = useLocalSearchParams();//получение роли
+//console.log(roleReq, 'role objects');
+const [isLoading, setLoading] = useState(true);
+const [data, setData] = useState<Object[]>([]);
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
-
-        const ID1 = 101;
-        const ID2 = 201;
-        const ID3 = 301;
-  //router.setParams({ ID: '101' });
   
+  const getObjects = async () => {
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll');
+      const json = await response.json();
+      setData(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getObjects();
+  }, []);
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
       {/*<Text style={{textAlign: 'center', fontSize: ts(14), paddingVertical: '4%'}}>Доступные объекты КС</Text>*/}
     <View style={styles.container}>
-
-                        <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { ID: ID1}})}}>
+    <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { ID: '101'}})}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 1</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект</Text>
                             </View>
                                            
                         </View>
                         </TouchableWithoutFeedback>
-      
-                        <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { ID: ID2}})}}>
+    { isLoading ? (
+              <ActivityIndicator />
+            ) : (
+    <FlatList
+        style={{width: '100%'}}
+        data={data}
+        keyExtractor={({codeCCS}) => codeCCS}
+        renderItem={({item}) => (
+                        <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS}})}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 2</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
                             </View>
                                            
                         </View>
                         </TouchableWithoutFeedback>
-                        
-
-                        <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { ID: ID3}})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
-                
-                            <View style={{width: '98%', }}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Тест для передачи значения</Text>
-                            </View>
-                                           
-                        </View>
-                        </TouchableWithoutFeedback>
+       )}
+       /> )}
     </View>
     <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
     </ScrollView>

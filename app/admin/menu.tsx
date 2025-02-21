@@ -35,11 +35,11 @@ import { isLoading } from "expo-font";
                       handlePress={()=>{router.push('./create_obj')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-        <CustomButton
+        {/*<CustomButton
                       title="Загрузить объекты"
                       handlePress={()=>{router.push('./load_objs')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
-        />
+        />*/}
 
     </View>
   );

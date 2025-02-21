@@ -27,23 +27,23 @@ export type SystemGET = {
   systemName: string;
   comments: number;
   status: string;
-  pnrplanDate: string; 
-  pnrfactDate: string;
+  PNRPlanDate: string; 
+  PNRFactDate: string;
   pnrsystemId: number;
-  kofactDate: string;
-  ciwexecutor: string;//исполнитель СМР
-  iifactDate: string;
-  koplanDate: string;
-  iiplanDate: string;
-  cwexecutor: string;//исполнитель ПНР
+  KOFactDate: string;
+  CIWExecutor: string;//исполнитель СМР
+  IIFactDate: string;
+  KOPlanDate: string;
+  IIPlanDate: string;
+  CWExecutor: string;//исполнитель ПНР
 }
 
 export default function TabOneScreen() {
   const {post} = useLocalSearchParams();//получение id замечания
  // const post = 256;
   console.log(post);
-  const {ID} = useLocalSearchParams();//получение id объекта
-  console.log(ID, 'ID system');
+  const {codeCCS} = useLocalSearchParams();//получение id объекта
+  console.log(codeCCS, 'ID system');
 
   const [click, setclick] = useState<boolean>(false);
   const [data, setData] = useState<SystemPUT | undefined>(undefined);
@@ -63,12 +63,6 @@ export default function TabOneScreen() {
     
 
     try {
-    if (pnrplan == ' '){setPnrplan(''); }
-    if (pnrfact == ' '){setPnrfact(''); }
-    if (iiplan == ' '){setIiplan('');}
-    if (iifact == ' '){setIifact('');}
-    if (koplan == ' '){setKoplan('');}
-    if (kofact == ' '){setKofact('');}
     const js = JSON.stringify({ 
       pnrsystemStatus: systemStat,
       ciwexecutor: ciwexecut,
@@ -86,17 +80,6 @@ export default function TabOneScreen() {
         body: js
       }
       );
-      console.log(JSON.stringify({ 
-          pnrsystemStatus: systemStat,
-          ciwexecutor: ciwexecut,
-          cwexecutor: cwexecut,
-          pnrplanDate: pnrplan,
-          pnrfactDate: pnrfact,
-          iiplanDate: iiplan,
-          iifactDate: iifact,
-          koplanDate: koplan,
-          kofactDate: kofact,
-        }));
         console.log(js);
       if (response.ok) {
         Alert.alert('', 'Данные по системе обновлены', [
@@ -146,7 +129,7 @@ export default function TabOneScreen() {
   useEffect(() => {
     if (click) {
       putSystem();
-     // getSystem();//вызов функции при получении значения post
+     
     }
   }, []);
 

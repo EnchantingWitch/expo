@@ -21,10 +21,10 @@ type Object = {
 
 export default function TabOneScreen() {
   const router = useRouter();
-  const {ID} = useGlobalSearchParams();//получение id объекта
+  const {codeCCS} = useGlobalSearchParams();//получение код ОКС
  /* console.log(Id, 'Id object');
   const ID = Id;*/
-  console.log(ID, 'ID object');
+  console.log(codeCCS, 'ID object');
   //router.setParams({ ID: ID });
 
   const [isLoading, setLoading] = useState(true);

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
+import { StyleSheet, FlatList, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Link, Tabs, Redirect, router } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
@@ -21,7 +21,12 @@ export default function TabOneScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
 
-                        <TouchableOpacity onPress={() =>{router.push('./(tabs)/object')}}>
+    {/*  <FlatList
+        style={{width: '100%'}}
+        data={data}
+        keyExtractor={({commentId}) => commentId}
+        renderItem={({item}) => (   
+        */}
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 20}}>
 
                             <View style={{width: '10%', justifyContent: 'center'}}>
@@ -40,7 +45,9 @@ export default function TabOneScreen() {
                             </View>
 
                         </View>
-                        </TouchableOpacity>
+   {/*     )}
+      />    
+      */}
       
     </View>
     <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects')}}/>
