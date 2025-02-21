@@ -24,7 +24,7 @@ export default function TabOneScreen() {
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
  /* console.log(Id, 'Id object');
   const ID = Id;*/
-  console.log(codeCCS, 'ID object');
+  //console.log(codeCCS, 'ID object');
   //router.setParams({ ID: ID });
 
   const [isLoading, setLoading] = useState(true);

@@ -38,7 +38,7 @@ const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
-  console.log(codeCCS, 'ID structure');
+  //console.log(codeCCS, 'ID structure');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -231,7 +231,7 @@ const Struct = () => {
       </View>
        <CustomButton
                     title="Загрузить"
-                    handlePress={() => router.push({pathname: '/structures/load_registry', params: {ID: ID}})} />
+                    handlePress={() => router.push({pathname: '/structures/load_registry', params: {codeCCS: codeCCS}})} />
       </View>
     );
   };

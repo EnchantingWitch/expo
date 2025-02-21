@@ -15,8 +15,8 @@ import { isLoading } from "expo-font";
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
 
-  const {ID} = useLocalSearchParams();//получение id объекта
-  console.log(ID, 'ID load_reistry');
+  const {codeCCS} = useLocalSearchParams();//получение id объекта
+  //console.log(codeCCS, 'ID load_reistry');
 
   const uploadImage = async () => {
     

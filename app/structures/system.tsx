@@ -43,7 +43,7 @@ export default function TabOneScreen() {
  // const post = 256;
   console.log(post);
   const {codeCCS} = useLocalSearchParams();//получение id объекта
-  console.log(codeCCS, 'ID system');
+ // console.log(codeCCS, 'ID system');
 
   const [click, setclick] = useState<boolean>(false);
   const [data, setData] = useState<SystemPUT | undefined>(undefined);
