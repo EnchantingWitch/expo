@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, FlatList, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
+import { StyleSheet, SafeAreaView, FlatList, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
 import Checkbox from 'expo-checkbox';
 import { Link, Tabs, Redirect, router } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
@@ -18,7 +18,7 @@ export default function TabOneScreen() {
         return (fontSize / fontScale)};
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
 
     {/*  <FlatList
@@ -27,7 +27,7 @@ export default function TabOneScreen() {
         keyExtractor={({commentId}) => commentId}
         renderItem={({item}) => (   
         */}
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 20}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: '5%',}}>
 
                             <View style={{width: '10%', justifyContent: 'center'}}>
                             <Checkbox
@@ -51,7 +51,7 @@ export default function TabOneScreen() {
       
     </View>
     <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects')}}/>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 

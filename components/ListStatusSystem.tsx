@@ -27,9 +27,9 @@ const data2 = [
 ];
 const data3 = [
     { label: 'Акт ИИ подписан', value: '8' },
-    { label: 'Проводится КО', value: '9' },
-    { label: 'Проведено КО', value: '10' },
-    { label: 'Акт КО на подписи', value: '11' },
+    { label: 'Проводится КО', value: '9' },//статус не выводится
+    { label: 'Проведено КО', value: '10' },//статус не выводится
+    { label: 'Акт КО на подписи', value: '11' },//статус не выводится
 ];
 const data4 = [
     { label: 'Акт КО подписан', value: '12' },
@@ -51,13 +51,13 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
         () => {
 
         //если изменилось значение фактических дат, обновляем выпадающий список
-        if (pnrFact && pnrFact != " ") {setSwith(2); console.log(pnrFact);}
-        if (iiFact && iiFact != " ") {setSwith(3); console.log(iiFact);}
-        if (koFact && koFact != " ") {setSwith(4); console.log(koFact);}
+        if (pnrFact && pnrFact != " ") {setSwith(2); }
+        if (iiFact && iiFact != " ") {setSwith(3); }
+        if (koFact && koFact != " ") {setSwith(4); }
         //условие на выбранное значение в зависимости от дат, проверка на выбранное значение из доступных статуов для соотвествующих дат
-        if (pnrFact && pnrFact != " ") { if (value != '5' && value != '6' && value != '7') {setValue('4'); console.log(setValue('4'));}}
-        if (iiFact && iiFact != " ") {if(value != '9' && value != '10' && value != '11') {setValue('8'); console.log(iiFact);}} 
-        if (koFact && koFact != " ") {setValue('12'); console.log(koFact);}
+        if (pnrFact && pnrFact != " ") { if (value != '5' && value != '6' && value != '7') {setValue('4'); }  else {setValue(post);}}
+        if (iiFact && iiFact != " ") {if(value != '9' && value != '10' && value != '11') {setValue('8');} else {setValue(post);}} 
+        if (koFact && koFact != " ") {setValue('12'); }
 
         }, [pnrFact, iiFact, koFact]
     )

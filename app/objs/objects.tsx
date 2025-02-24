@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, SafeAreaView, FlatList, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import {  } from '@/components/Themed';
 import { Link, Tabs, Redirect, router, useRouter, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
@@ -46,11 +46,11 @@ const [data, setData] = useState<Object[]>([]);
   }, []);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       {/*<Text style={{textAlign: 'center', fontSize: ts(14), paddingVertical: '4%'}}>Доступные объекты КС</Text>*/}
     <View style={styles.container}>
-    <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { ID: '101'}})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
+    <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: '051-2004430.008'}})}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
                             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект</Text>
@@ -67,7 +67,7 @@ const [data, setData] = useState<Object[]>([]);
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
                         <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS}})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: 41, borderRadius: 8}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
                             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
@@ -79,7 +79,7 @@ const [data, setData] = useState<Object[]>([]);
        /> )}
     </View>
     <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 

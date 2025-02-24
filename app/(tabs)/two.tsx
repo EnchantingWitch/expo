@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { router } from 'expo-router';
-import { parse } from 'date-fns';
-import { StyleSheet, ScrollView, Platform, Text, TextInput, Modal, Image, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
+import { parse, set } from 'date-fns';
+import { StyleSheet, ScrollView, Platform, Text, TextInput, Modal, Image, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions, Alert } from 'react-native';
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
@@ -10,7 +10,7 @@ import tw from 'tailwind-rn'
 import listOfNotes from '../notes/see_note';
 import DropdownComponent2 from '@/components/list_categories';
 
-import DatePickerComponent from '@/components/calendar1'
+import DateInputWithPicker from '@/components/Calendar+'
 import { format } from 'date-fns'
 
 import * as ImagePicker from 'expo-image-picker';
@@ -18,7 +18,8 @@ import * as ImagePicker from 'expo-image-picker';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Ionicons } from '@expo/vector-icons';
-import { toFormData } from 'axios';
+
+
 
 
 interface FormData {
@@ -36,30 +37,22 @@ interface FormData {
   numberII: string,
   userName: string;
   codeCCS: string;
+  url: string;
 
   onChange: (dateString: string) => void;
   value: string;
   placeholder?: string;
 }
+const formatDate = (date) => {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+  const yyyy = date.getFullYear();
+  return `${dd}.${mm}.${yyyy}`;
+}
 
 export default function DirectionLayout() {
 
   const currentDate = new Date;
-
-  const formatDate = (date) => {
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
-    const yyyy = date.getFullYear();
-    return `${dd}.${mm}.${yyyy}`;
-  }
-
-  const handleInputChange = (field: string, value: string) => { setFormData({ ...formData, [field]: value }) }
-  const [formData, setFormData] = useState({
-    editedDescription: '',
-    endDateFact: '',
-    editedCommentStatus: '',
-    editedUserName: '',
-  })
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -68,6 +61,7 @@ export default function DirectionLayout() {
   };
 
   const [selectedItem, setSelectedItem] = useState<FormData | null>(null);
+  const [userData, setUserData] = useState<FormData | null>(null);
 
   const [direction, setDirection] = useState('Объект');
   const [iconBlue, setIconBlue] = useState<boolean>(false);//Устранено без просрочки
@@ -77,7 +71,6 @@ export default function DirectionLayout() {
 
   const [showDatePicker, setShowDatePicker] = useState(false)
 
-  const [userData, setUserData] = useState<FormData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [editing, setEditing] = useState<boolean>(false);
   const [editedCommentId, setEditedCommentId] = useState<number>(0);
@@ -96,13 +89,21 @@ export default function DirectionLayout() {
   const [editedEndDateFact, setEditedEndDateFact] = useState<string>('')
   const customFormat = 'dd.MM.yyyy';
 
+  const [photo, setPhoto] = useState<FormData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  const [updating, setUpdating] = useState(false);
+
+
+  const [editedFields, setEditedFields] = useState<Partial<FormData>>({});
 
   const fetchData = async () => {
     try {
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments');
-      const result: FormData = await
-        response.json();
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки данных');
+      }
+      const result: FormData = await response.json();
       setUserData(result)
       setEditedIinumber(result.numberII)
       setEditedSubObject(result.subObject)
@@ -121,9 +122,27 @@ export default function DirectionLayout() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchPhoto = async () => {
+      try {
+        const response = await fetch(`https://files/downloadPhoto/${selectedItem?.commentId}`); // Замените на ваш URL
+        if (!response.ok) {
+          throw new Error('Ошибка загрузки данных');
+        }
+        const data: FormData = await response.json();
+        setPhoto(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhoto();
   }, []);
 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
@@ -132,8 +151,8 @@ export default function DirectionLayout() {
     try {
       const res = await ImagePicker.launchImageLibraryAsync({});
       console.log('res : ' + JSON.stringify(res));
-      if (!res.canceled) {
-        setSinglePhoto(res.assets[0]);
+      if (res.assets && res.assets[0].uri) {
+        setSinglePhoto(res.assets[0].uri)
       }
     } catch (err) {
       setSinglePhoto('');
@@ -146,36 +165,70 @@ export default function DirectionLayout() {
     }
   };
 
-  const handleSaveClick = async () => {
+  const fetchDataPhoto = async () => {
     try {
-      const response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/${selectedItem?.commentId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({//(formData)
-          iiNumber: editedIinumber,
-          subObject: editedSubObject,
-          systemName: editedSystemName,
-          description: editedDescription,
-          commentStatus: editedCommentStatus,
-          userName: editedUserName,
-          // startDate: editedStartDate,
-          endDateFact: editedEndDateFact,
-          //   endDatePlan: editedEndDatePlan,
-          commentCategory: editedCommentCategory
-        })
-      })
-      if (response.ok) {
-        const jsonData: FormData = await response.json();
-        setUserData(jsonData);
-        setEditing(false);
-        alert('Данные успешно сохранены!');
-      } else {
-        throw new Error('Не удалось сохранить данные.');
+      const response = await fetch(`https://files/downloadPhoto/${selectedItem?.commentId}`);
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки данных');
       }
+      const result: FormData = await response.json();
+      setPhoto(result);
     } catch (error) {
-      console.error('Ошибка при сохранении данных:', error);
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDataPhoto();
+  }, []);
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setEditedFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveClick = async () => {
+    if (!userData || Object.keys(editedFields).length === 0) {
+      Alert.alert('Ошибка', 'Нет изменений для сохранений');
+      return;
+    }
+    setUpdating(true);
+
+    try {
+      const response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/${userData?.commentId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editedFields)
+          /*  {
+              iiNumber: editedIinumber,
+              subObject: editedSubObject,
+              systemName: editedSystemName,
+              description: editedDescription,
+              commentStatus: editedCommentStatus,
+              userName: editedUserName,
+              // startDate: editedStartDate,
+              endDateFact: editedEndDateFact,
+              //   endDatePlan: editedEndDatePlan,
+              commentCategory: editedCommentCategory
+        })*/
+        })
+      if (!response.ok) {
+        throw new Error('Ошибка редактирования данных')
+      }
+      setUserData((prev) => ({ ...prev!, ...editedFields }));
+      setEditedFields({}); // Очищаем изменённые поля
+
+      Alert.alert('Успех!', 'Данные успешно сохранены!');
+    }
+    catch (error) {
+      Alert.alert('Ошибка', 'Ошибка при сохранении данных:');
+    }
+    finally {
+      setUpdating(false)
     }
   };
 
@@ -184,8 +237,8 @@ export default function DirectionLayout() {
   };
 
   const handleThreeFunction = async () => {
-    await setSelectedItem(null);
     await handleSaveClick();
+    await setSelectedItem(null);
     await fetchData();
   }
 
@@ -298,9 +351,8 @@ export default function DirectionLayout() {
                           <View >
                             <>
                               <TouchableOpacity onPress={() => { setSelectedItem(null) }}>
-                                <Ionicons name='close' size={30}></Ionicons>
-                               {/*} <Image style={{ width: 50, height: 50 }}
-                                  source={require('@/assets/images/krest.png')} />*/}
+                                <Image style={{ width: 45, height: 45 }}
+                                  source={require('@/assets/images/krest.png')} />
                               </TouchableOpacity>
                               <View >
                                 <View style={{ flex: 1, alignItems: 'center' }}>
@@ -320,8 +372,8 @@ export default function DirectionLayout() {
                                     style={styles.input}
                                     placeholderTextColor="#696969"
                                     placeholder={selectedItem.description}
-                                    value={editedDescription}
-                                    onChangeText={setEditedDescription}
+                                    value={editedFields.description || selectedItem.description}
+                                    onChangeText={(text) => handleInputChange('description', text)}
                                   />
 
                                   < Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус: </Text>
@@ -329,13 +381,35 @@ export default function DirectionLayout() {
                                     style={styles.input}
                                     placeholderTextColor="#696969"
                                     placeholder={selectedItem.commentStatus}
-                                    value={editedCommentStatus}
-                                    onChangeText={setEditedCommentStatus}
+                                    value={editedFields.commentStatus || userData?.commentStatus}
+                                    onChangeText={(text) => handleInputChange('commentStatus', text)}
                                   />
+
+
+                                  <View style={styles.container}>
+                                    {photo ? (
+                                      <Image
+                                        source={{ uri: photo.url }}
+                                        style={styles.image}
+                                        resizeMode="cover"
+                                      />
+                                    ) : (
+                                      <Text>Изображение не найдено</Text>
+                                    )}
+                                  </View>
+
 
                                   <View >
                                     {singlePhoto ? (
                                       <View style={{ paddingVertical: 8 }}>
+
+                                        <View>
+                                          <Image
+                                            source={{ uri: singlePhoto }}
+                                            style={styles.image}
+                                            resizeMode="cover"
+                                          />
+                                        </View>
 
                                         <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
                                           Выбрано фото: {singlePhoto.fileName}</Text>
@@ -366,14 +440,11 @@ export default function DirectionLayout() {
                                     style={styles.input}
                                     placeholderTextColor="#696969"
                                     placeholder={selectedItem.userName}
-                                    value={editedUserName}
-                                    onChangeText={setEditedUserName}
+                                    value={editedFields.userName || userData?.userName}
+                                    onChangeText={(text) => handleInputChange('userName', text)}
                                   />
                                   <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 10 }}>Дата окончания: {selectedItem.endDateFact}</Text>
-                                  <DatePickerComponent
-                                    value={formData.endDateFact}
-                                    onChange={(dateString) => handleInputChange('endDateFact', dateString)}
-                                  />
+
 
                                   <Text style={styles.inputNotChange}>Категория замечания:    {selectedItem.commentCategory}</Text>
 
@@ -583,5 +654,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 24,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    left: 38
   },
 });

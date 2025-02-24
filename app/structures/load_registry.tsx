@@ -35,7 +35,7 @@ import { isLoading } from "expo-font";
       //data.append("file", fileToUpload )
       // Please change file upload URL
       let res = await fetch(
-        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0012',
+        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/'+codeCCS,
         {
           method: 'post',
           body: data,
@@ -58,7 +58,10 @@ import { isLoading } from "expo-font";
       } catch (error) {
         console.error('Error:', error);
       }
-      finally{router.push('/(tabs)/structure'); setLoad(false);}  
+      finally{
+        router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS}})
+        //router.push('/(tabs)/structure'); setLoad(false);
+      }  
   };
 
   const selectFile = async () => {

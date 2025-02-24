@@ -24,7 +24,7 @@ export default function TabOneScreen() {
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
  /* console.log(Id, 'Id object');
   const ID = Id;*/
-  //console.log(codeCCS, 'ID object');
+  console.log(codeCCS, 'codeCCS object');
   //router.setParams({ ID: ID });
 
   const [isLoading, setLoading] = useState(true);
@@ -32,7 +32,7 @@ export default function TabOneScreen() {
   
     const getStructure = async () => {
         try {
-          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/051-2000973.0023');
+          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/'+codeCCS);
           const json = await response.json();
           setData(json);
         } catch (error) {
@@ -51,10 +51,10 @@ export default function TabOneScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
-      <FormForObj title='Принято в ПНР' handlePress={() => router.push('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.systemsPNRTotalQuantity} number2={data.systemsPNRQuantityAccepted} number3={0}></FormForObj>
-      <FormForObj title='Акты ИИ' handlePress={() => router.push('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsIITotalQuantity} number2={data.actsIISignedQuantity} number3={0}></FormForObj>
-      <FormForObj title='Акты КО' handlePress={() => router.push('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsKOTotalQuantity} number2={data.actsKOSignedQuantity} number3={0}></FormForObj>
-      <FormForObj title='Замечания' handlePress={() => router.push('./two')} text1='Всего' text2='Не устранено'  number1={data.commentsTotalQuantity} number2={data.commentsNotResolvedQuantity} ></FormForObj>
+      <FormForObj title='Принято в ПНР' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.systemsPNRTotalQuantity} number2={data.systemsPNRQuantityAccepted} number3={0}></FormForObj>
+      <FormForObj title='Акты ИИ' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsIITotalQuantity} number2={data.actsIISignedQuantity} number3={0}></FormForObj>
+      <FormForObj title='Акты КО' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsKOTotalQuantity} number2={data.actsKOSignedQuantity} number3={0}></FormForObj>
+      <FormForObj title='Замечания' handlePress={() => router.navigate('./two')} text1='Всего' text2='Не устранено'  number1={data.commentsTotalQuantity} number2={data.commentsNotResolvedQuantity} ></FormForObj>
       <FormForObj title='Дефекты оборудования' text1='Всего' text2='Не устранено'  number1={data.defectiveActsTotalQuantity} number2={data.defectiveActsNotResolvedQuantity}></FormForObj>
       <FormForObj title='Персонал' text1='Всего' text2='Динамика' number1={data.busyStaff} number2={0} ></FormForObj>
     </View>

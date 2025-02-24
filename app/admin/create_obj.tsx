@@ -40,11 +40,11 @@ export default function TabOneScreen() {
         locationRegion: region,
         objectType: typeObj,
         customer: charterer,//заказчик
-        CIWExecutor: executorPnr,//исполнитель СМР
-        CWExecutor: executorCmr,//исполнитель ПНР
+        ciwexecutor: executorPnr,//исполнитель СМР
+        cwexecutor: executorCmr,//исполнитель ПНР
         customerSupervisor: cuCharterer,// Куратор заказчика
-        CWSupervisor: dirPnr, // Куратор ПНР
-        CIWSupervisor: cuCmr, // куратор СМР 
+        cwsupervisor: dirPnr, // Куратор ПНР
+        ciwsupervisor: cuCmr, // куратор СМР 
       }),
     });
     console.log('Response:', response);
@@ -56,11 +56,10 @@ export default function TabOneScreen() {
       Alert.alert('', 'Объект не добавлен (возможно ОКС с введенным кодом уже существует).', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
     };
-    router.push('/admin/menu');
   } catch (error) {
     console.error('Error:', error);
   } finally {
-    router.push('./menu');
+    router.replace('./menu');
   }
 
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
@@ -14,7 +14,9 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  //const colorScheme = useColorScheme();
+  const {systemName} = useGlobalSearchParams();//получение кода ОКС 
+  console.log(systemName, 'systemName');
 
   return (
 
@@ -42,16 +44,18 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
-        name="system"
-        initialParams={{ idSystem: 1 }}
+        name="system" 
+      //  initialParams={{ idSystem: 1 }}
         options={{
-          title: 'Система',
+          //title: {systemName},
+       //   title: 'Система',
+          title: systemName,
           headerTitleAlign: 'center',
 
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          //headerTitle: systemName, 
+          headerStyle: { backgroundColor: '#FFFFFF', },
         }}
       />
       <Stack.Screen

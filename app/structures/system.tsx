@@ -5,7 +5,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/Calendar+';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import DropdownComponent from '@/components/ListStatusSystem';
 import React, {useEffect, useState} from 'react';
 
@@ -39,11 +39,12 @@ export type SystemGET = {
 }
 
 export default function TabOneScreen() {
+  const router = useRouter();
   const {post} = useLocalSearchParams();//получение id замечания
  // const post = 256;
   console.log(post);
   const {codeCCS} = useLocalSearchParams();//получение id объекта
- // console.log(codeCCS, 'ID system');
+  console.log(codeCCS, 'codeCCS system');
 
   const [click, setclick] = useState<boolean>(false);
   const [data, setData] = useState<SystemPUT | undefined>(undefined);
@@ -57,6 +58,7 @@ export default function TabOneScreen() {
   const [koplan, setKoplan] = useState<string | null>('');
   const [kofact, setKofact] = useState<string | null>('');
   const [comment, setComments] = useState<string>('');
+  const [system, setSystem] = useState<string>('');//наименование системы
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
 
   const putSystem = async () => {
@@ -91,7 +93,9 @@ export default function TabOneScreen() {
     } catch (error) {
       console.error(error);
     } finally {
-      router.push('/(tabs)/structure');
+      router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS}})
+      //router.push('/(tabs)/structure');
+
     }
   };
 
@@ -99,6 +103,7 @@ export default function TabOneScreen() {
     try {
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getSystemCommonInfo/'+post);
       const json = await response.json();
+      setSystem(json.systemName);
       setSystemStat(json.status);
       setCiwexecut(json.ciwexecutor);
       setCwexecut(json.cwexecutor);
@@ -109,12 +114,18 @@ export default function TabOneScreen() {
       setKoplan(json.koplanDate);
       setKofact(json.kofactDate);
       setComments(''+json.comments.toString());
-      console.log('ResponseSeeSystem:', response)
+      
+      console.log(json.systemName, 'json.systemName');
+      console.log('ResponseSeeSystem:', response);
+      console.log('ResponseSeeSystem json:', json);
       setstatusRequest(true);
     } catch (error) {
       console.error('Ошибка при получении данных:', error);
       setstatusRequest(false);
     } finally {
+      router.setParams({systemName: system});
+      console.log(system, 'sytemN in system.tsx');
+
      // setLoading(false);
     }
   };
@@ -123,8 +134,14 @@ export default function TabOneScreen() {
     if (post) {
       //putSystem();
       getSystem();//вызов функции при получении значения post
+      //router.setParams({systemName: systemN});
+      //console.log(systemN, 'systemN in system.tsx');
     }
-  }, [post]);
+    if (statusRequest){
+      router.setParams({systemName: system});
+      console.log(system, 'sytemN in system.tsx');
+    }
+  }, [post, statusRequest]);
 
   useEffect(() => {
     if (click) {
@@ -140,7 +157,9 @@ export default function TabOneScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+      
     <View style={styles.container}>
+   {/* <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: '500', textAlign: 'center', marginBottom: '23' }}>{system}</Text> */}
 
       <View style={styles.separator}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>

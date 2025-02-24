@@ -38,7 +38,7 @@ const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
-  //console.log(codeCCS, 'ID structure');
+  console.log(codeCCS, 'codeCCS structure');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -50,7 +50,7 @@ const Struct = () => {
 
   const getStructure = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/051-2004430.0012');
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);

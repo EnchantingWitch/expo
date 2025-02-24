@@ -11,7 +11,6 @@ import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateNote() {
   const [upLoading, setUpLoading] = useState(false);
-  const [click, setClick] = useState(false);
   const [numberII, setNumber] = useState('');
   const [subObject, setSubObject] = useState('');
   const [systemName, setSystemName] = useState('');
@@ -25,56 +24,19 @@ export default function CreateNote() {
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
-    return (fontSize / fontScale)};
+    return (fontSize / fontScale)
+  };
 
   const [form, setForm] = useState({ video: null, image: null });
 
   const TwoFunction = () => {
-    console.log(click);
-    if (click == false) {submitData(); setClick(true); console.log(click);};
+    submitData();
+    //setTimeout( uploadImage, 1000);
+    //uploadImage(id);
   };
 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
-  /*const uploadImage = async () => {
-
-    try {
-      // Check if any file is selected or not
-
-      // If file selected then create FormData
-      const photoToUpload = singlePhoto;
-      const body = new FormData();
-      //data.append('name', 'Image Upload');
-      body.append("photo", {
-        uri: photoToUpload.uri,
-        type: 'photo',
-        name: 'photoToUpload'
-      })
-      //body.append("photo", photoToUpload);
-      // Please change file upload URL
-      alert(id);
-
-
-      let res = await fetch(
-        'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
-        {
-          method: 'post',
-          body: body,
-          headers: {
-            'Content-Type': 'multipart-form/data'
-          }
-        }
-      );
-      console.log('ResponsePhoto:', res);
-      let responseJson = await res.json();
-      if (responseJson.status == 1) {
-        alert('Upload Successful');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    finally { router.push('/(tabs)/two'); }
-  };*/
 
   const selectPhoto = async () => {
     // Opening Document Picker to select one file
@@ -84,10 +46,11 @@ export default function CreateNote() {
       });
       // Printing the log realted to the file
       console.log('res : ' + JSON.stringify(res));
-      // Setting the state to show single file attributes
-      if (!res.canceled) {
-        setSinglePhoto(res.assets[0]);
+      if (res.assets && res.assets[0].uri) {
+        setSinglePhoto(res.assets[0].uri)
       }
+      // Setting the state to show single file attributes
+
     } catch (err) {
       setSinglePhoto('');
       // Handling any exception (If any)
@@ -108,85 +71,125 @@ export default function CreateNote() {
 
   const submitData = async () => {
     //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
-    
-      try {
-        let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
-          method: 'POST',
+
+    try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          iiNumber: numberII,
+          subObject: subObject,
+          systemName: systemName,
+          description: description,
+          commentStatus: "Не устранено",
+          userName: userName,
+          //startDate: startDate,
+          startDate: "10.01.2025",
+          //commentCategory: category,
+          commentCategory: "Влияет",
+          commentExplanation: comExp,
+          codeCCS: "051-2000973.0023",
+        }),
+      });
+      const id = await response.text()
+
+      // Обработка ответа, если необходимо
+      console.log(id);
+      let numId = Number(id);
+      console.log(numId);
+      //setId(id);
+      //не выводится в консоль
+      console.log('Response:', response);
+
+      //Тут добавила
+      const photoToUpload = singlePhoto;
+      const body = new FormData();
+      //data.append('name', 'Image Upload');
+      body.append("photo", {
+        uri: photoToUpload.uri,
+        type: 'image/*',
+        name: 'photoToUpload'
+      })
+      //body.append("photo", photoToUpload);
+      // Please change file upload URL
+      alert(id);
+
+      let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
+      console.log(str);
+
+      let res = await fetch(
+        str,
+        {
+          method: 'post',
+          body: body,
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            iiNumber: numberII,
-            subObject: subObject,
-            systemName: systemName,
-            description: description,
-            commentStatus: "Не устранено",
-            userName: userName,
-            //startDate: startDate,
-            startDate: "10.01.2025",
-            //commentCategory: category,
-            commentCategory: "Влияет",
-            commentExplanation: comExp,
-            codeCCS: "051-2000973.0023",
-          }),
-        });
-        const id = await response.text()
-        
-        // Обработка ответа, если необходимо
-        console.log(id);
-        let numId = Number(id);
-        console.log(numId);
-        //setId(id);
-        //не выводится в консоль
-        console.log('Response:', response);
-
-  //Тут добавила
-        const photoToUpload = singlePhoto;
-        const body = new FormData();
-        //data.append('name', 'Image Upload');
-        body.append("photo", {
-          uri: photoToUpload.uri,
-          type: 'image/*',
-          name: 'photoToUpload'
-        })
-        //body.append("photo", photoToUpload);
-        // Please change file upload URL
-        alert(id);
-        
-        let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/'+id);
-        console.log(str);
-
-        let res = await fetch(
-          str,
-          {
-            method: 'post',
-            body: body,
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
+            'Content-Type': 'multipart/form-data'
           }
-        );
-        console.log('ResponsePhoto:', res);
-       /* let responseJson = await res.json();
-        if (responseJson.status == 1) {
-          alert('Upload Successful');
-        }*/
-//до сюда
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setUpLoading(false);
+        }
+      );
+      console.log('ResponsePhoto:', res);
+      /* let responseJson = await res.json();
+       if (responseJson.status == 1) {
+         alert('Upload Successful');
+       }*/
+      //до сюда
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setUpLoading(false);
       //  alert(id);
-        router.push('/(tabs)/two');
-      }
-    
-  
+      router.push('/(tabs)/two');
+    }
+
+
     // else{
     //  Alert.alert('Ошибка при создании замечания', 'Для создания замечания должны быть заполнены следующие поля: номер АИИ, объект, система, содержание замечания, исполнитель и категория замечания.', [
     //   {text: 'OK', onPress: () => console.log('OK Pressed')},
     //])
     // }
+
+    /*   try {
+         // Check if any file is selected or not
+   
+         // If file selected then create FormData
+         const photoToUpload = singlePhoto;
+         const body = new FormData();
+         //data.append('name', 'Image Upload');
+         body.append("photo", {
+           uri: photoToUpload.uri,
+           type: 'photo',
+           name: 'photoToUpload'
+         })
+         //body.append("photo", photoToUpload);
+         // Please change file upload URL
+         alert(id);
+   
+   
+         let res = await fetch(
+           'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id,
+           {
+             method: 'post',
+             body: body,
+             headers: {
+               'Content-Type': 'multipart-form/data'
+             }
+           }
+         );
+         console.log('ResponsePhoto:', res);
+         let responseJson = await res.json();
+         if (responseJson.status == 1) {
+           alert('Upload Successful');
+         }
+       } catch (error) {
+         console.error('Error:', error);
+       }
+       finally { router.push('/(tabs)/two'); 
+   
+       }*/
+
   }
 
 
@@ -195,7 +198,7 @@ export default function CreateNote() {
     <ScrollView>
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ</Text>
           <TextInput
             style={styles.input}
             //placeholder="№ акта ИИ"
@@ -203,7 +206,7 @@ export default function CreateNote() {
             onChangeText={setNumber}
             value={numberII}
           />
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект</Text>
           <TextInput
             style={styles.input}
             //placeholder="Объект"
@@ -212,36 +215,41 @@ export default function CreateNote() {
             value={subObject}
           />
 
-          
-           <View >
-                  {singlePhoto ? (
-                    <View style={{paddingVertical: 8}}>
 
-                        <Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>
-                      Выбрано фото: {singlePhoto.fileName}</Text>
-                      
-                      <CustomButton
-                      title="Удалить фото"
-                      handlePress={cancelPhoto}
-                      />
+          <View >
+            {singlePhoto ? (
+              <View style={{ paddingVertical: 8 }}>
 
-                    </View>
-                  ):(
-                  <View style={{paddingVertical: 8}}>
+                <View> <Image
+                  source={{ uri: singlePhoto }}
+                  style={styles.image}
+                /></View>
 
-                    <Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center'}}>Фото не выбрано</Text>
-                    
-                    <CustomButton
-                      title="Выбрать фото"
-                      handlePress={selectPhoto}
-                    />
-                    
-                  </View>
-                      )
-                  }
-            </View>
+                <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
+                  Выбрано фото: {singlePhoto.fileName}</Text>
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6}}>Система</Text>
+                <CustomButton
+                  title="Удалить фото"
+                  handlePress={cancelPhoto}
+                />
+
+              </View>
+            ) : (
+              <View style={{ paddingVertical: 8 }}>
+
+                <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Фото не выбрано</Text>
+
+                <CustomButton
+                  title="Выбрать фото"
+                  handlePress={selectPhoto}
+                />
+
+              </View>
+            )
+            }
+          </View>
+
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
           <TextInput
             style={styles.input}
             //placeholder="Система"
@@ -250,7 +258,7 @@ export default function CreateNote() {
             value={systemName}
           />
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
             style={styles.input}
             //placeholder="Содержание замечания"
@@ -272,7 +280,7 @@ export default function CreateNote() {
             ) : null}
           </TouchableOpacity>*/}
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={styles.input}
             //placeholder="Исполнитель"
@@ -288,7 +296,7 @@ export default function CreateNote() {
             value={startDate}
           />*/}
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 0 }}>Дата выдачи</Text>
 
           { /*         <View style={{ flexDirection: 'row', width: '80%', height: 32, paddingTop: 6, }}>
           <TextInput
@@ -300,7 +308,7 @@ export default function CreateNote() {
           <DateInputWithPicker />
           { /* </View>*/}
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
           <DropdownComponent2 />
 
           { /*         <TextInput
@@ -311,7 +319,7 @@ export default function CreateNote() {
             value={category}
           />*/}
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
+          <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
             style={styles.input}
             // placeholder="Комментарий"
@@ -348,5 +356,11 @@ export const styles = StyleSheet.create({
     color: '#B3B3B3',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  image: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    left: 38
   },
 });
