@@ -38,7 +38,9 @@ const Struct = () => {
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
+  const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   console.log(codeCCS, 'codeCCS structure');
+  console.log(capitalCSName, 'capitalCSName structure');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -84,19 +86,19 @@ const Struct = () => {
 
 
     const renderSectionHeader=({ section}: {section: Structure}) => (
-      <TouchableWithoutFeedback onPress={() => handleToggle(section.id)}>
-      <View style={{flexDirection: 'row', backgroundColor: '#E0F2FE', width: '98%', height: 37,  marginBottom: '5%', alignItems: 'center', borderRadius: 8, alignSelf: 'center'}}>
+      <TouchableWithoutFeedback onPress={() => handleToggle(section.id)}>{/** E0F2FE */}
+      <View style={{flexDirection: 'row', backgroundColor: '#E0F2FE', width: '98%', height: 37,   marginBottom: '3%', marginTop: '2%', alignItems: 'center', borderRadius: 8, alignSelf: 'center'}}>
         
         <View style={{width: '10%', }}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{section.numberKO}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.numberKO}</Text>
         </View>
 
         <View style={{width: '55%'}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{section.subObjectName}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.subObjectName}</Text>
         </View>
 
         <View style={{width: '21%'}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{section.comments}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.comments}</Text>
         </View>
 
         <View style={{width: '14%'}}>
@@ -141,19 +143,19 @@ const Struct = () => {
       if (!isExpanded) return null;
 
       return(
-      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS}})} style={{width: '99%'}}>
-      <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '95%', height: 37, marginBottom: '5%', borderRadius: 8}}>
+      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS, capitalCSName: capitalCSName }})} style={{width: '99%'}}>
+      <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '96%', height: 37, marginBottom: '2.5%', marginLeft: '1%', borderRadius: 8}}>
 
         <View style={{width: '7%',  justifyContent: 'center',}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.numberII}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '16' }}>{item.numberII}</Text>
         </View>
         
         <View style={{width: '57%',  justifyContent: 'center', }}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.systemName}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', lineHeight: '16' }}>{item.systemName}</Text>
         </View>
         
         <View style={{width: '22%', justifyContent: 'center',}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.comments}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '16'  }}>{item.comments}</Text>{/**{item.comments} */}
         </View>
 
         <View style={{width: '14%',  justifyContent: 'center'}}>
@@ -198,7 +200,7 @@ const Struct = () => {
       <View style={{ backgroundColor: 'white', flex: 1 }}>
       <View style={styles.container}>
 
-        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 32, paddingTop: 6 }}>
+        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 32,}}>
             <View style={{width: '10%', }}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
             </View>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
-import { router } from 'expo-router';
+import { router, useGlobalSearchParams } from 'expo-router';
 import { parse, set } from 'date-fns';
 import { StyleSheet, ScrollView, Platform, Text, TextInput, Modal, Image, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions, Alert } from 'react-native';
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
@@ -8,9 +8,9 @@ import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
 import tw from 'tailwind-rn'
 import listOfNotes from '../notes/see_note';
-import DropdownComponent2 from '@/components/list_categories';
+import DropdownComponent2 from '@/components/ListOfCategories';
 
-import DateInputWithPicker from '@/components/Calendar+'
+import Calendar from '@/components/Calendar+'
 import { format } from 'date-fns'
 
 import * as ImagePicker from 'expo-image-picker';
@@ -18,8 +18,6 @@ import * as ImagePicker from 'expo-image-picker';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Ionicons } from '@expo/vector-icons';
-
-
 
 
 interface FormData {
@@ -60,6 +58,10 @@ export default function DirectionLayout() {
     return (fontSize / fontScale)
   };
 
+  const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
+  const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
+  const [statusReq, setStatusReq] = useState<boolean>(false);
+
   const [selectedItem, setSelectedItem] = useState<FormData | null>(null);
   const [userData, setUserData] = useState<FormData | null>(null);
 
@@ -99,7 +101,7 @@ export default function DirectionLayout() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments');
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments/'+codeCCS);
       if (!response.ok) {
         throw new Error('Ошибка загрузки данных');
       }
@@ -176,6 +178,7 @@ export default function DirectionLayout() {
     } catch (error) {
       console.error(error);
     } finally {
+      setStatusReq(true);
       setLoading(false);
     }
   };
@@ -241,42 +244,6 @@ export default function DirectionLayout() {
     await setSelectedItem(null);
     await fetchData();
   }
-
-
-  const iconFunction = (status: string, dateFact1: string, datePlan2: string) => {
-    const date1 = formatDate(currentDate); //console.log(date);
-    //const dateFact = parse(dateFact1, customFormat, new Date());
-    const datePlan = parse(datePlan2, customFormat, new Date());
-    const date = parse(date1, customFormat, new Date());
-
-    // console.log(dateFact);
-    console.log(datePlan2);
-    console.log(date);
-    // console.log(dateFact);
-
-    console.log((status == 'Устранено'));
-    const statBlue = (status === 'Устранено');
-    const statEmpty = (status === 'Не устранено');
-    console.log(statBlue);
-    console.log(statEmpty);
-
-    // if ((status == 'Не устранено')==false){setIconBlue(true);}
-    // if ((status == 'Не устранено')==true){setIconEmpty(true);}
-    setIconBlue(statBlue);
-    setIconEmpty(statEmpty);
-    //  if (dateFact != '') {
-    //if (dateFact < datePlan){setIconBlue(true);}
-    //if (dateFact > datePlan){setIconOrange(true);}
-    // }
-    // else{
-    //if (datePlan < date){setIconEmpty(true);}
-    // if (dateFact > date){setIconEmptyOrange(true);}
-    //}
-    console.log(iconBlue);
-    // console.log(iconOrange);
-    console.log(iconEmpty);
-    // console.log(iconEmptyOrange);
-  };
 
   const renderItem = ({ item }: { item: FormData }) => (
 
@@ -444,8 +411,9 @@ export default function DirectionLayout() {
                                     onChangeText={(text) => handleInputChange('userName', text)}
                                   />
                                   <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 10 }}>Дата окончания: {selectedItem.endDateFact}</Text>
-
-
+                                 
+                                  <Calendar post = {selectedItem?.endDateFact || editedFields.endDateFact}  statusreq={statusReq} onChange={(dateString) => setEditedEndDateFact(dateString)} />
+                                  
                                   <Text style={styles.inputNotChange}>Категория замечания:    {selectedItem.commentCategory}</Text>
 
                                   <CustomButton
@@ -470,7 +438,7 @@ export default function DirectionLayout() {
           }}>
             <CustomButton
               title="Добавить замечание"
-              handlePress={() => router.push('/notes/create_note')} />
+              handlePress={() =>router.push({pathname: '/notes/create_note', params: { codeCCS: codeCCS, capitalCSName: capitalCSName }})} />
 
           </View>
         </PreviewLayout >

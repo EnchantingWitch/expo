@@ -1,13 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions } from 'react-native';
-import { Link, router } from 'expo-router';
-import DropdownComponent2 from '@/components/list_categories';
-import DateInputWithPicker from '@/components/calendar';
+import { Link, router, useLocalSearchParams } from 'expo-router';
+import DropdownComponent2 from '@/components/ListOfCategories';
+import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
 import { Video } from 'react-native-video';
 import ImageViewer from '@/components/ImageViewer';
 import * as ImagePicker from 'expo-image-picker';
+import ListOfSystem from '@/components/ListOfSystem';
 
 export default function CreateNote() {
   const [upLoading, setUpLoading] = useState(false);
@@ -26,6 +27,10 @@ export default function CreateNote() {
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)
   };
+  console.log(startDate);
+
+  const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
+  const {capitalCSName} = useLocalSearchParams();
 
   const [form, setForm] = useState({ video: null, image: null });
 
@@ -86,14 +91,28 @@ export default function CreateNote() {
           description: description,
           commentStatus: "Не устранено",
           userName: userName,
-          //startDate: startDate,
-          startDate: "10.01.2025",
-          //commentCategory: category,
-          commentCategory: "Влияет",
+          startDate: startDate,
+          //startDate: "10.01.2025",
+          commentCategory: category,
+          //commentCategory: "Влияет",
           commentExplanation: comExp,
-          codeCCS: "051-2000973.0023",
+          codeCCS: codeCCS,
         }),
       });
+      console.log(JSON.stringify({
+        iiNumber: numberII,
+        subObject: subObject,
+        systemName: systemName,
+        description: description,
+        commentStatus: "Не устранено",
+        userName: userName,
+        startDate: startDate,
+        //startDate: "10.01.2025",
+        commentCategory: category,
+        //commentCategory: "Влияет",
+        commentExplanation: comExp,
+        codeCCS: "051-2000973.0023",
+      }));
       const id = await response.text()
 
       // Обработка ответа, если необходимо
@@ -141,7 +160,7 @@ export default function CreateNote() {
     } finally {
       setUpLoading(false);
       //  alert(id);
-      router.push('/(tabs)/two');
+      router.replace({pathname: '/(tabs)/two', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
     }
 
 
@@ -250,13 +269,14 @@ export default function CreateNote() {
           </View>
 
           <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
-          <TextInput
+          <ListOfSystem onChange={(system) => setSystemName(system)}/>
+        {/*}  <TextInput
             style={styles.input}
             //placeholder="Система"
             placeholderTextColor="#111"
             onChangeText={setSystemName}
             value={systemName}
-          />
+          />*/}
 
           <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
@@ -305,11 +325,11 @@ export default function CreateNote() {
             placeholderTextColor="#111"
             onChangeText={setUserName}
           />*/}
-          <DateInputWithPicker />
+          <DateInputWithPicker onChange ={(currentDate) => setStartDate(currentDate)}/>
           { /* </View>*/}
 
           <Text style={{ fontSize: ts(16), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
-          <DropdownComponent2 />
+          <DropdownComponent2 onChange ={(category) => setCategory(category)}/>
 
           { /*         <TextInput
             style={styles.input}

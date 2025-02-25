@@ -55,7 +55,8 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//
        // if (d != '') {router.setParams( {d} )};//возврат значения в функцию, не передает если переменную через formatDate пропускать
         if (selectedDate) {
                 const dateString = format(selectedDate, 'dd.MM.yyyy') // Формат: YYYY-MM-DD
-                onChange(dateString); // Обновляем значение даты          
+                onChange(dateString); // Обновляем значение даты   
+                console.log(dateString);       
         }
     };
 
@@ -110,12 +111,12 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//
         <View style={styles.containerrow}>
             <TextInput style={[styles.input, { fontSize: ts(14) }]}
                 placeholderTextColor="#111"
-                value={formatDate(date)}
+                value={check? (formatDate(date)): ' '}
             />
 
 
             <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-                <Image style={{ width: 70, height: 40 }}
+                <Image style={{ width: 50, height: 50 }}
                     source={require('../assets/images/calendar1.png')} />
                 {showPicker && (
                     <DateTimePicker
@@ -147,9 +148,10 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width: '96%',
+        //width: '100%',
         flexDirection: 'row',
         marginBottom: 8,
+        alignItems: 'center',
     },
     containerrowMin: {
         flex: 1,
@@ -170,7 +172,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '50%',
+        width: '70%',
         height: 42,
         color: '#B3B3B3',
         textAlign: 'center',

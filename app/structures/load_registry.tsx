@@ -16,6 +16,7 @@ import { isLoading } from "expo-font";
     return (fontSize / fontScale)};
 
   const {codeCCS} = useLocalSearchParams();//получение id объекта
+  const {capitalCSName} = useLocalSearchParams();//получение id объекта
   //console.log(codeCCS, 'ID load_reistry');
 
   const uploadImage = async () => {
@@ -59,7 +60,7 @@ import { isLoading } from "expo-font";
         console.error('Error:', error);
       }
       finally{
-        router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS}})
+        router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})
         //router.push('/(tabs)/structure'); setLoad(false);
       }  
   };

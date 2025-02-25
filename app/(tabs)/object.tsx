@@ -1,9 +1,7 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, useWindowDimensions } from 'react-native';
 import { Link, Tabs, Redirect, router, useGlobalSearchParams, useRouter, useLocalSearchParams } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
 import React, { Component, useState, useEffect } from 'react';
-
-
 
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
@@ -22,6 +20,7 @@ type Object = {
 export default function TabOneScreen() {
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
+ // const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
  /* console.log(Id, 'Id object');
   const ID = Id;*/
   console.log(codeCCS, 'codeCCS object');
@@ -46,11 +45,16 @@ export default function TabOneScreen() {
         getStructure();
       }, []);
 
+      const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
      
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
     <View style={styles.container}>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8, textAlign: 'right' }}>{codeCCS}</Text>
       <FormForObj title='Принято в ПНР' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.systemsPNRTotalQuantity} number2={data.systemsPNRQuantityAccepted} number3={0}></FormForObj>
       <FormForObj title='Акты ИИ' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsIITotalQuantity} number2={data.actsIISignedQuantity} number3={0}></FormForObj>
       <FormForObj title='Акты КО' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsKOTotalQuantity} number2={data.actsKOSignedQuantity} number3={0}></FormForObj>

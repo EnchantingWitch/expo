@@ -1,6 +1,6 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Stack, Tabs } from 'expo-router';
+import { Link, Stack, Tabs, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import { Pressable, Button, Image } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Colors from '@/constants/Colors';
@@ -17,7 +17,8 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const {capitalCSName} = useGlobalSearchParams();
+  console.log(capitalCSName, 'tab object capitalCSName');
   return (
     <Tabs
       screenOptions={{
@@ -31,7 +32,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="object"
         options={{
-          title: 'Объект',
+          title: capitalCSName,
+          //title: 'Объект',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
           //tabBarIcon: ({size,focused,color}) => {

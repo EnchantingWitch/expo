@@ -44,7 +44,8 @@ export default function TabOneScreen() {
  // const post = 256;
   console.log(post);
   const {codeCCS} = useLocalSearchParams();//получение id объекта
-  console.log(codeCCS, 'codeCCS system');
+  const {capitalCSName} = useLocalSearchParams();
+  console.log(capitalCSName, 'capitalCSName system');
 
   const [click, setclick] = useState<boolean>(false);
   const [data, setData] = useState<SystemPUT | undefined>(undefined);
@@ -93,7 +94,7 @@ export default function TabOneScreen() {
     } catch (error) {
       console.error(error);
     } finally {
-      router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS}})
+      router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})
       //router.push('/(tabs)/structure');
 
     }
