@@ -40,7 +40,7 @@ export type SystemGET = {
 
 export default function TabOneScreen() {
   const router = useRouter();
-  const {post} = useLocalSearchParams();//получение id замечания
+  const {post} = useLocalSearchParams();//получение id системы
  // const post = 256;
   console.log(post);
   const {codeCCS} = useLocalSearchParams();//получение id объекта
@@ -63,8 +63,7 @@ export default function TabOneScreen() {
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
 
   const putSystem = async () => {
-    
-
+  
     try {
     const js = JSON.stringify({ 
       pnrsystemStatus: systemStat,
@@ -146,8 +145,7 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     if (click) {
-      putSystem();
-     
+      putSystem();    
     }
   }, []);
 
@@ -255,7 +253,7 @@ export default function TabOneScreen() {
                 />
  
       <CustomButton title='Подтвердить'  handlePress={() => putSystem() }/>
-      <CustomButton title='Отменить'  handlePress={() => router.push('/(tabs)/structure')} />
+      <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
     </View>
     </ScrollView>
   );

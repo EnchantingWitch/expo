@@ -89,16 +89,15 @@ const CalendarOnWrite = ({theme, onChange }: Props) => {
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        //justifyContent: 'center',
         //paddingTop: 11,
         //paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'20%',
-        
+        width: '20%',
+
     },
     containerrow: {
         flex: 1,
@@ -106,7 +105,7 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'98%',
+        //width: '100%',
         flexDirection: 'row',
         marginBottom: 8,
         alignItems: 'center',
@@ -114,10 +113,11 @@ const styles = StyleSheet.create({
     containerrowMin: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width:'50%',
+        width: '0%',
         flexDirection: 'row',
         marginBottom: 8,
     },
@@ -129,21 +129,21 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '85%',
-        height: 40,
+        width: '70%',
+        height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
-      },
-      inputMin: {
+    },
+    inputMin: {
         backgroundColor: '#FFFFFF',
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '50%',
-        height: 40,
+        width: '66%',
+        height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
-      },
+    },
 });
 
 export default CalendarOnWrite;

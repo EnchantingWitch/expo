@@ -1,293 +1,299 @@
+import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import CustomButton from '@/components/CustomButton';
-import { router, Link, Tabs } from 'expo-router';
-import DropdownComponent1 from '@/components/ListOfSystem';
-import DropdownComponent2 from '@/components/ListOfCategories';
-import DateInputWithPicker from '@/components/CalendarOnWrite';
-import DateInputWithPicker2 from '@/components/calendar+10';
-import FormField from '@/components/FormField';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { Link, Tabs, useLocalSearchParams, router } from 'expo-router';
+//import DropdownComponent2 from '@/components/list_categories';
+import Calendar from '@/components/Calendar+';
 import { styles } from './create_note';
-import * as ImagePicker from 'expo-image-picker';
+import CustomButton from '@/components/CustomButton';
 
 
-interface Data {
-  commentId: number;
+export type SystemGET = {
   serialNumber: number;
+  iiNumber: string;
   subObject: string;
   systemName: string;
   description: string;
-  commentStatus: string;
-  commentCategory: string;
+  commentStatus: string; 
   startDate: string;
   endDatePlan: string;
   endDateFact: string;
+  commentCategory: string;
   commentExplanation: string;
-  iinumber: number;
-  UserName: string
+  codeCCS: string;
+  executor: string;//исполнитель 
 }
 
-const EditDataScreen: React.FC = () => {
-  const [data, setData] = useState<Data | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [editing, setEditing] = useState<boolean>(false);
-  const [editedCommentId, setEditedCommentId] = useState<number>(0);
-  const [editedSerialNumber, setEditedSerialNumber] = useState<number>(0);
-  const [editedSubObject, setEditedSubObject] = useState<string>('');
-  const [editedSystemName, setEditedSystemName] = useState<string>('');
-  const [editedDescription, setEditedDescription] = useState<string>('');
-  const [editedCommentStatus, setEditedCommentStatus] = useState<string>('');
-  const [editedCommentCategory, setEditedCommentCategory] = useState<string>('');
-  const [editedStartDate, setEditedStartDate] = useState<string>('');
-  const [editedEndDatePlan, setEditedEndDatePlan] = useState<string>('');
-  const [editedEndDateFact, setEditedEndDateFact] = useState<string>('');
-  const [editedCommentExplanation, setEditedCommentExplanation] = useState<string>('');
-  const [editedUserName, setEditedUserName] = useState<string>('');
-  const [editedIinumber, setEditedIinumber] = useState<number>(0);
+const DetailsScreen = () => {
+
+  const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
+  const {capitalCSName} = useLocalSearchParams();//получение наименование ОКС 
+  const {post} = useLocalSearchParams();//получение Id замечания
+  console.log(post, 'commentId post');
+  
+  const [serNumber, setSerNumber] = useState<string>('');
+  const [numberII, setNumberII] = useState<string>('');
+  const [subObj, setSubObj] = useState<string>('');//подобъект
+  const [systemN, setSystemN] = useState<string>('');//система
+  const [comment, setComment] = useState<string>('');//содержание замечания
+  const [commentStat, setCommentStat] = useState<string>('');//статус замечания
+  const bufCommentStat = commentStat;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
+  const [startD, setStartD] = useState<string>('');//дата выдачи замечания
+  const [planD, setPlanD] = useState<string>('');//плановая дата устранения
+  const [factD, setFactD] = useState<string>('');//фактическая дата устранения
+  const [category, setCategory] = useState<string>('');
+  const [explanation, setExplanation] = useState<string>('');//комментарий
+  const [code, setCode] = useState<string>('');
+  const [execut, setExecut] = useState<string>('');//исполнитель
+  const [statusReq, setStatusReq] = useState<boolean>(false);//для передачи даты после запроса
+  const [startReq, setStartReq] = useState<boolean>(true);//для вызова getComment только при первом получении post
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/1`);
-      const result: Data = await
-        response.json();
-      setData(result);
-      setEditedCommentCategory(result.commentCategory);
-      setEditedCommentExplanation(result.commentExplanation);
-    } catch (error) {
-      console.error('Ошибка при получении данных:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const [singlePhoto, setSinglePhoto] = useState<any>('');
-
-
-  const selectPhoto = async () => {
-    try {
-      const res = await ImagePicker.launchImageLibraryAsync({});
-      console.log('res : ' + JSON.stringify(res));
-      if (!res.canceled) {
-        setSinglePhoto(res.assets[0]);
+    //вызов getComment при получении id Замечания - post
+      if (post && startReq) {
+        setStartReq(false);
+        getComment();   
+        console.log(post, 'commentID')
       }
-    } catch (err) {
-      setSinglePhoto('');
-      if (ImagePicker.Cancel(err)) {
-        alert('Canceled');
+    //смена статуса при изменении даты
+      if (factD) {
+        setCommentStat('Устранено');   
       } else {
-        alert('Unknown Error: ' + JSON.stringify(err));
-        throw err;
+        setCommentStat(bufCommentStat);
+        //прописать вызов запроса и положить в setCommentStat значение из json, чтобы статус сменился на актуальный вместо не устранено
       }
-    }
-  };
-
-  const cancelPhoto = async () => {
-    setSinglePhoto('');
-  };
-
-
-  const handleEditClick = () => {
-    setEditing(true);
-    setEditedCommentId(data?.commentId || 0);
-    setEditedSerialNumber(data?.serialNumber || 0);
-    setEditedSubObject(data?.subObject || '');
-    setEditedSystemName(data?.systemName || '');
-    setEditedDescription(data?.description || '');
-    setEditedCommentStatus(data?.commentStatus || '');
-    setEditedCommentCategory(data?.commentCategory || '');
-    setEditedStartDate(data?.startDate || '');
-    setEditedEndDatePlan(data?.endDatePlan || '');
-    setEditedEndDateFact(data?.endDateFact || '');
-    setEditedCommentExplanation(data?.commentExplanation || '');
-    setEditedUserName(data?.UserName || '');
-    setEditedIinumber(data?.iinumber || 0);
-  };
-
-  const handleSaveClick = async () => {
-    try {
-      let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/1`, {
-        method: 'PUT',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          commentId: editedCommentId,
-          serialNumber: editedSerialNumber,
-          subObject: editedSubObject,
-          systemName: editedSystemName,
-          description: editedDescription,
-          commentStatus: editedCommentStatus,
-          commentCategory: editedCommentCategory,
-          startDate: editedStartDate,
-          endDatePlan: editedEndDatePlan,
-          endDateFact: editedEndDateFact,
-          commentExplanation: editedCommentExplanation,
-          iinumber: editedIinumber
-        }),
-      });
-
-      if (response.ok) {
-        const jsonData: Data = await response.json();
-        setData(jsonData);
-        setEditing(false);
-        alert('Данные успешно сохранены!');
-      } else {
-        throw new Error('Не удалось сохранить данные.');
+    }, [post, factD]);
+  
+    const getComment = async () => {
+      try {
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/'+post);
+        const json = await response.json();
+        setSerNumber(''+json.serialNumber.toString());
+        setNumberII(''+json.iiNumber.toString());
+        setSubObj(json.subObject);
+        setSystemN(json.systemName);
+        setComment(json.description);
+        setCommentStat(json.commentStatus);
+        setStartD(json.startDate);
+        setPlanD(json.endDatePlan);
+        setFactD(json.endDateFact);
+        setCategory(json.commentCategory);
+        setExplanation(json.commentExplanation);
+        setCode(json.codeCCS);
+        setExecut(json.executor);
+        //console.log(json.systemName, 'json.systemName');
+        console.log('ResponseGetComment:', response);
+        console.log('ResponseGetComment json:', json);
+        setStatusReq(true);
+      } catch (error) {
+        console.error('Ошибка при получении данных:', error);
+        setStatusReq(false);
+      } finally {
+        //
       }
-    } catch (error) {
-      console.error('Ошибка при сохранении данных:', error);
-    }
-  };
+    };
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
+    const putComment = async () => {
+      try {
+        let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/'+post, {
+          method: 'PUT',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            commentId: 1,
+            serialNumber: serNumber,
+            subObject: subObj,
+            systemName: systemN,
+            description: comment,
+            commentStatus: commentStat,
+            commentCategory: category,
+            startDate: startD,
+            endDatePlan: planD,
+            endDateFact: factD,
+            commentExplanation: explanation,
+            iinumber: numberII
+          }),
+        });
+        console.log('ResponsePutComment:', response);
+        console.log('ResponsePutComment json:', JSON.stringify({
+          commentId: 1,
+          serialNumber: parseInt(serNumber, 10),
+          subObject: subObj,
+          systemName: systemN,
+          description: comment,
+          commentStatus: commentStat,
+          commentCategory: category,
+          startDate: startD,
+          endDatePlan: planD,
+          endDateFact: factD,
+          commentExplanation: explanation,
+          iinumber: parseInt(numberII, 10)
+        }));
+        if (response.ok) {
+          
+          //alert('Данные успешно сохранены!');
+        } else {
+          throw new Error('Не удалось сохранить данные.');
+        }
+      } catch (error) {
+        console.error('Ошибка при сохранении данных:', error);
+      }  finally{
+        router.replace({pathname: '/(tabs)/two', params: { codeCCS: code, capitalCSName: capitalCSName}});
+      }
+    };
 
   return (
-    <ScrollView style={[styles.container]}>
-      <SafeAreaView>
-        <View style={[styles.container]}>
 
+    <ScrollView>
+      <View style={[styles.container]}>
+        
+        <View style={{flex: 1, alignItems: 'center'}}>
 
-          <>
-            <View style={[styles.container]}>
-
-              <View style={{ flex: 1, alignItems: 'center' }}>
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Редактирование данных</Text>
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ замечания: {data?.iinumber}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedIinumber}`}
-                  onChangeText={(text) => setEditedIinumber(Number(text))}
-                />
-
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>№ акта ИИ: {data?.subObject}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedSubObject}`}
-                  onChangeText={(text) => setEditedSubObject(text)}
-                />
-
-
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Объект: {data?.systemName}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedSystemName}`}
-                  onChangeText={(text) => setEditedSystemName(text)}
-                />
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система: {data?.description}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedDescription}`}
-                  onChangeText={(text) => setEditedDescription(text)}
-                />
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус: {data?.commentStatus}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedCommentStatus}`}
-                  onChangeText={(text) => setEditedCommentStatus(text)}
-                />
-                <View >
-                  {singlePhoto ? (
-                    <View style={{ paddingVertical: 8 }}>
-
-                      <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>
-                        Выбрано фото: {singlePhoto.fileName}</Text>
-
-                      <CustomButton
-                        title="Удалить фото"
-                        handlePress={cancelPhoto}
-                      />
-
-                    </View>
-                  ) : (
-                    <View style={{ paddingVertical: 8 }}>
-
-                      <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Фото не выбрано </Text>
-
-                      <CustomButton
-                        title="Выбрать фото"
-                        handlePress={selectPhoto}
-                      />
-
-                    </View>
-                  )
-                  }
-                </View>
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель: {data?.UserName}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholderTextColor="#696969"
-                  value={`${editedUserName}`}
-                  onChangeText={(text) => setEditedUserName(text)}
-                />
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Дата выдачи: {data?.endDatePlan}</Text>
-                <DateInputWithPicker keyboardType="number-pad" editable={false} />
-
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 0 }}>Плановая дата устранения: {data?.endDateFact}</Text>
-                <DateInputWithPicker
-                />
-                <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания: {data?.commentCategory}</Text>
-                <DropdownComponent2 />
-
-                <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>
-
-                </View>
-                <CustomButton
-                  title="Сохранить изменения"
-                  handlePress={handleSaveClick} />
-                <View>
-                  <CustomButton
-                    title="Отмена"
-                    handlePress={() => router.push('/(tabs)/two')} />
-                </View>
-              </View>
+          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
+            <View style={{width: '20%', alignItems: 'center'}}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>№</Text>
             </View>
-          </>
+
+            <View style={{width: '20%', alignItems: 'center'}}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center'}}>№ АИИ</Text>
+            </View>
+
+            <View style={{width: '60%', alignItems: 'center'}}>
+            <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center'}}>Подобъект</Text>
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
+             
+            <View style={{width: '20%', alignItems: 'center'}}>
+            <TextInput
+            style={[styles.input, {marginTop: 6}]}
+            //placeholder="№ акта ИИ"
+            placeholderTextColor="#111"
+            value={serNumber}
+            editable={false}
+            />
+            </View>
+
+            <View style={{width: '20%', alignItems: 'flex-end'}}>
+            <TextInput
+            style={[styles.input, {marginTop: 6}]}
+            placeholderTextColor="#111"
+            value={numberII}
+            editable={false}
+            />
+            </View>
+
+            <View style={{width: '60%', alignItems: 'center'}}>
+            <TextInput
+            style={[styles.input, {marginTop: 6}]}
+            placeholderTextColor="#111"
+            value={subObj}
+            editable={false}
+            />
+            </View>
+
+          </View>  
+            
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={systemN}
+            editable={false}
+          />     
+          
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={comment}
+            editable={false}
+          />
+
+          
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={commentStat}
+            editable={false}
+          />
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={execut}
+            editable={false}
+          />
+
+          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+                <View style={{width: '50%', }}>
+                  <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата выдачи</Text>
+                 </View>
+          
+                 <View style={{width: '50%', }}>
+                  <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Плановая дата</Text>
+                 </View>
+          </View>
+
+          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата выдачи и Плановая дата устранения */}
+            <Calendar theme='min' statusreq={statusReq} post={startD} diseditable={true}/>
+            <Calendar theme='min' statusreq={statusReq} post={planD} diseditable={true}/>
+          </View>
+
+          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+                <View style={{width: '50%', }}>
+                  <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата устранения</Text>
+                 </View>
+          
+                 <View style={{width: '50%', }}>
+                  <Text style={{ fontSize: 14, color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Фото</Text>
+                 </View>
+          </View>
+
+          
+
+          <View  style={{flexDirection: 'row', width: '100%'}}>
+            
+            <Calendar theme='min' statusreq={statusReq} post={factD} diseditable={false} onChange={(dateString) => setFactD(dateString)}/>
+            <View style={{width: '50%'}}>
+              
+            </View>
+
+          </View>
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={category}
+            editable={false}
+          />
+
+          <Text style={{ fontSize: 16, color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Комментарий</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor="#111"
+            value={explanation}
+            editable={false}
+          />
+
+          <View style={{justifyContent: 'center', alignContent: 'center', }}>
+           <CustomButton title='Сохранить' handlePress ={ putComment } />
+           <CustomButton title='Редактировать' handlePress ={() => router.replace({pathname: '/notes/change_note', params: { codeCCS: code, capitalCSName: capitalCSName}})} />
+          </View>
 
         </View>
-      </SafeAreaView>
+      </View>
     </ScrollView>
-  );
-};
-const stylHead = StyleSheet.create({
-  container: {
-    marginLeft: 8,
-    marginRight: 8,
-    paddingVertical: 8,
-    flex: 1,
-    //  rowGap: 30,
-    //   flexDirection: 'column',
-    //   justifyContent: 'flex-start',
-    backgroundColor: '#708fff',
-    alignItems: 'center',
-    // alignContent: 'space-around',
-    justifyContent: 'center',
-    // minWidth: 120, 
-    // flexWrap: 'wrap',
-  },
-});
 
-export default EditDataScreen;
+
+  );
+}
+
+export default DetailsScreen;

@@ -49,6 +49,19 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
+        name="change_note"
+        options={{
+            title: 'Редактирование',
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        }}
+      />
+      <Stack.Screen
         name="create_note"
         options={{
           title: 'Создание замечания',

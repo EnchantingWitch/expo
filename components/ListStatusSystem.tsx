@@ -15,24 +15,24 @@ type Props = {
 };
 
 const data1 = [
-    { label: 'Ведутся СМР', value: '1' },
-    { label: 'Завершены СМР', value: '2' },
-    { label: 'Предъявлено в ПНР', value: '3' },
+    { label: 'Ведутся СМР', value: 'Ведутся СМР' },
+    { label: 'Завершены СМР', value: 'Завершены СМР' },
+    { label: 'Предъявлено в ПНР', value: 'Предъявлено в ПНР' },
 ];
 const data2 = [
-    { label: 'Принято в ПНР', value: '4' },
-    { label: 'Ведутся ПНР', value: '5' },
-    { label: 'Проведены ИИ', value: '6' },
-    { label: 'Акт ИИ на подписи', value: '7' },
+    { label: 'Принято в ПНР', value: 'Принято в ПНР' },
+    { label: 'Ведутся ПНР', value: 'Ведутся ПНР' },
+    { label: 'Проведены ИИ', value: 'Проведены ИИ' },
+    { label: 'Акт ИИ на подписи', value: 'Акт ИИ на подписи' },
 ];
 const data3 = [
-    { label: 'Акт ИИ подписан', value: '8' },
-    { label: 'Проводится КО', value: '9' },//статус не выводится
-    { label: 'Проведено КО', value: '10' },//статус не выводится
-    { label: 'Акт КО на подписи', value: '11' },//статус не выводится
+    { label: 'Акт ИИ подписан', value: 'Акт ИИ подписан' },
+    { label: 'Проводится КО', value: 'Проводится КО' },
+    { label: 'Проведено КО', value: 'Проведено КО' },
+    { label: 'Акт КО на подписи', value: 'Акт КО на подписи' },
 ];
 const data4 = [
-    { label: 'Акт КО подписан', value: '12' },
+    { label: 'Акт КО подписан', value: 'Акт КО подписан' },
 ];
 
 const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, koPlan, koFact, onChange }: Props) => {
@@ -55,9 +55,9 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
         if (iiFact && iiFact != " ") {setSwith(3); }
         if (koFact && koFact != " ") {setSwith(4); }
         //условие на выбранное значение в зависимости от дат, проверка на выбранное значение из доступных статуов для соотвествующих дат
-        if (pnrFact && pnrFact != " ") { if (value != '5' && value != '6' && value != '7') {setValue('4'); }  else {setValue(post);}}
-        if (iiFact && iiFact != " ") {if(value != '9' && value != '10' && value != '11') {setValue('8');} else {setValue(post);}} 
-        if (koFact && koFact != " ") {setValue('12'); }
+        if (pnrFact && pnrFact != " ") { if (value != 'Ведутся ПНР' && value != 'Проведены ИИ' && value != 'Акт ИИ на подписи') {setValue('Принято в ПНР'); }  else {setValue(post);}}
+        if (iiFact && iiFact != " ") {if(value != 'Проводится КО' && value != 'Проведено КО' && value != 'Акт КО на подписи') {setValue('Акт ИИ подписан');} else {setValue(post);}} 
+        if (koFact && koFact != " ") {setValue('Акт КО подписан'); }
 
         }, [pnrFact, iiFact, koFact]
     )
@@ -76,9 +76,9 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
      //условие на выбранное значение в зависимости от дат
         if (post != "  ") {setValue(post);}//значение из бд
         else{
-            if (pnrFact && pnrFact!= " ") {setValue('4');}
-            if (iiFact && iiFact != " ") {setValue('8');}
-            if (koFact && koFact != " ") {setValue('12');}
+            if (pnrFact && pnrFact!= " ") {setValue('Принято в ПНР');}
+            if (iiFact && iiFact != " ") {setValue('Акт ИИ подписан');}
+            if (koFact && koFact != " ") {setValue('Акт КО подписан');}
         }
     }
 

@@ -9,10 +9,11 @@ type Props = {
     theme?: 'min';
     statusreq: boolean;//для обновления значения даты при получении даты с запроса
     post?: string; //дата, которую получаем из бд - передача для вывода в текстинпут
-    onChange: (dateString: string) => void; // Функция для обновления даты
+    onChange?: (dateString: string) => void; // Функция для обновления даты
+    diseditable?: boolean;
 };
 
-const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//statusreq={statusRequest}
+const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: Props) => {//statusreq={statusRequest}
     const router = useRouter();
     //const {post} = useLocalSearchParams();
     const [date, setDate] = useState<Date|string|null>(new Date());
@@ -89,7 +90,7 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange }: Props) => {//
                 />
                  
 
-                <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+                <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker} disabled={diseditable}>
                     <Image style={{ width: 50, height: 50 }}
                         source={require('../assets/images/calendar1.png')} />
                     {showPicker && (
