@@ -63,6 +63,8 @@ const DetailsScreen = () => {
         //прописать вызов запроса и положить в setCommentStat значение из json, чтобы статус сменился на актуальный вместо не устранено
       }
     }, [post, factD]);
+
+    
   
     const getComment = async () => {
       try {
@@ -74,9 +76,9 @@ const DetailsScreen = () => {
         setSystemN(json.systemName);
         setComment(json.description);
         setCommentStat(json.commentStatus);
-        setStartD(json.startDate);
-        setPlanD(json.endDatePlan);
-        setFactD(json.endDateFact);
+        setStartD(json.startDate); console.log('json.startDate',json.startDate);
+        setPlanD(json.endDatePlan); console.log('json.endDatePlan',json.endDatePlan);
+        setFactD(json.endDateFact); console.log('json.endDateFact',json.endDateFact);
         setCategory(json.commentCategory);
         setExplanation(json.commentExplanation);
         setCode(json.codeCCS);
@@ -110,7 +112,7 @@ const DetailsScreen = () => {
             commentStatus: commentStat,
             commentCategory: category,
             startDate: startD,
-            endDatePlan: planD,
+            endDatePlan: '10.03.2025',
             endDateFact: factD,
             commentExplanation: explanation,
             iinumber: numberII
@@ -126,16 +128,17 @@ const DetailsScreen = () => {
           commentStatus: commentStat,
           commentCategory: category,
           startDate: startD,
-          endDatePlan: planD,
+          endDatePlan: '10.03.2025',
           endDateFact: factD,
           commentExplanation: explanation,
-          iinumber: parseInt(numberII, 10)
+          iinumber: numberII
+          //iinumber: parseInt(numberII, 10)
         }));
         if (response.ok) {
           
           //alert('Данные успешно сохранены!');
         } else {
-          throw new Error('Не удалось сохранить данные.');
+          //throw new Error('Не удалось сохранить данные.');
         }
       } catch (error) {
         console.error('Ошибка при сохранении данных:', error);
@@ -143,6 +146,12 @@ const DetailsScreen = () => {
         router.replace({pathname: '/(tabs)/two', params: { codeCCS: code, capitalCSName: capitalCSName}});
       }
     };
+
+    if (startReq) {
+      setStartReq(false);
+      getComment();   
+      console.log(post, 'commentID')
+    }
 
   return (
 
@@ -262,7 +271,7 @@ const DetailsScreen = () => {
             
             <Calendar theme='min' statusreq={statusReq} post={factD} diseditable={false} onChange={(dateString) => setFactD(dateString)}/>
             <View style={{width: '50%'}}>
-              
+
             </View>
 
           </View>

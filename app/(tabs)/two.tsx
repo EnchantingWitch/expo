@@ -85,9 +85,9 @@ const DirectionLayout = () => {
               <FlatList
                 style={{width: '100%'}}
                 data={data}
-                keyExtractor={({serialNumber}) => serialNumber}
+                keyExtractor={({commentId}) => commentId}
                 renderItem={({item}) => (
-                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/notes/see_note', params: { capitalCSName: capitalCSName, post: item.serialNumber }})}  }>
+                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/notes/see_note', params: { capitalCSName: capitalCSName, post: item.commentId, codeCCS: codeCCS }})}  }>
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
                       <View style={{width: '15%', justifyContent: 'center'}}>

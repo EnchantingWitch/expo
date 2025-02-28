@@ -14,16 +14,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { Structure } from '../(tabs)/structure';
 import ListOfSubobj from '@/components/ListOfSubobj';
 
+
+export type ListToDrop = {
+  label: string;
+  value: string; 
+};
+
 export default function CreateNote() {
   const [upLoading, setUpLoading] = useState(false);
   const [array, setArray] = useState<Structure[]>([]);//данные по структуре
-  //const list = [];
+  const listSubObj = [];//список подобъектов из структуры
+  const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
+  const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
+  const [noteListSystem, setNoteListSystem] = useState<boolean>();//ограничение на отправку листа систем в компонент
+  const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
   const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
-  const [req, setReq] = useState(true);//ограничение на получение запроса только единижды (?)
+  const [req, setReq] = useState<boolean>(true);//ограничение на получение запроса только единожды 
   const [numberII, setNumber] = useState('');//прописать useEffect
   const [subObject, setSubObject] = useState('');
   const [systemName, setSystemName] = useState('');
   const [description, setDescription] = useState('');
+  const [execut, setExecut] = useState('');
   const [userName, setUserName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [category, setCategory] = useState('');
@@ -37,10 +48,10 @@ export default function CreateNote() {
     return (fontSize / fontScale)
   };
   console.log(startDate);
+  console.log(statusReq, 'statusReq');
 
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
   const {capitalCSName} = useLocalSearchParams();
-
   
 
   const [form, setForm] = useState({ video: null, image: null });
@@ -84,7 +95,8 @@ export default function CreateNote() {
   const cancelPhoto = async () => {
     setSinglePhoto('');
   };
-
+  console.log(noteListSystem);
+  console.log(noteListSystem);
   const getStructure = async () => {
         try {
           const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
@@ -92,19 +104,51 @@ export default function CreateNote() {
           setArray(json);
           console.log('ResponseSeeStructure:', response);
           console.log(typeof(json));
+          console.log('array of subobj',array);
+          if (response.status === 200){
+            setStatusReq(true);//для выпадающего списка
+          }
+          if(response.status != 200){setExit(true); }
         } catch (error) {
           console.error(error);
         } finally {
+          
+          {/*if(exit){Alert.alert('', 'Необходимо загрузить данные в структуру', [
+            {text: 'OK', onPress: () => console.log('OK Pressed')},
+         ]); 
+         router.replace({pathname: '/(tabs)/two', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
+        }*/}
         }
       };
-    
-      useEffect(() => {
-        if(codeCCS && req){getStructure(); setReq(false); }
+
+  useEffect(() => {
+
+    if(codeCCS && req){getStructure(); setReq(false); }
+    if(statusReq && noteListSubobj){
+      setNoteListSubobj(false);
+      const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
+      listSubObj.push(...buf);
+      console.log('listSubObj', listSubObj);
+
+      setNoteListSystem(false); //ограничение на отправку листа систем в компонент
+    }
+    if (subObject){
+      console.log('noteListSystem',noteListSystem);
+      const filtered = array.filter(item => item.subObjectName === subObject);
+      for (const numberII in array) {
+          const buf = filtered.map(item => ({label: item.data[numberII].systemName, value:  item.data[numberII].systemName}));
+          listSystem.push(...buf);
+          console.log('listSystem',listSystem);
+          console.log('noteListSystem map',noteListSystem);
+          //setNoteListSystem(true);
+      }  
+
+      //setNoteListSystem(true);//передаем статус true в компонент для рендеринга после формирования списка
+    }
         
-      }, [codeCCS, req]);
+  }, [codeCCS, req, statusReq, noteListSubobj, subObject]);
 
   const submitData = async () => {
-    //if(numberII!='' && subObject!='' && systemName!='' && description!='' && userName!='' && category!='')
 
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
@@ -114,16 +158,21 @@ export default function CreateNote() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          iiNumber: numberII,
+          iiNumber: '1',
+          //iiNumber: numberII,
           subObject: subObject,
-          systemName: systemName,
+          systemName: 'Сети связи',
+          //systemName: systemName,
           description: description,
           commentStatus: "Не устранено",
-          userName: userName,
+          executor: execut,
+          userName: 'userName',
           startDate: startDate,
           commentCategory: category,
           commentExplanation: comExp,
           codeCCS: codeCCS,
+          endDatePlan: planDate,
+          endDateFact: ' '
         }),
       });
       
@@ -135,8 +184,8 @@ export default function CreateNote() {
       console.log(numId);
       //setId(id);
       //не выводится в консоль
-      console.log('Response:', response);
-
+      console.log('ResponseCreateNote:', response);
+      
       //Тут добавила
       const photoToUpload = singlePhoto;
       const body = new FormData();
@@ -184,7 +233,6 @@ export default function CreateNote() {
   }
 
 
-
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -205,20 +253,15 @@ export default function CreateNote() {
 
             <View style={{width: '83%'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
-              {/*<ListOfSubobj list={array}/>*/}
-              <TextInput
-                style={[styles.input, {justifyContent: 'center'}]}
-                //placeholder="Объект"
-                placeholderTextColor="#111"
-                onChangeText={setSubObject}
-                value={subObject}
-              />
+              <ListOfSubobj post = ' ' list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>
+             
             </View>
 
           </View>
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
-          <ListOfSystem onChange={(system) => setSystemName(system)}/>
+          <ListOfSystem post = ' ' list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
+          {/*<ListOfSystem onChange={(system) => setSystemName(system)}/>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
@@ -247,8 +290,8 @@ export default function CreateNote() {
             style={styles.input}
             //placeholder="Исполнитель"
             placeholderTextColor="#111"
-            onChangeText={setUserName}
-            value={userName}
+            onChangeText={setExecut}
+            value={execut}
           />
 
           <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}

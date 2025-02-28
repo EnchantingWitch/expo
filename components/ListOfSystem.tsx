@@ -1,49 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
-const data = [
-    { label: 'ТО', value: 'ТО' },
-    { label: 'ЭО', value: 'ЭО' },
-    { label: 'АСУ', value: 'АСУ' },
-    { label: 'ПБ', value: 'ПБ' },
-    { label: 'ОВиК', value: 'ОВиК' },
-    { label: 'ТЭО', value: 'ТЭО' },
-    { label: 'ВК', value: 'ВК' },
-    { label: 'ЭХЗ', value: 'ЭХЗ' },
-    { label: 'МО', value: 'МО' },
-    { label: 'КИТСО', value: 'КИТСО' },
-    { label: 'ПТО', value: 'ПТО' }, 
-    { label: 'МОО', value: 'МОО' },
-    { label: 'ХиКУ', value: 'ХиКУ' },
-    { label: 'ГТМ', value: 'ГТМ' },
-    { label: 'ПЭМ', value: 'ПЭМ' },
-    { label: 'ИБ', value: 'ИБ' },
-    { label: 'КЗ', value: 'КЗ' },
-];
+export type ListToDrop = {
+    label: string;
+    value: string; 
+  };
 
 type Props = {
-    post?: string;
-    onChange: (system: string) => void; // Функция для обновления системы
+    list: ListToDrop[];//список
+    post: string;//значение из бд статуса для просмотра, при записи передавать пустую строку
+    statusreq: boolean;//для обновления значения даты при получении даты с запроса
+    onChange: (subobj: string, ) => void; // Функция для обновления значения
 };
 
-const ListOfSystem = ({post, onChange }: Props) => {
-    const [value, setValue] = useState(null);
+const ListOfSystem = ({list, post, statusreq, onChange }: Props) => {
+    const [value, setValue] = useState<string >();
+    const [data, setData] = useState<ListToDrop[]>([]);
     const [isFocus, setIsFocus] = useState(false);
+    const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд 
 
-     const fontScale = useWindowDimensions().fontScale;
+    const fontScale = useWindowDimensions().fontScale;
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
+
+    useEffect(
+        () => {
+        if(list){
+           // setValue(post);//значение из БД
+           // setStartD(false);
+            setData(list);}
+
+        }, [statusreq, list]
+    )
+    console.log('startD',startD);
+
+    if (startD){//запись при первом рендеринге
+        setValue(post);//значение из БД
+        setStartD(false);
+        setData(list);
+    }
     
     if (value){
         onChange(value);
     }
-        
+ 
     return (
+       
         <View style={styles.container}>
             <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                style={[styles.dropdown, isFocus && { borderColor: 'blue',   }]}
                 placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
                 selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
@@ -54,8 +61,8 @@ const ListOfSystem = ({post, onChange }: Props) => {
                 itemTextStyle={{fontSize: ts(14)}}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Система' : 'Не выбрано'}
-                searchPlaceholder="Поиск"
+                placeholder={!isFocus ? 'Не выбрано' : 'Не выбрано'}
+                searchPlaceholder="Search..."
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
@@ -65,6 +72,7 @@ const ListOfSystem = ({post, onChange }: Props) => {
                 }}
             />
         </View>
+        
     );
 };
 
@@ -95,18 +103,19 @@ const styles = StyleSheet.create({
         top: 8,
         zIndex: 999,
         paddingHorizontal: 8,
-       // fontSize: 14,
+      //  fontSize: 14,
         
     },
     placeholderStyle: {
-        //fontSize: 16,
-        textAlign: 'center',
-        color: '#B3B3B3',
+       // fontSize: 16,
+       textAlign: 'center',
+       color: '#B3B3B3',
     },
     selectedTextStyle: {
         //fontSize: 16,
         textAlign: 'center',
         color: '#B3B3B3',
+         lineHeight: 18.5,
     },
     iconStyle: {
         width: 20,
@@ -114,6 +123,6 @@ const styles = StyleSheet.create({
     },
     inputSearchStyle: {
         height: 40,
-        fontSize: 16,
+       // fontSize: 16,
     },
 });

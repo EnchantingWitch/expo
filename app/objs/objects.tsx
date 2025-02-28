@@ -34,6 +34,7 @@ const [data, setData] = useState<Object[]>([]);
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll');
       const json = await response.json();
       setData(json);
+      console.log('responsegetAllObjs',response)
     } catch (error) {
       console.error(error);
     } finally {

@@ -10,7 +10,7 @@ import CustomButton from '@/components/CustomButton';;
 export type Structure = {
   id: number;
   numberKO: string; //id замечания , генерируется на сервере
-  subObjectName: string;//номер замечания
+  subObjectName: string;
   comments: number;
   status: string;
   

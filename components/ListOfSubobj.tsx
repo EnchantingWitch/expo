@@ -2,17 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
+export type ListToDrop = {
+    label: string;
+    value: string; 
+  };
 
 type Props = {
-    list: string[];//список
-    post: string;//значение из бд статуса для просмотра
+    list: ListToDrop[];//список
+    post: string;//значение из бд статуса для просмотра, при записи передавать пустую строку
     statusreq: boolean;//для обновления значения даты при получении даты с запроса
-    onChange: (subobj: string, ) => void; // Функция для обновления статуса
+    onChange: (subobj: string, ) => void; // Функция для обновления значения
 };
 
 const ListOfSubobj = ({list, post, statusreq, onChange }: Props) => {
     const [value, setValue] = useState<string >();
-    const [data, setData] = useState<string[] >(list);
+    const [data, setData] = useState<ListToDrop[]>([]);
     const [isFocus, setIsFocus] = useState(false);
     const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд 
 
@@ -23,14 +27,14 @@ const ListOfSubobj = ({list, post, statusreq, onChange }: Props) => {
 
     useEffect(
         () => {
-
+            
         }, []
     )
 
     if (statusreq && startD){//запись при первом рендеринге
-        setValue(post);//значение из БД, при записи передавать пустую строку
+        setValue(post);//значение из БД
         setStartD(false);
-       // setData(list);
+        setData(list);
     }
     
     if (value){
@@ -46,7 +50,7 @@ const ListOfSubobj = ({list, post, statusreq, onChange }: Props) => {
                 selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
                 iconStyle={styles.iconStyle}
-                data={ data }
+                data={data}
                 search
                 maxHeight={300}
                 itemTextStyle={{fontSize: ts(14)}}
@@ -106,6 +110,7 @@ const styles = StyleSheet.create({
         //fontSize: 16,
         textAlign: 'center',
         color: '#B3B3B3',
+         lineHeight: 18.5,
     },
     iconStyle: {
         width: 20,
