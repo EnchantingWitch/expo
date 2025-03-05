@@ -25,8 +25,8 @@ export type Structure = {
       iifactDate: string,
       koplanDate: string,
       kofactDate: string,
-      ciwexecutor: string,
-      cwexecutor: string,
+      ciwexecutor: string,//смр
+      cwexecutor: string,//пнр
       pnrplanDate: string,
       pnrsystemId: number,
       ccsnumber: string,

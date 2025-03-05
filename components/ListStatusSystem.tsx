@@ -51,6 +51,7 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
         () => {
 
         //если изменилось значение фактических дат, обновляем выпадающий список
+        if (pnrFact && pnrFact == " " && iiFact && iiFact == " " && koFact && koFact == " "){setSwith(1); }
         if (pnrFact && pnrFact != " ") {setSwith(2); }
         if (iiFact && iiFact != " ") {setSwith(3); }
         if (koFact && koFact != " ") {setSwith(4); }

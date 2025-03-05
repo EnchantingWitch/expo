@@ -101,6 +101,7 @@ const DirectionLayout = () => {
                       <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
                       
                        {(item.commentStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
+                       {(item.commentStatus =='Устранено с просрочкой') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
                        {(item.commentStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
                        {(item.commentStatus =='Не устранено с просрочкой') ? ( <Ionicons name="square" size={25} color="#F59E0B" />):''}
                       

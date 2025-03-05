@@ -15,10 +15,11 @@ const data = [
 ];
 
 type Props = {
+    post?: string;
     onChange: (category: string) => void; // Функция для обновления категории
 };
 
-const ListOfCategories = ({ onChange }: Props) => {
+const ListOfCategories = ({ post, onChange }: Props) => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
 
@@ -48,7 +49,7 @@ const ListOfCategories = ({ onChange }: Props) => {
                 valueField="value"
                 placeholder={!isFocus ? 'Категория замечания' : 'Не выбрано'}
                 searchPlaceholder="Search..."
-                value={value}
+                value={post? post: value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {

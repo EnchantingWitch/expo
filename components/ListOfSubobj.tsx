@@ -31,7 +31,7 @@ const ListOfSubobj = ({list, post, statusreq, onChange }: Props) => {
         }, []
     )
 
-    if (statusreq && startD){//запись при первом рендеринге
+    if (statusreq && startD){//запись при первом и единственном рендеринге
         setValue(post);//значение из БД
         setStartD(false);
         setData(list);

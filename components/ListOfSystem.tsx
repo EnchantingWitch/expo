@@ -10,11 +10,13 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[];//список
     post: string;//значение из бд статуса для просмотра, при записи передавать пустую строку
-    statusreq: boolean;//для обновления значения даты при получении даты с запроса
+    subobj?: string;//
+    statusreq?: boolean;//для обновления значения даты при получении даты с запроса
     onChange: (subobj: string, ) => void; // Функция для обновления значения
+    onChangeStatus?: (subobj: boolean, ) => void; // 
 };
 
-const ListOfSystem = ({list, post, statusreq, onChange }: Props) => {
+const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }: Props) => {
     const [value, setValue] = useState<string >();
     const [data, setData] = useState<ListToDrop[]>([]);
     const [isFocus, setIsFocus] = useState(false);
@@ -28,19 +30,54 @@ const ListOfSystem = ({list, post, statusreq, onChange }: Props) => {
     useEffect(
         () => {
         if(list){
-           // setValue(post);//значение из БД
-           // setStartD(false);
-            setData(list);}
+            setValue(post);
+            //значение из БД
+            console.log(post, 'post');
+            //onChange(post);
+            //setStartD(false);
+            setData(list);
 
-        }, [statusreq, list]
-    )
+          
     console.log('startD',startD);
+            /*for (const label in list) {
+               if ( list[label].value === post){setValue(post);}
+               else {onChange('');setValue('');}
+        
+            } */
+        }      
+        /*if(subobj ){
 
-    if (startD){//запись при первом рендеринге
+            console.log('!!!');
+            for (const label in list) {
+               
+               if ( list[label].value === post){setValue(post);}
+               else {onChange('');setValue('');}
+        
+            } 
+        }              */
+        }, [ list]
+    )
+
+   /* if(list && statusreq){
         setValue(post);//значение из БД
-        setStartD(false);
+        console.log('!');
+        //onChange(post);
+        //setStartD(false);
         setData(list);
-    }
+        onChangeStatus(false);
+      
+        /*for (const label in list) {
+           if ( list[label].value === post){setValue(post);}
+           else {onChange('');setValue('');}
+    
+        } */
+   // }     
+
+    /*if (startD ){//запись при первом и единственном рендеринге
+        setStartD(false);
+        //setValue(post);//значение из БД
+        setData(list);
+    }*/
     
     if (value){
         onChange(value);

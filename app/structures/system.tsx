@@ -61,6 +61,8 @@ export default function TabOneScreen() {
   const [comment, setComments] = useState<string>('');
   const [system, setSystem] = useState<string>('');//наименование системы
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
+  const [conditionKO, setConditionKO] = useState<boolean>(true);//выбрана дата факта или нет
+  const [conditionII, setConditionII] = useState<boolean>(true);
 
   const putSystem = async () => {
   
@@ -141,7 +143,25 @@ export default function TabOneScreen() {
       router.setParams({systemName: system});
       console.log(system, 'sytemN in system.tsx');
     }
+   
   }, [post, statusRequest]);
+
+ /* useEffect(() => {
+    if (pnrfact){
+      console.log(conditionII, 'ConditionII');
+      console.log(pnrfact, 'pnrfact');
+      if (pnrfact != ' '){setConditionII(false); }
+
+        setIifact(' '); setConditionII(true);
+    }
+    if (iifact){
+      if (iifact != ' '){setConditionKO(false);}
+        setKofact(' ');setConditionII(true);}
+    if (kofact){
+      if (pnrfact != ' '){setConditionII(false); setConditionKO(false);}
+      else{setIifact(' '); setConditionII(true); setConditionKO(true);}
+  }
+  }, [pnrfact, iifact]);*/
 
   useEffect(() => {
     if (click) {
@@ -191,7 +211,7 @@ export default function TabOneScreen() {
 
 <View style={{flexDirection: 'row',}}>
 <DateInputWithPicker theme = 'min' post = {iiplan} statusreq={statusRequest} onChange={(dateString) => setIiplan(dateString)}/>{/* Дата плана ИИ*/}
-<DateInputWithPicker theme = 'min' post = {iifact} statusreq={statusRequest} onChange={(dateString) => setIifact(dateString)}/>{/* Дата факта ИИ*/}
+<DateInputWithPicker theme = 'min' post = {iifact} statusreq={statusRequest} diseditable = {conditionII} onChange={(dateString) => setIifact(dateString)}/>{/* Дата факта ИИ*/}
 </View>
 
 <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
@@ -206,7 +226,7 @@ export default function TabOneScreen() {
 
 <View style={{flexDirection: 'row',}}>
 <DateInputWithPicker theme = 'min' post = {koplan} statusreq={statusRequest} onChange={(dateString) => setKoplan(dateString)}/>{/* Дата плана КО*/}
-<DateInputWithPicker theme = 'min' post = {kofact} statusreq={statusRequest} onChange={(dateString) => setKofact(dateString)}/>{/* Дата факта КО*/}
+<DateInputWithPicker theme = 'min' post = {kofact} statusreq={statusRequest} diseditable = {conditionKO} onChange={(dateString) => setKofact(dateString)}/>{/* Дата факта КО*/}
 </View>
 
 

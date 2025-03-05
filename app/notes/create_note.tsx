@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions, Modal } from 'react-native';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import DropdownComponent2 from '@/components/ListOfCategories';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
@@ -13,7 +13,7 @@ import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import { Structure } from '../(tabs)/structure';
 import ListOfSubobj from '@/components/ListOfSubobj';
-
+import { setSeconds } from 'date-fns';
 
 export type ListToDrop = {
   label: string;
@@ -26,13 +26,13 @@ export default function CreateNote() {
   const listSubObj = [];//список подобъектов из структуры
   const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
   const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
-  const [noteListSystem, setNoteListSystem] = useState<boolean>();//ограничение на отправку листа систем в компонент
+  const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
   const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
   const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
   const [req, setReq] = useState<boolean>(true);//ограничение на получение запроса только единожды 
   const [numberII, setNumber] = useState('');//прописать useEffect
   const [subObject, setSubObject] = useState('');
-  const [systemName, setSystemName] = useState('');
+  const [systemName, setSystemName] = useState(' ');
   const [description, setDescription] = useState('');
   const [execut, setExecut] = useState('');
   const [userName, setUserName] = useState('');
@@ -41,14 +41,20 @@ export default function CreateNote() {
   const [comExp, setComExp] = useState('');
   const [planDate, setPlanDate] = useState(' ');//добавить в json
   //const [id, setId] = useState('0');
+  const [inputHeight, setInputHeight] = useState(40);
+  const [bufsubobj, setBufsubobj] = useState('');
+  const [bufsubobjS, setBufsubobjS] = useState('');
+  const [bufsystem, setBufsystem] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
 
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)
   };
-  console.log(startDate);
-  console.log(statusReq, 'statusReq');
+  //console.log(startDate);
+ // console.log(statusReq, 'statusReq');
+  console.log(systemName, 'systemName every');
 
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
   const {capitalCSName} = useLocalSearchParams();
@@ -95,8 +101,8 @@ export default function CreateNote() {
   const cancelPhoto = async () => {
     setSinglePhoto('');
   };
-  console.log(noteListSystem);
-  console.log(noteListSystem);
+  //console.log(noteListSystem);
+ // console.log(noteListSystem);
   const getStructure = async () => {
         try {
           const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
@@ -120,33 +126,82 @@ export default function CreateNote() {
         }*/}
         }
       };
+     
+  //console.log('noteListSubobj', noteListSubobj);
 
   useEffect(() => {
-
-    if(codeCCS && req){getStructure(); setReq(false); }
-    if(statusReq && noteListSubobj){
+    //запрос на структура для получение данных на выпадающие списки и прочее
+    if(codeCCS && req){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    //формирование выпадающего списка для подобъекта
+    if(statusReq && noteListSubobj){//вызов происходит только один раз
       setNoteListSubobj(false);
       const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
       listSubObj.push(...buf);
-      console.log('listSubObj', listSubObj);
-
-      setNoteListSystem(false); //ограничение на отправку листа систем в компонент
+      //console.log('listSubObj', listSubObj);
+     // setNoteListSystem(false); //ограничение на отправку листа систем в компонент
     }
-    if (subObject){
-      console.log('noteListSystem',noteListSystem);
+    //формирование выпадающего списка для системы после того как выбран подобъект
+    if (subObject ){
+      //setSystemName(' '); //setExecut(''); setNumber(''); 
+     // console.log('noteListSystem',noteListSystem);
+    // setNoteListSystem(false);
       const filtered = array.filter(item => item.subObjectName === subObject);
-      for (const numberII in array) {
-          const buf = filtered.map(item => ({label: item.data[numberII].systemName, value:  item.data[numberII].systemName}));
+      console.log(filtered[0].data);
+      for (const pnrsystemId in filtered[0].data) {
+       
+          const buf = filtered.map(item => ({label: item.data[pnrsystemId].systemName, value:  item.data[pnrsystemId].systemName}));
+          console.log('listSystem',buf);
+
           listSystem.push(...buf);
-          console.log('listSystem',listSystem);
-          console.log('noteListSystem map',noteListSystem);
+         // console.log('listSystem',listSystem);
+         // console.log('noteListSystem map',noteListSystem);
           //setNoteListSystem(true);
+         // setSystemName(' ');
       }  
+
+      if(subObject != bufsubobj){ //это работает, но после каждого обновления subObject в systemName попадает с кеша(?) последнее значение
+        console.log('2');
+        setSystemName('');
+        setNumber('');
+        setExecut('');
+        setBufsubobj(subObject);
+      }
+      //если была выбран другой подобъект очистить значение у системы, АИИ, исполнителя
+      //if(listSystem){setSystemName(''); setExecut(''); setNumber('');     }
 
       //setNoteListSystem(true);//передаем статус true в компонент для рендеринга после формирования списка
     }
+    if(systemName ){
+      
+      if(systemName != bufsystem){
+        setBufsystem(systemName);
+      console.log(systemName, 'systemName: use if(systemName )');
+      if (systemName != ' ' ){
+        const filtered = array.filter(item => item.subObjectName === subObject);
+        console.log(filtered[0].data);
+        const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
+       // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+        console.log(filteredS.length, 'filteredS.length');
+        console.log(filteredS, 'filteredS');
+        if(filteredS.length != 0){
+          console.log('1');
+          setNumber(filteredS[0].numberII);
+          setExecut(filteredS[0].ciwexecutor);
+        }
+        else{
+          setNumber('');
+          setExecut('');
+          setSystemName(' ');
+        }
+       // if(filteredS[0].ciwexecutor){
+        setNoteListSystem(false);
+        //}
+      }
+      }  
+     
+    }
         
-  }, [codeCCS, req, statusReq, noteListSubobj, subObject]);
+  }, [codeCCS, req, statusReq, noteListSubobj, subObject, systemName]);
 
   const submitData = async () => {
 
@@ -158,11 +213,11 @@ export default function CreateNote() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          iiNumber: '1',
-          //iiNumber: numberII,
+          //iiNumber: '1',
+          iiNumber: numberII,
           subObject: subObject,
-          systemName: 'Сети связи',
-          //systemName: systemName,
+          //systemName: 'Сети связи',
+          systemName: systemName,
           description: description,
           commentStatus: "Не устранено",
           executor: execut,
@@ -191,10 +246,17 @@ export default function CreateNote() {
       const body = new FormData();
       //data.append('name', 'Image Upload');
       body.append("photo", {
-        uri: photoToUpload.uri,
+        uri: photoToUpload,
         type: 'image/*',
         name: 'photoToUpload'
       })
+      console.log(body);
+      for (let [key, value] of body) {
+        console.log(key);
+        console.log(value);
+    }
+    console.log(singlePhoto.uri, 'singlePhoto');
+    console.log(photoToUpload.uri, 'photoToUpload');
       //body.append("photo", photoToUpload);
       // Please change file upload URL
       //alert(id);
@@ -253,19 +315,25 @@ export default function CreateNote() {
 
             <View style={{width: '83%'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
-              <ListOfSubobj post = ' ' list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>
+              <ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>
              
             </View>
 
           </View>
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
-          <ListOfSystem post = ' ' list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
+          <ListOfSystem post = {systemName} subobj={subObject} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
           {/*<ListOfSystem onChange={(system) => setSystemName(system)}/>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight) }]} // Минимальная высота 40
+            multiline
+            onContentSizeChange={e=>{
+              let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
+              if(inputH>120) inputH =100
+              setInputHeight(inputH)
+          }}
             //placeholder="Содержание замечания"
             placeholderTextColor="#111"
             onChangeText={setDescription}
@@ -292,6 +360,7 @@ export default function CreateNote() {
             placeholderTextColor="#111"
             onChangeText={setExecut}
             value={execut}
+            editable={false}
           />
 
           <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
@@ -318,16 +387,37 @@ export default function CreateNote() {
                     <Text style={{textAlign: 'center'}}>Фото выбрано</Text>
                   </View>
                   <View style={{width: '40%'}}>
-                    <View > 
+                    <TouchableOpacity onPress={() => setModalVisible(true)}> 
                       <Image
                       source={{ uri: singlePhoto }}
                       style={styles.image}
                       />
+                    </TouchableOpacity>
+
+                    <Modal
+                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
+                    transparent={true} // Установите true, чтобы сделать фон полупрозрачным
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)} // Для Android
+                    >
+                    <View style={styles.modalContainer}>
+                      
+                      <View style={styles.modalContent}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
+                          <Ionicons name='close-outline' size={30} />
+                        </TouchableOpacity>
+                        <Image
+                        source={{ uri: singlePhoto }}
+                      style={styles.imageModal}
+                      />
+                      </View>
                     </View>
+                  </Modal>
+
                   </View>
                   <View style={{width: '10%'}}>
                     <TouchableOpacity onPress={cancelPhoto}>
-                      <Ionicons name='close-outline' size={30} ></Ionicons>
+                      <Ionicons name='close-outline' size={30} />
                     </TouchableOpacity>
                   </View>
                   
@@ -398,5 +488,26 @@ export const styles = StyleSheet.create({
     //justifyContent: 'center'
     //alignItems: 'center',
     //left: 38
+  },
+  imageModal: {
+    height: '90%',
+    width: '90%',
+    borderRadius: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+    
+  },
+  modalContent: {
+    width: 300,
+    height: 430,
+    padding: 5,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+    
   },
 });
