@@ -1,7 +1,8 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, useWindowDimensions } from 'react-native';
-import { Link, Tabs, Redirect, router, useGlobalSearchParams, useRouter, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView, StyleSheet, Text, View, ScrollView, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { Link, Tabs, Redirect, router, useGlobalSearchParams, useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
 import React, { Component, useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
@@ -28,6 +29,19 @@ export default function TabOneScreen() {
   const ID = Id;*/
   console.log(codeCCS, 'codeCCS object');
   //router.setParams({ ID: ID });
+
+  const navigation = useNavigation();
+  
+  useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+          ),
+        });
+  }, [navigation]);
+  
 
   const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<Object[]>([]);

@@ -61,8 +61,8 @@ export default function TabOneScreen() {
   const [comment, setComments] = useState<string>('');
   const [system, setSystem] = useState<string>('');//наименование системы
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
-  const [conditionKO, setConditionKO] = useState<boolean>(true);//выбрана дата факта или нет
-  const [conditionII, setConditionII] = useState<boolean>(true);
+  const [conditionKO, setConditionKO] = useState<boolean>(false);//выбрана дата факта или нет
+  const [conditionII, setConditionII] = useState<boolean>(false);
 
   const putSystem = async () => {
   

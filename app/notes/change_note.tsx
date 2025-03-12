@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
+import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { router, Link, Tabs, useLocalSearchParams } from 'expo-router';
 import DropdownComponent1 from '@/components/ListOfSystem';
@@ -12,7 +12,9 @@ import * as ImagePicker from 'expo-image-picker';
 import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import Calendar from '@/components/Calendar+';
+import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import { Structure } from '../(tabs)/structure';
+import { Ionicons } from '@expo/vector-icons';
 
 
 interface Data {
@@ -55,10 +57,14 @@ const EditDataScreen: React.FC = () => {
     const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
     const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
     const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
+    const [statusReqPhoto, setStatusReqPhoto] = useState(false);//для определения метода put или delete для фото, было ли фото уже в бд или нет
+    const [changePhoto, setChangePhoto] = useState(false);//для определения метода post на фото, равен true, если было выбрано фото через selectPhoto
     const [req, setReq] = useState<boolean>(true);//ограничение на получение запроса только единожды 
+    const [statusDel, setStatusDel] = useState<boolean>(false);//
     const [inputHeight, setInputHeight] = useState(42);
     const [bufsubobj, setBufsubobj] = useState(subobj);
     const [bufsystem, setBufsystem] = useState(system);
+    const [idPhoto, setIdPhoto] = useState();
 
   const [data, setData] = useState<Data | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,7 +83,10 @@ const EditDataScreen: React.FC = () => {
   const [editedIinumber, setEditedIinumber] = useState<string>('');
   const [editedExecut, setExecut] = useState<string>('');//исполнитель
   const [noteData, setNoteData] = useState<boolean>(true);
+  const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
+  
+  const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -89,7 +98,9 @@ const EditDataScreen: React.FC = () => {
     setEditedSerialNumber(serialNumb);
     setEditedIinumber(numberii);
     setEditedSubObject(subobj);
+    setBufsubobj(subobj);
     setEditedSystemName(system);
+    setBufsystem(system);
     setEditedDescription(comment);
     setEditedCommentStatus(status);
     setExecut(executor);
@@ -106,11 +117,13 @@ const EditDataScreen: React.FC = () => {
     try {
       const res = await ImagePicker.launchImageLibraryAsync({});
       console.log('res : ' + JSON.stringify(res));
-      if (!res.canceled) {
-        setSinglePhoto(res.assets[0]);
+      if (!res.canceled && res.assets[0].uri) {
+        setSinglePhoto(res.assets[0].uri);
+        setChangePhoto(true);
       }
     } catch (err) {
       setSinglePhoto('');
+      setChangePhoto(false);
       if (ImagePicker.Cancel(err)) {
         alert('Canceled');
       } else {
@@ -124,9 +137,58 @@ const EditDataScreen: React.FC = () => {
     setSinglePhoto('');
   };
 
+  console.log(statusReqPhoto === false && singlePhoto != '', 'statusReqPhoto === false && singlePhoto != ');
+  console.log(statusReqPhoto === true && singlePhoto === '', 'statusReqPhoto === true && singlePhoto === ');
+  console.log(changePhoto === true && statusReqPhoto === true, 'changePhoto === true && statusReqPhoto === true');
+  console.log(statusDel === true, 'statusDel === true');
+  console.log(updateCom, 'UpdateCom');
 
   const handleSaveClick = async () => {
-    const json = JSON.stringify({
+   // if(editedSystemName && editedSubObject){
+      
+    //  if(editedSystemName != bufsystem){
+      //  setBufsystem(editedSystemName);
+      //console.log(editedSystemName, 'systemName: use if(systemName )');
+      if (editedSystemName != ' ' ){
+        const filtered = array.filter(item => item.subObjectName === editedSubObject);
+        //console.log(filtered[0].data);
+        if(filtered.length != 0){
+          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
+        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+          console.log(filteredS.length, 'filteredS.length');
+          console.log(filteredS, 'filteredS');
+          if(filteredS.length != 0){
+            console.log('1');
+            setEditedIinumber(filteredS[0].numberII);
+            setExecut(filteredS[0].ciwexecutor);
+            setUpdateCom(true);
+          }
+          else{
+            setEditedIinumber('');
+            setExecut('');
+            setEditedSystemName(' ');
+            setEditedSubObject(' ');
+          }
+        // if(filteredS[0].ciwexecutor){
+         // setNoteListSystem(false);
+      }
+        //}
+     // }
+   //   }  
+     
+    }
+
+    //updateComment();
+    if (statusReqPhoto === false && singlePhoto != ''){postPhoto();}
+    if (statusReqPhoto === true && singlePhoto === ''){deletePhoto();}
+    if (changePhoto === true && statusReqPhoto === true){
+        deletePhoto;
+        if (statusDel === true){postPhoto;}
+    }
+    
+  }
+
+const json = JSON.stringify({
         commentId: parseInt(id, 10),
         serialNumber: parseInt(editedSerialNumber, 10),
         subObject: editedSubObject,
@@ -139,9 +201,11 @@ const EditDataScreen: React.FC = () => {
         endDateFact: editedEndDateFact,
         commentExplanation: editedCommentExplanation,
         iiNumber: editedIinumber,
-        //executor: editedExecut,
+        executor: editedExecut,
       });
       console.log(json);
+  const updateComment = async () => {
+    
     try {
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/`+id, {
         method: 'PUT',
@@ -151,7 +215,7 @@ const EditDataScreen: React.FC = () => {
         },
         body: json,
       });
-
+      console.log('updateComment', response);
       if (response.ok) {
         const jsonData: Data = await response.json();
         setData(jsonData);
@@ -191,7 +255,114 @@ const EditDataScreen: React.FC = () => {
     } catch (error) {
       console.error(error);
     }
+
+    //getPhoto
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + id);
+      const json = await response.json();
+      console.log('ResponseGetPhoto:', response);
+      console.log('ResponseGetPhoto json:', json);
+      //setBytes(json.bytes);
+      //setContentType(json.contentType);
+      //setStatusReqPhoto(true);
+      setSinglePhoto(`data:${json.contentType};base64,${json.bytes}`);
+      console.log(singlePhoto);
+      setStatusReqPhoto(true);
+      setIdPhoto(json.id);
+      console.log('json.id', json.id);
+    } catch (error) {
+      console.error('Ошибка при получении фото:', error);
+      //setStatusReq(false);
+    } finally {
+
+    }
   };
+
+  const putPhoto = async () => {
+    try{
+      const photoToUpload = singlePhoto;
+      const body = new FormData();
+      body.append("photo", {
+        uri: photoToUpload,
+        type: 'image/*',
+        name: 'photoToUpload'
+      })
+      let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
+      console.log(str);
+      let res = await fetch(
+        str,
+        {
+          method: 'PUT',
+          body: body,
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      console.log('ResponsePhoto:', res);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+  }
+
+  const deletePhoto = async () => {
+    try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/delePhotoById/'+idPhoto, {
+          method: "DELETE",
+          //redirect: "follow",
+          headers: {
+            'Content-Type': 'text/plain'
+        },
+      });
+    console.log('deletePhoto', response);
+    if (response.status === 200) {setStatusDel(true);}
+  } catch (err) {
+  }
+}
+
+  const postPhoto = async () => {
+    try{
+    const photoToUpload = singlePhoto;
+    const body = new FormData();
+          //data.append('name', 'Image Upload');
+    body.append("photo", {
+      uri: photoToUpload,
+      type: 'image/*',
+      name: 'photoToUpload'
+    })
+   /* console.log(body);
+    for (let [key, value] of body) {
+       console.log(key);
+      console.log(value);
+    }
+    console.log(singlePhoto.uri, 'singlePhoto');
+    console.log(photoToUpload.uri, 'photoToUpload');
+*/
+    let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
+    console.log(str);
+    
+    let res = await fetch(
+      str,
+      {
+        method: 'post',
+        body: body,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+    console.log('postPhoto:', res);
+          
+          //до сюда
+          /*if(response.status === 200){
+            Alert.alert('', 'Замечание добавлено', [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
+          }*/
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   useEffect(() => {
       //смена статуса при изменении даты
@@ -205,15 +376,16 @@ const EditDataScreen: React.FC = () => {
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
     //формирование выпадающего списка для подобъекта
-   /* if(subobj && noteListSubobj){//вызов происходит только один раз
+    if(statusReq && noteListSubobj){//вызов происходит только один раз
       setNoteListSubobj(false);
       
       const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
       listSubObj.push(...buf);
-      setStatusReq(true);
-    }*/
+      //setStatusReq(true);
+      console.log(buf, 'listSubObj');
+    }
     //формирование выпадающего списка для системы после того как выбран подобъект
-    /*if (editedSubObject ){
+     if (editedSubObject ){
 
       const filtered = array.filter(item => item.subObjectName === editedSubObject);
       console.log(filtered.length, 'filtered.length');
@@ -235,8 +407,11 @@ const EditDataScreen: React.FC = () => {
         setBufsubobj(editedSubObject);
       }
       
-    }*/
-    if(subobj){
+    }
+    if (updateCom){
+      updateComment();
+    }
+  /*  if(editedSubObject){
       const filtered = array.filter(item => item.subObjectName === editedSubObject);
       console.log(filtered.length, 'filtered.length');
       if(filtered.length != 0){
@@ -248,8 +423,31 @@ const EditDataScreen: React.FC = () => {
  
         }  
       }
-    }
-    if(editedSystemName ){
+      if(editedSubObject != bufsubobj){ //это работает, но после каждого обновления subObject в systemName попадает с кеша(?) последнее значение
+        console.log('2');
+        setEditedSystemName('');
+        setEditedIinumber('');
+        setExecut('');
+        setBufsubobj(editedSubObject);
+      }
+    }*/
+   /* if (editedSystemName!= ' ' && editedSubObject!= ''){
+      const filtered = array.filter(item => item.subObjectName === editedSubObject);
+        //console.log(filtered[0].data);
+        if(filtered.length != 0){
+          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
+        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+          console.log(filteredS.length, 'filteredS.length');
+          console.log(filteredS, 'filteredS');
+          if(filteredS.length != 0){
+            console.log('1');
+            setEditedIinumber(filteredS[0].numberII);
+            setExecut(filteredS[0].ciwexecutor);
+            setEditedSystemName(filteredS[0].systemName);
+          }
+        }
+    }*/
+    /*if(editedSystemName!= ' ' && editedSubObject!= '' ){
       
       if(editedSystemName != bufsystem){
         setBufsystem(editedSystemName);
@@ -271,6 +469,7 @@ const EditDataScreen: React.FC = () => {
             setEditedIinumber('');
             setExecut('');
             setEditedSystemName(' ');
+            setEditedSubObject(' ');
           }
         // if(filteredS[0].ciwexecutor){
           setNoteListSystem(false);
@@ -279,8 +478,8 @@ const EditDataScreen: React.FC = () => {
       }
       }  
      
-    }
-      }, [ editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName]);
+    }*/
+      }, [ editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom]);
 
 
   return (
@@ -299,11 +498,11 @@ const EditDataScreen: React.FC = () => {
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>№</Text>
             </View>
 
-            <View style={{width: '20%', alignItems: 'center'}}>
+           {/*} <View style={{width: '20%', alignItems: 'center'}}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center'}}>№ АИИ</Text>
-            </View>
+            </View>*/}
 
-            <View style={{width: '60%', alignItems: 'center'}}>
+            <View style={{width: '80%', alignItems: 'center'}}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center'}}>Подобъект</Text>
             </View>
           </View>
@@ -320,16 +519,16 @@ const EditDataScreen: React.FC = () => {
             />
             </View>
 
-            <View style={{width: '20%', alignItems: 'flex-end'}}>
+           {/*} <View style={{width: '20%', alignItems: 'flex-end'}}>
             <TextInput
             style={[styles.input, {fontSize: ts(14),marginTop: 6}]}
             placeholderTextColor="#111"
             value={editedIinumber}
             editable={false}
             />
-            </View>
+            </View>*/}
 
-            <View style={{width: '60%', alignItems: 'center', paddingTop: 6}}>
+            <View style={{width: '80%', alignItems: 'center', paddingTop: 6}}>
             {/*<TextInput
             style={[styles.input, ]}
             placeholderTextColor="#111"
@@ -366,13 +565,13 @@ const EditDataScreen: React.FC = () => {
             editable={false}
           />
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14)}]}
             placeholderTextColor="#111"
             value={editedExecut}
             editable={false}
-          />
+          />*/}
 
           <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
@@ -385,7 +584,7 @@ const EditDataScreen: React.FC = () => {
           </View>
 
           <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата выдачи и Плановая дата устранения */}
-            <Calendar theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>
+            <CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>
             <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
           </View>
 
@@ -401,61 +600,64 @@ const EditDataScreen: React.FC = () => {
 
           
 
-          <View  style={{flexDirection: 'row', width: '100%'}}>
+          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата факта устранения и фото */}
             
             <Calendar theme='min' statusreq={true} post={editedEndDateFact} onChange={(dateString) => setEditedEndDateFact(dateString)}/>
-            <View style={{width: '50%'}}>
+            <View style={{width: '50%', paddingTop: 12}}>
+            {singlePhoto  ? (
+                <View style={{ flexDirection: 'row', marginBottom: 8, alignSelf: 'center', width: '90%'}}> 
+                  <View style={{width: '73%'}}>
+                    <TouchableOpacity onPress={() => setModalVisible(true)}> 
+                      <Image
+                      source={{ uri: singlePhoto }}
+                      style={{
+                        height: 42,
+                        borderRadius: 8,}}
+                      //style={styles.image}
+                      />
+                    </TouchableOpacity>
+          
+                        <Modal
+                        animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
+                        transparent={true} // Установите true, чтобы сделать фон полупрозрачным
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)} // Для Android
+                        >
+                        <View style={styles.modalContainer}>
+                          
+                          <View style={styles.modalContent}>
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
+                              <Ionicons name='close-outline' size={30} />
+                            </TouchableOpacity>
+                            <Image
+                            source={{ uri: singlePhoto }}
+                          style={styles.imageModal}
+                          />
+                          </View>
+                        </View>
+                      </Modal>
 
-            </View>
-
-          </View>
-
-{/*}     <View style={{flexDirection: 'row', width: '98%'}}>
-
-            <View style={{width: '50%'}}>
-              <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата выдачи</Text>
-            </View>
-            <View style={{width: '50%', }}>
-              {singlePhoto ? (
-                <Text style={{textAlign: 'center'}}>Фото выбрано</Text>
+                    </View>
+                  <View style={{width: '24%' ,alignSelf: 'center'}}>
+                    <TouchableOpacity onPress={cancelPhoto} style={{alignItems: 'flex-end'}}>
+                      <Ionicons name='close-outline' size={30} />
+                    </TouchableOpacity>
+                  </View>
+                
+              </View>
               ) : (
-                 <Text style={{textAlign: 'center'}}>Фото не выбрано</Text>
+              <View style={{ marginBottom: 8}}>
+                <View style={{width: '100%'}}>
+                  <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+                    <Ionicons name='image-outline' size={30}></Ionicons>
+                  </TouchableOpacity> 
+                  </View>
+              </View>
               )
               }
             </View>
 
           </View>
-
-          <View style={{flexDirection: 'row', width: '98%'}}>
-
-
-            <DateInputWithPicker  onChange ={(currentDate) => setStartDate(currentDate)}/>
-            
-            <View style={{width: '60%'}}>
-              {singlePhoto ? (
-                <View style={{ paddingVertical: 8, flexDirection: 'row', alignSelf: 'center', width: '50%', paddingTop: 15 }}> 
-                  <View > 
-                    <Image
-                    source={{ uri: singlePhoto }}
-                    style={styles.image}
-                    />
-                  </View>
-                  <TouchableOpacity onPress={cancelPhoto}>
-                    <Ionicons name='close-outline' size={30} ></Ionicons>
-                  </TouchableOpacity>
-                </View>
-              ) : ( 
-                <View style={{ paddingVertical: 8, flexDirection: 'row', alignSelf: 'flex-end', paddingTop: 15,}}>
-              <TouchableOpacity onPress={selectPhoto} style={{width: '17%'}}>
-                <Ionicons name='image-outline' size={30}></Ionicons>
-              </TouchableOpacity>  </View>)
-             
-              }
-            </View>
-
-          </View>
-
-    */}
 
                 <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
                 <DropdownComponent2 post = {editedCommentCategory} onChange={(category) => setEditedCommentCategory(category)}/>

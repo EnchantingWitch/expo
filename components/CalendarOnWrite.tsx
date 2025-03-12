@@ -48,8 +48,8 @@ const CalendarOnWrite = ({theme, onChange }: Props) => {
             />
       
             
-            <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-             <Image style={{ width: 50, height: 50 }}
+            <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: 'whiye', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+             <Image style={{ width: 40, height: 40 }}
                                     source={require('../assets/images/calendar1.png')} /> 
             {showPicker && (
                 <DateTimePicker

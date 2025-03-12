@@ -1,103 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import minimumDate from '@react-native-community/datetimepicker';
 import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { parse, format } from 'date-fns';
-import { Ionicons } from '@expo/vector-icons';
 
 type Props = {
     theme?: 'min';
     statusreq: boolean;//для обновления значения даты при получении даты с запроса
     post?: string; //дата, которую получаем из бд - передача для вывода в текстинпут
-    onChange?: (dateString: string) => void; // Функция для обновления даты
-    diseditable?: boolean;
+    onChange: (dateString: string) => void; // Функция для обновления даты
 };
 
-const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: Props) => {//statusreq={statusRequest}
+const CalendarWithoutDel = ({ theme, post, statusreq, onChange }: Props) => {//statusreq={statusRequest}
     const router = useRouter();
     //const {post} = useLocalSearchParams();
     const [date, setDate] = useState<Date|string|null>(new Date());
     const [check, setCheck] = useState<boolean>(false);//проверка на вывод пустого значения, если пришло null c бэка
     const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд                                                                                
     const [valuePicker, setValuePicker]= useState<Date>(new Date());//регулирует дату в DateTimePicker, чтобы не вызывалось с null
-    const [chooseD, setChooseD] = useState<boolean>();//крестик - true (дата выбрана), kалендарь - false (дата не выбрана)
-    const str = ' ';
+
     const [showPicker, setShowPicker] = useState(false);
-    const [swith, setSwith] = useState(false);//используется для рендеринга при смене chooseD, ограничение на рендеринг только при нажатии на крестик или после выбора даты
-
-
-    console.log(check, 'check', date);
-    console.log(chooseD, 'chooseD', date);
-
-    useEffect(() => {
- 
-        //смена статуса при изменении даты
-          if (chooseD) {
-            if(chooseD == true){
-                //setValuePicker(new Date(2025,1,1));
-                setCheck(true);
-            } 
-            if (chooseD === false) {
-                
-                setDate(' ');  
-                setCheck(false);
-                console.log(check, 'check after setCheck(false);', date);
-                onChange(' ');
-              //прописать вызов запроса и положить в setCommentStat значение из json, чтобы статус сменился на актуальный вместо не устранено
-            }
-            
-            }
-            if(post){
-                const customFormat = 'dd.MM.yyyy';//dd.MM.yyyy
-                if (post === ' '){
-                    //setCheck(false);
-                    setValuePicker(new Date(2025,1,1));
-                    //setDate(' '); 
-                    setCheck(false);
-                    setChooseD(false); {/*} console.log('setDate(" ")', date, ';', setDate(' '), ';')*/}}//выводит undefined //проверка, что с бд пришло не пустое значение, 
-                else{                           //добавить состояние для ограничения вызова датапикер или вызова по значению сегодняшнего числа
-                    const dateFnsDate = parse(post, customFormat, new Date());//установка значения из бд
-                    console.log('dateFnsDate', dateFnsDate);
-                    setDate(dateFnsDate);
-                    setCheck(true);//установка true для вывода даты с бэка в текстинпут
-
-                    setChooseD(true);
-                }
-        }
-        }, [chooseD, post]);
-
-        if(chooseD && swith){
-            //setValuePicker(new Date(2025,1,1));
-            setSwith(false);
-
-            setCheck(true);
-        } 
-        if (chooseD === false && swith) {
-            setSwith(false);
-
-            setDate(' ');  
-            setCheck(false);
-            console.log(check, 'check after setCheck(false);', date);
-            onChange(' ');//передаем на запись пустое значение после нажатия на крестик
-        }
 
     if (statusreq && startD){//startD
         //console.log('post', post);
         statusreq=false;setStartD(false);
         const customFormat = 'dd.MM.yyyy';//dd.MM.yyyy
-        if (post === ' '){
-            //setCheck(false);
-            setValuePicker(new Date(2025,1,1));
-            setDate(' '); 
-            setChooseD(false); {/*} console.log('setDate(" ")', date, ';', setDate(' '), ';')*/}}//выводит undefined //проверка, что с бд пришло не пустое значение, 
+        if (post === ' '){setValuePicker(new Date(2025,1,1));setDate(' '); {/*} console.log('setDate(" ")', date, ';', setDate(' '), ';')*/}}//выводит undefined //проверка, что с бд пришло не пустое значение, 
         else{                           //добавить состояние для ограничения вызова датапикер или вызова по значению сегодняшнего числа
             const dateFnsDate = parse(post, customFormat, new Date());//установка значения из бд
             console.log('dateFnsDate', dateFnsDate);
             setDate(dateFnsDate);
             setCheck(true);//установка true для вывода даты с бэка в текстинпут
-
-            setChooseD(true);
+            
+            
+            //router.setParams({  dateFnsDate });
         }
     }
     
@@ -118,10 +55,7 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: 
        // if (d != '') {router.setParams( {d} )};//возврат значения в функцию, не передает если переменную через formatDate пропускать
         if (selectedDate) {
                 const dateString = format(selectedDate, 'dd.MM.yyyy') // Формат: YYYY-MM-DD
-                onChange(dateString); // Обновляем значение даты   
-                console.log(dateString);   
-                setChooseD(true);//установка крестика вместо календаря    
-                setSwith(true);//для смены текстинпута
+                onChange(dateString); // Обновляем значение даты          
         }
     };
 
@@ -146,40 +80,28 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: 
 
                 <TextInput style={[styles.inputMin, { fontSize: ts(14), textAlignVertical: 'center' }]}
                     placeholderTextColor="#111"
-                    editable={false}
-                    value={ check? (formatDate(date)): (str) }
-                    //value={ date}
+                     
+                    value={ check? (formatDate(date)): ' ' }
                    // value={ check? (formatDate(date)): null }
                    // value={ typeof(date)? (formatDate(date)): '' }
                   //value={date? (formatDate(date)) : '' }
                 />
                  
-                 {chooseD? 
-                 (
-                    <TouchableOpacity onPress={() => [setChooseD(false), setSwith(true)]} style = {{ width: '24%',}}>
-                        <Ionicons name='close-outline' size={30} style={{alignSelf: 'center', width: 22}}/>
-                    </TouchableOpacity>)
-                 :(
-                    <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker} disabled={diseditable}>
-                    
-                        
-                        <Image style={{ width: 40, height: 40 }}
-                            source={require('../assets/images/calendar1.png')} />
 
-                        {showPicker && (
-                            <DateTimePicker style={{}}
-                                value={check? (valuePicker): (new Date())}
-                                mode="date"
-                                display="default"
-                                onChange={handleDateChange}
-                            //  negativeButton={{label: 'Cancel', textColor: 'red'}}//only Android
-                                //neutralButton={{label: 'Clear', textColor: 'grey'}}//only Android
-                            />
-                        )}
-
-
-                    </TouchableOpacity>
-                )}
+                <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+                    <Image style={{ width: 40, height: 40 }}
+                        source={require('../assets/images/calendar1.png')} />
+                    {showPicker && (
+                        <DateTimePicker style={{}}
+                            value={valuePicker}
+                            mode="date"
+                            display="default"
+                            onChange={handleDateChange}
+                           // negativeButton={{label: 'Cancel', textColor: 'red'}}//only Android
+                          //  neutralButton={{label: 'Clear', textColor: 'grey'}}//only Android
+                        />
+                    )}
+                </TouchableOpacity>
 
             </View>
         );
@@ -188,13 +110,12 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: 
         <View style={styles.containerrow}>
             <TextInput style={[styles.input, { fontSize: ts(14) }]}
                 placeholderTextColor="#111"
-                editable={false}
-                value={check? (formatDate(date)): ' '}
+                value={formatDate(date)}
             />
 
 
             <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-                <Image style={{ width: 50, height: 50 }}
+                <Image style={{ width: 70, height: 40 }}
                     source={require('../assets/images/calendar1.png')} />
                 {showPicker && (
                     <DateTimePicker
@@ -226,10 +147,9 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        //width: '100%',
+        width: '96%',
         flexDirection: 'row',
         marginBottom: 8,
-        alignItems: 'center',
     },
     containerrowMin: {
         flex: 1,
@@ -250,7 +170,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '70%',
+        width: '50%',
         height: 42,
         color: '#B3B3B3',
         textAlign: 'center',
@@ -267,4 +187,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DateInputWithPicker;
+export default CalendarWithoutDel;

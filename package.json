@@ -21,6 +21,7 @@
     "@react-navigation/native": "^6.0.0",
     "@types/react": "~18.3.12",
     "axios": "^1.7.8",
+    "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
     "expo": "~52.0.36",
     "expo-checkbox": "~4.0.1",

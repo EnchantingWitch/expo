@@ -46,14 +46,14 @@ export default function CreateNote() {
   const [bufsubobjS, setBufsubobjS] = useState('');
   const [bufsystem, setBufsystem] = useState('');
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
+  const [click, setClick] = useState(false);//
 
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)
   };
-  //console.log(startDate);
- // console.log(statusReq, 'statusReq');
+
   console.log(systemName, 'systemName every');
 
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
@@ -63,7 +63,32 @@ export default function CreateNote() {
   const [form, setForm] = useState({ video: null, image: null });
 
   const TwoFunction = () => {
-    submitData();
+
+      if(systemName != bufsystem){
+        setBufsystem(systemName);
+      console.log(systemName, 'systemName: use if(systemName )');
+      if (systemName != ' ' ){
+        const filtered = array.filter(item => item.subObjectName === subObject);
+        console.log(filtered[0].data);
+        const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
+       // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+        console.log(filteredS.length, 'filteredS.length');
+        console.log(filteredS, 'filteredS');
+        if(filteredS.length != 0){
+          console.log('1');
+          setNumber(filteredS[0].numberII);
+          setExecut(filteredS[0].ciwexecutor);
+        }
+        else{
+          setNumber('');
+          setExecut('');
+          setSystemName(' ');
+        }
+       // if(filteredS[0].ciwexecutor){
+        setNoteListSystem(false);
+        //}
+      }
+      }  
     //setTimeout( uploadImage, 1000);
     //uploadImage(id);
   };
@@ -171,7 +196,11 @@ export default function CreateNote() {
 
       //setNoteListSystem(true);//передаем статус true в компонент для рендеринга после формирования списка
     }
-    if(systemName ){
+    if (numberII && execut){
+      submitData();
+    }
+    
+    /*if(click === true && systemName!= ' ' && subObject != '' ){
       
       if(systemName != bufsystem){
         setBufsystem(systemName);
@@ -198,10 +227,14 @@ export default function CreateNote() {
         //}
       }
       }  
+
+      if (numberII != '' && execut != ''){
+        submitData();
+      }
      
-    }
+    }*/
         
-  }, [codeCCS, req, statusReq, noteListSubobj, subObject, systemName]);
+  }, [codeCCS, req, statusReq, noteListSubobj, subObject, systemName, numberII, execut]);
 
   const submitData = async () => {
 
@@ -275,10 +308,7 @@ export default function CreateNote() {
         }
       );
       console.log('ResponsePhoto:', res);
-      /* let responseJson = await res.json();
-       if (responseJson.status == 1) {
-         alert('Upload Successful');
-       }*/
+      
       //до сюда
       if(response.status === 200){
         Alert.alert('', 'Замечание добавлено', [
@@ -300,8 +330,8 @@ export default function CreateNote() {
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
 
-          <View style={{flexDirection: 'row', width: '96%', alignSelf: 'center' }}>
-            
+           {/*}   <View style={{flexDirection: 'row', width: '96%', alignSelf: 'center' }}>
+        
             <View style={{width: '20%'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>№ АИИ</Text>
               <TextInput
@@ -313,13 +343,14 @@ export default function CreateNote() {
               />
             </View>
 
-            <View style={{width: '83%'}}>
+            <View style={{width: '83%'}}>*/}
+            <View style={{width: '100%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
               <ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>
              
             </View>
 
-          </View>
+          {/*</View>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
           <ListOfSystem post = {systemName} subobj={subObject} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
@@ -353,7 +384,7 @@ export default function CreateNote() {
             ) : null}
           </TouchableOpacity>*/}
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+         {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
           <TextInput
             style={styles.input}
             //placeholder="Исполнитель"
@@ -361,10 +392,12 @@ export default function CreateNote() {
             onChangeText={setExecut}
             value={execut}
             editable={false}
-          />
+          />*}
 
-          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
-                <View style={{width: '50%', }}>
+          
+          {/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
+                <View style={{flexDirection: 'row',width: '100%',}}>
+                  <View style={{width: '50%', }}>
                   <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата выдачи</Text>
                 </View>
 
@@ -375,7 +408,7 @@ export default function CreateNote() {
 
           <View style={{flexDirection: 'row',}}>
           <DateInputWithPicker theme = 'min' onChange={(dateString) => setStartDate(dateString)}/>{/* Дата выдачи*/}
-          <DateInputWithPicker2 statusreq={true} post=' ' theme = 'min' onChange={(dateString) => setPlanDate(dateString)}/>{/* Дата плановая устранения*/}
+          <DateInputWithPicker2 statusreq={true} post={planDate} theme = 'min' onChange={(dateString) => setPlanDate(dateString)}/>{/* Дата плановая устранения*/}
           </View>
 
           
@@ -383,10 +416,10 @@ export default function CreateNote() {
             <View style={{width: '100%', }}>
               {singlePhoto ? (
                 <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center'}}> 
-                  <View style={{width: '50%'}}>
+                  <View style={{width: '48%', alignSelf: 'center'}}>
                     <Text style={{textAlign: 'center'}}>Фото выбрано</Text>
                   </View>
-                  <View style={{width: '40%'}}>
+                  <View style={{width: '33%'}}>
                     <TouchableOpacity onPress={() => setModalVisible(true)}> 
                       <Image
                       source={{ uri: singlePhoto }}
@@ -415,8 +448,8 @@ export default function CreateNote() {
                   </Modal>
 
                   </View>
-                  <View style={{width: '10%'}}>
-                    <TouchableOpacity onPress={cancelPhoto}>
+                  <View style={{width: '10%', alignSelf: 'center' }}>
+                    <TouchableOpacity onPress={cancelPhoto}  style = {{alignSelf: 'flex-end', width: '70%', }}>
                       <Ionicons name='close-outline' size={30} />
                     </TouchableOpacity>
                   </View>
@@ -427,7 +460,7 @@ export default function CreateNote() {
                 <View style={{width: '50%'}}>
                   <Text style={{textAlign: 'center'}}>Фото не выбрано</Text>
                 </View>
-                <View style={{width: '48%'}}>
+                <View style={{width: '46%'}}>
                   <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
                     <Ionicons name='image-outline' size={30}></Ionicons>
                   </TouchableOpacity> 
@@ -452,13 +485,13 @@ export default function CreateNote() {
             value={comExp} />
 
           <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>
-            <CustomButton
+            
+          </View>
+        </View><CustomButton
               title="Добавить замечание"
               handlePress={TwoFunction} // Вызов функции отправки данных
             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
             />
-          </View>
-        </View>
       </View>
     </ScrollView>
   );
@@ -482,9 +515,9 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    
-    height: 40,
-    borderRadius: 4,
+    //width: '100%',
+    height: 42,
+    borderRadius: 8,
     //justifyContent: 'center'
     //alignItems: 'center',
     //left: 38

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
 import type { PropsWithChildren } from 'react';
-import {  router, useGlobalSearchParams, useRouter } from 'expo-router';
+import {  router, useGlobalSearchParams, useRouter, useNavigation } from 'expo-router';
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
@@ -35,6 +35,18 @@ const DirectionLayout = () => {
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
+  const navigation = useNavigation();
+    
+  useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+          ),
+        });
+  }, [navigation]);
  
   const [direction, setDirection] = useState('Объект');
 

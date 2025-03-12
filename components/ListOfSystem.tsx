@@ -35,6 +35,7 @@ const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }
             console.log(post, 'post');
             //onChange(post);
             //setStartD(false);
+            console.log('List', list.length );
             setData(list);
 
           
@@ -44,7 +45,13 @@ const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }
                else {onChange('');setValue('');}
         
             } */
-        }      
+        }
+        
+        if(post != ' '){
+            setValue(post);
+            //setData(list);
+            console.log('post List', list );
+        }
         /*if(subobj ){
 
             console.log('!!!');

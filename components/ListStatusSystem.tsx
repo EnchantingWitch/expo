@@ -59,6 +59,7 @@ const DropdownComponent = ({post, statusreq, pnrPlan, pnrFact, iiPlan, iiFact, k
         if (pnrFact && pnrFact != " ") { if (value != 'Ведутся ПНР' && value != 'Проведены ИИ' && value != 'Акт ИИ на подписи') {setValue('Принято в ПНР'); }  else {setValue(post);}}
         if (iiFact && iiFact != " ") {if(value != 'Проводится КО' && value != 'Проведено КО' && value != 'Акт КО на подписи') {setValue('Акт ИИ подписан');} else {setValue(post);}} 
         if (koFact && koFact != " ") {setValue('Акт КО подписан'); }
+        if (pnrFact && pnrFact == " " && iiFact && iiFact == " " && koFact && koFact == " "){if(value != 'Ведутся СМР' && value != 'Завершены СМР' && value != 'Предъявлено в ПНР') {setValue(' ');} }
 
         }, [pnrFact, iiFact, koFact]
     )

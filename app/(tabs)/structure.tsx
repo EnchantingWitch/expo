@@ -4,6 +4,7 @@ import EditScreenInfo from '@/components/EditScreenInfo';
 import { Link, router, useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import MonoSizeText from '@/components/FontSize'
 import { useWindowDimensions,  } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import CustomButton from '@/components/CustomButton';;
 
@@ -47,6 +48,18 @@ const Struct = () => {
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
 
+  const navigation = useNavigation();
+  
+  useEffect(() => {
+      navigation.setOptions({
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => router.replace('/objs/objects')} >
+            <Ionicons name='home-outline' size={25} />
+          </TouchableOpacity>
+        ),
+      });
+  }, [navigation]);
+
   const [isLoading, setLoading] = useState(true);
   const [data_, setData] = useState<Structure[]>([]);
 
@@ -56,7 +69,7 @@ const Struct = () => {
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
-        console.log(typeof(json));
+        //console.log('ResponseSeeStructure json:', json );
       } catch (error) {
         console.error(error);
       } finally {

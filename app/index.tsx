@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
-import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
+import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation } from "expo-router";
 import FileViewer from "@/components/FileViewer";
 import { isLoading } from "expo-font";
 
@@ -16,6 +16,7 @@ import { isLoading } from "expo-font";
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
 
   return (
     <View style={styles.background}>

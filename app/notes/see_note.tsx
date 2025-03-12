@@ -1,11 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity, useWindowDimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity, useWindowDimensions, Image, Modal } from 'react-native';
 import { Link, Tabs, useLocalSearchParams, router } from 'expo-router';
 //import DropdownComponent2 from '@/components/list_categories';
 import Calendar from '@/components/Calendar+';
 import { styles } from './create_note';
 import CustomButton from '@/components/CustomButton';
+import { Buffer } from 'buffer';
+import { Ionicons } from '@expo/vector-icons';
 
 
 
@@ -54,7 +56,17 @@ const DetailsScreen = () => {
   const [execut, setExecut] = useState<string>('');//исполнитель
   const [statusReq, setStatusReq] = useState<boolean>(false);//для передачи даты после запроса
   const [startReq, setStartReq] = useState<boolean>(true);//для вызова getComment только при первом получении post
+  const [statusReqPhoto, setStatusReqPhoto] = useState<boolean>(false);//для вызова getComment только при первом получении post
 
+  //для чтения фото и его сборки
+  const [uriPhoto, setUriPhoto] = useState<string>('');
+  const [contentType, setContentType] = useState<string>('');
+  const [bytes, setBytes] = useState();
+
+  const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
+  
+
+console.log('statusReqPhoto',statusReqPhoto);
   useEffect(() => {
     //вызов getComment при получении id Замечания - post
       if (post && startReq) {
@@ -62,6 +74,7 @@ const DetailsScreen = () => {
         getComment();
         //getPhoto();
         console.log(post, 'commentID')
+
       }
     //смена статуса при изменении даты
       if (factD) {
@@ -71,7 +84,15 @@ const DetailsScreen = () => {
           setCommentStat('Не устранено');
         }
     }
-    }, [post, factD]);
+    if(statusReqPhoto ){
+      //const base64String = Buffer.from(bytes).toString('base64');
+      //console.log(`data:image/png;base64,${bytes}`);
+      setUriPhoto(`data:image/*;base64,${bytes}`)
+        console.log(uriPhoto,'uriPhoto');
+        console.log(3);
+       // 
+    }
+    }, [post, factD, statusReqPhoto]);
   
     const getComment = async () => {
       try {
@@ -105,15 +126,19 @@ const DetailsScreen = () => {
       try {
         const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + post);
         const json = await response.json();
-        //setSerNumber(''+json.serialNumber.toString());
         console.log('ResponseGetPhoto:', response);
         console.log('ResponseGetPhoto json:', json);
+        setBytes(json.bytes);
+        setContentType(json.contentType);
+        setStatusReqPhoto(true);
         //setStatusReq(true);
       } catch (error) {
-        console.error('Ошибка при получении данных:', error);
+        console.error('Ошибка при получении фото:', error);
         //setStatusReq(false);
       } finally {
-        //
+        //const src = `data:,${contentType}${bytes}`;
+       // setUriPhoto(`data:,${contentType}${bytes}`)
+        //console.log(uriPhoto);
       }
     };
 
@@ -323,9 +348,41 @@ const DetailsScreen = () => {
             
             <Calendar theme='min' statusreq={statusReq} post={factD} diseditable={false} onChange={(dateString) => setFactD(dateString)}/>
             <View style={{width: '50%'}}>
+            {statusReqPhoto === true ? (
+              
+              <View style={{width: '96%', paddingTop: 12}}>
+                    <TouchableOpacity style = {{alignSelf: 'flex-end', width: '94.5%'}} onPress={() => setModalVisible(true)}> 
+                      <Image
+                      source = {{uri: `data:${contentType};base64,${bytes}`}}
+                      style={styles.image}
+                      />
+                    </TouchableOpacity>
 
+                    <Modal
+                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
+                    transparent={true} // Установите true, чтобы сделать фон полупрозрачным
+                    visible={modalVisible}
+                    onRequestClose={() => setModalVisible(false)} // Для Android
+                    >
+                    <View style={styles.modalContainer}>
+                      
+                      <View style={styles.modalContent}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
+                          <Ionicons name='close-outline' size={30} />
+                        </TouchableOpacity>
+                        <Image
+                        source = {{uri: `data:${contentType};base64,${bytes}`}}
+                      style={styles.imageModal}
+                      />
+                      </View>
+                    </View>
+                  </Modal>
+
+                  </View>
+              ):''}
             </View>
-
+            
+              
           </View>
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
