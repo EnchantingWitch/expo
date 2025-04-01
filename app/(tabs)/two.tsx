@@ -6,6 +6,7 @@ import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
  
 type Note = {
   commentId: number; //id замечания , генерируется на сервере
@@ -27,6 +28,7 @@ type Note = {
 const DirectionLayout = () => {
   const router = useRouter();
   const currentDate = new Date; //console.log(currentDate);
+  const [accessToken, setAccessToken] = useState<any>('');
 
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
@@ -50,12 +52,36 @@ const DirectionLayout = () => {
  
   const [direction, setDirection] = useState('Объект');
 
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
+
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Note[]>([]);
 
   const getNotes = async () => {
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments/'+codeCCS);
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments/'+codeCCS,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
       const json = await response.json();
       setData(json);
     } catch (error) {
@@ -66,8 +92,9 @@ const DirectionLayout = () => {
   };
 
   useEffect(() => {
-    getNotes();
-  }, []);
+    getToken();
+    if(codeCCS && accessToken){getNotes()};
+  }, [codeCCS, accessToken]);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>

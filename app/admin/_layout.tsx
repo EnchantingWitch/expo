@@ -74,5 +74,57 @@ export default function TabLayout() {
         headerStyle: { backgroundColor: '#FFFFFF',  },
         }}
       />
+      <Stack.Screen
+        name="change"
+        options={{
+            title: 'Пользователь',//редактирование доступа пользователя удалить/изменить
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        }}
+      />
+      <Stack.Screen
+        name="requests"
+        options={{
+            title: 'Заявки',
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        }}
+      />
+      <Stack.Screen
+        name="users"
+        options={{
+            title: 'Зарегистрированные пользователи',
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        }}
+      />
+      <Stack.Screen
+        name="acpt_req"
+        options={{
+            title: 'Заявка на доступ',
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        }}
+      />
     </Stack>
   )}

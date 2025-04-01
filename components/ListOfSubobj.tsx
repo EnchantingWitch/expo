@@ -27,15 +27,28 @@ const ListOfSubobj = ({list, post, statusreq, onChange }: Props) => {
 
     useEffect(
         () => {
+            if (post ){
+                setValue(post);
+                //onChange(post);
+                //setData(list);
+            }
+            /*if (statusreq ){//запись при первом и единственном рендеринге
+                setValue(post);//значение из БД
+                setStartD(false);
+                setData(list);
+            }*/
             
-        }, []
+        }, [post, statusreq]
     )
 
-    if (statusreq && startD){//запись при первом и единственном рендеринге
+   if (statusreq && startD){//запись при первом и единственном рендеринге
         setValue(post);//значение из БД
         setStartD(false);
         setData(list);
     }
+   /* if (post){
+        setValue(post);
+    }*/
     
     if (value){
         onChange(value);

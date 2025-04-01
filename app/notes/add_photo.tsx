@@ -4,7 +4,6 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { useEffect, useState } from 'react';
 
-
 import Button from '@/components/Button';
 import ImageViewer from '@/components/ImageViewer';
 import CustomButton from '@/components/CustomButton';

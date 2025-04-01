@@ -15,6 +15,7 @@ import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import { Structure } from '../(tabs)/structure';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 interface Data {
@@ -49,6 +50,8 @@ const EditDataScreen: React.FC = () => {
     const {id} = useLocalSearchParams();
     const {codeCCS} = useLocalSearchParams();
     const {capitalCSName} = useLocalSearchParams();
+
+    const [accessToken, setAccessToken] = useState<any>('');
  
     const [array, setArray] = useState<Structure[]>([]);//данные по структуре
     const listSubObj = [];//список подобъектов из структуры
@@ -63,7 +66,7 @@ const EditDataScreen: React.FC = () => {
     const [statusDel, setStatusDel] = useState<boolean>(false);//
     const [inputHeight, setInputHeight] = useState(42);
     const [bufsubobj, setBufsubobj] = useState(subobj);
-    const [bufsystem, setBufsystem] = useState(system);
+    const [bufsystem, setBufsystem] = useState('');
     const [idPhoto, setIdPhoto] = useState();
 
   const [data, setData] = useState<Data | undefined>(undefined);
@@ -112,6 +115,23 @@ const EditDataScreen: React.FC = () => {
   }
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
 
   const selectPhoto = async () => {
     try {
@@ -149,7 +169,7 @@ const EditDataScreen: React.FC = () => {
     //  if(editedSystemName != bufsystem){
       //  setBufsystem(editedSystemName);
       //console.log(editedSystemName, 'systemName: use if(systemName )');
-      if (editedSystemName != ' ' ){
+     /* if (editedSystemName != ' ' ){
         const filtered = array.filter(item => item.subObjectName === editedSubObject);
         //console.log(filtered[0].data);
         if(filtered.length != 0){
@@ -176,14 +196,14 @@ const EditDataScreen: React.FC = () => {
      // }
    //   }  
      
-    }
+    }*/
 
-    //updateComment();
+    updateComment();
     if (statusReqPhoto === false && singlePhoto != ''){postPhoto();}
     if (statusReqPhoto === true && singlePhoto === ''){deletePhoto();}
     if (changePhoto === true && statusReqPhoto === true){
         deletePhoto;
-        if (statusDel === true){postPhoto;}
+        if (statusDel === true){postPhoto;}//скорее всего надо в useEffect перенести
     }
     
   }
@@ -210,6 +230,7 @@ const json = JSON.stringify({
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/`+id, {
         method: 'PUT',
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
@@ -242,7 +263,13 @@ const json = JSON.stringify({
 
   const getStructure = async () => {
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
       const json = await response.json();
       setArray(json);
       console.log('ResponseSeeStructure:', response);
@@ -258,7 +285,13 @@ const json = JSON.stringify({
 
     //getPhoto
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + id);
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + id,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
       const json = await response.json();
       console.log('ResponseGetPhoto:', response);
       console.log('ResponseGetPhoto json:', json);
@@ -295,6 +328,7 @@ const json = JSON.stringify({
           method: 'PUT',
           body: body,
           headers: {
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -311,7 +345,11 @@ const json = JSON.stringify({
           method: "DELETE",
           //redirect: "follow",
           headers: {
-            'Content-Type': 'text/plain'
+            'Authorization': `Bearer ${accessToken}`,
+          //без headers 404
+           // 'Content-Type': 'application/json', //404
+            //'Content-Type': 'multipart/form-data' //500
+            //'Content-Type': 'text/plain' //404
         },
       });
     console.log('deletePhoto', response);
@@ -347,6 +385,7 @@ const json = JSON.stringify({
         method: 'post',
         body: body,
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'multipart/form-data'
         }
       }
@@ -365,6 +404,7 @@ const json = JSON.stringify({
   }
 
   useEffect(() => {
+    getToken();
       //смена статуса при изменении даты
         if (editedEndDateFact) {
           if(editedEndDateFact != ' '){
@@ -374,7 +414,7 @@ const json = JSON.stringify({
           }
       }
     //запрос на структура для получение данных на выпадающие списки и прочее
-    if(codeCCS && req){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    if(codeCCS && req && accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
     //формирование выпадающего списка для подобъекта
     if(statusReq && noteListSubobj){//вызов происходит только один раз
       setNoteListSubobj(false);
@@ -411,6 +451,10 @@ const json = JSON.stringify({
     if (updateCom){
       updateComment();
     }
+    if(editedSystemName){
+      setBufsystem(editedSystemName);
+    }
+    
   /*  if(editedSubObject){
       const filtered = array.filter(item => item.subObjectName === editedSubObject);
       console.log(filtered.length, 'filtered.length');
@@ -447,7 +491,7 @@ const json = JSON.stringify({
           }
         }
     }*/
-    /*if(editedSystemName!= ' ' && editedSubObject!= '' ){
+    if(editedSystemName!= ' ' && editedSubObject!= '' ){
       
       if(editedSystemName != bufsystem){
         setBufsystem(editedSystemName);
@@ -469,7 +513,7 @@ const json = JSON.stringify({
             setEditedIinumber('');
             setExecut('');
             setEditedSystemName(' ');
-            setEditedSubObject(' ');
+            setEditedSubObject('');
           }
         // if(filteredS[0].ciwexecutor){
           setNoteListSystem(false);
@@ -478,8 +522,8 @@ const json = JSON.stringify({
       }
       }  
      
-    }*/
-      }, [ editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom]);
+    }
+      }, [ accessToken, editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
 
 
   return (
@@ -541,7 +585,7 @@ const json = JSON.stringify({
           </View>  
             
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
-          <ListOfSystem list={listSystem} post={editedSystemName} onChange={(subobj) => {setEditedSystemName(subobj);}}/>   
+          <ListOfSystem list={listSystem} buf={bufsystem} post={editedSystemName} onChange={(subobj) => {setEditedSystemName(subobj);}}/>   
           
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput

@@ -38,7 +38,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Вход',
                     //  headerTitleStyle: {fontSize: ts(20)},
-
+                    headerShown: false,
                     headerTitleAlign: 'center',
                     headerTintColor: '#1E1E1E',
                     headerShadowVisible: false,

@@ -8,6 +8,8 @@ import CustomButton from '@/components/CustomButton';
 import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import DropdownComponent from '@/components/ListStatusSystem';
 import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 export type SystemPUT = {
@@ -64,6 +66,26 @@ export default function TabOneScreen() {
   const [conditionKO, setConditionKO] = useState<boolean>(false);//выбрана дата факта или нет
   const [conditionII, setConditionII] = useState<boolean>(false);
 
+  const [accessToken, setAccessToken] = useState<any>('');
+
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
+
   const putSystem = async () => {
   
     try {
@@ -80,7 +102,9 @@ export default function TabOneScreen() {
     });
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/systems/updateSystemInfo/'+post, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json' },
         body: js
       }
       );
@@ -103,7 +127,13 @@ export default function TabOneScreen() {
 
   const getSystem = async () => {
     try {
-      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getSystemCommonInfo/'+post);
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getSystemCommonInfo/'+post,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
       const json = await response.json();
       setSystem(json.systemName);
       setSystemStat(json.status);
@@ -133,7 +163,8 @@ export default function TabOneScreen() {
   };
 
   useEffect(() => {
-    if (post) {
+    getToken();
+    if (post && accessToken) {
       //putSystem();
       getSystem();//вызов функции при получении значения post
       //router.setParams({systemName: systemN});
@@ -144,7 +175,7 @@ export default function TabOneScreen() {
       console.log(system, 'sytemN in system.tsx');
     }
    
-  }, [post, statusRequest]);
+  }, [accessToken, post, statusRequest]);
 
  /* useEffect(() => {
     if (pnrfact){

@@ -1,19 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
 import { router, useLocalSearchParams } from "expo-router";
 import FileViewer from "@/components/FileViewer";
 import { isLoading } from "expo-font";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
   const [singleFile, setSingleFile] = useState<any>('');
   const [load, setLoad]= useState<boolean>(false);
+  
+  const [accessToken, setAccessToken] = useState<any>('');
+
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
+    const getToken = async () => {
+      try {
+          const token = await AsyncStorage.getItem('accessToken');
+          //setAccessToken(token);
+          if (token !== null) {
+              console.log('Retrieved token:', token);
+              setAccessToken(token);
+              //вызов getAuth для проверки актуальности токена
+              //authUserAfterLogin();
+          } else {
+              console.log('No token found');
+              router.push('/sign/sign_in');
+          }
+      } catch (error) {
+          console.error('Error retrieving token:', error);
+      }
+  };
 
   const {codeCCS} = useLocalSearchParams();//получение id объекта
   const {capitalCSName} = useLocalSearchParams();//получение id объекта
@@ -41,6 +64,7 @@ import { isLoading } from "expo-font";
           method: 'post',
           body: data,
           headers: {
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data; ',
           },
         }
@@ -141,6 +165,11 @@ import { isLoading } from "expo-font";
       //alert('You did not select any image.');
     }
   }*/
+
+    useEffect(() => {
+      getToken();
+
+    }, []);
 
   return (
     <View style={styles.background}>

@@ -10,13 +10,13 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[];//список
     post: string;//значение из бд статуса для просмотра, при записи передавать пустую строку
-    subobj?: string;//
+    buf: string;//
     statusreq?: boolean;//для обновления значения даты при получении даты с запроса
     onChange: (subobj: string, ) => void; // Функция для обновления значения
     onChangeStatus?: (subobj: boolean, ) => void; // 
 };
 
-const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }: Props) => {
+const ListOfSystem = ({list, post, buf, statusreq, onChange, onChangeStatus }: Props) => {
     const [value, setValue] = useState<string >();
     const [data, setData] = useState<ListToDrop[]>([]);
     const [isFocus, setIsFocus] = useState(false);
@@ -29,7 +29,7 @@ const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }
 
     useEffect(
         () => {
-        if(list){
+        if(list && buf != post && (post != ' ')){
             setValue(post);
             //значение из БД
             console.log(post, 'post');
@@ -47,11 +47,11 @@ const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }
             } */
         }
         
-        if(post != ' '){
+      /*  if(post != ' '){
             setValue(post);
             //setData(list);
             console.log('post List', list );
-        }
+        }*/
         /*if(subobj ){
 
             console.log('!!!');
@@ -62,9 +62,14 @@ const ListOfSystem = ({list, post, subobj, statusreq, onChange, onChangeStatus }
         
             } 
         }              */
-        }, [ list]
+       if (statusreq && startD){//запись при первом и единственном рендеринге
+        setValue(post);//значение из БД
+        setStartD(false);
+        setData(list);
+    }
+        }, [ list, post, statusreq, startD, buf]
     )
-
+    
    /* if(list && statusreq){
         setValue(post);//значение из БД
         console.log('!');

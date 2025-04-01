@@ -8,6 +8,7 @@ import { styles } from './create_note';
 import CustomButton from '@/components/CustomButton';
 import { Buffer } from 'buffer';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -34,6 +35,8 @@ const DetailsScreen = () => {
   const {post} = useLocalSearchParams();//получение Id замечания
   console.log(post, 'commentId post');
   const [inputHeight, setInputHeight] = useState(42);
+
+  const [accessToken, setAccessToken] = useState<any>('');
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -65,11 +68,29 @@ const DetailsScreen = () => {
 
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
 
 console.log('statusReqPhoto',statusReqPhoto);
   useEffect(() => {
+    getToken();
     //вызов getComment при получении id Замечания - post
-      if (post && startReq) {
+      if (post && startReq && accessToken) {
         setStartReq(false);
         getComment();
         //getPhoto();
@@ -92,11 +113,17 @@ console.log('statusReqPhoto',statusReqPhoto);
         console.log(3);
        // 
     }
-    }, [post, factD, statusReqPhoto]);
+    }, [accessToken, post, factD, statusReqPhoto]);
   
     const getComment = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/'+post);
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/'+post,
+          {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+        );
         const json = await response.json();
         setSerNumber(''+json.serialNumber.toString());
         setNumberII(''+json.iiNumber.toString());
@@ -124,7 +151,13 @@ console.log('statusReqPhoto',statusReqPhoto);
 
       //getPhoto
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + post);
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + post,
+          {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+        );
         const json = await response.json();
         console.log('ResponseGetPhoto:', response);
         console.log('ResponseGetPhoto json:', json);
@@ -147,6 +180,7 @@ console.log('statusReqPhoto',statusReqPhoto);
         let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/'+post, {
           method: 'PUT',
           headers: {
+            'Authorization': `Bearer ${accessToken}`,
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
@@ -194,7 +228,7 @@ console.log('statusReqPhoto',statusReqPhoto);
       }
     };
 
-    if (startReq) {
+    if (startReq && accessToken) {
       setStartReq(false);
       getComment();   
       console.log(post, 'commentID')

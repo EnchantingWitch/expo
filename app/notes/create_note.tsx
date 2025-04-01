@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Structure } from '../(tabs)/structure';
 import ListOfSubobj from '@/components/ListOfSubobj';
 import { setSeconds } from 'date-fns';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type ListToDrop = {
   label: string;
@@ -48,6 +49,8 @@ export default function CreateNote() {
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   const [click, setClick] = useState(false);//
 
+  const [accessToken, setAccessToken] = useState<any>('');
+
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -59,14 +62,32 @@ export default function CreateNote() {
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
   const {capitalCSName} = useLocalSearchParams();
   
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
 
   const [form, setForm] = useState({ video: null, image: null });
 
   const TwoFunction = () => {
 
-      if(systemName != bufsystem){
-        setBufsystem(systemName);
-      console.log(systemName, 'systemName: use if(systemName )');
+    submitData();
+     // if(systemName != bufsystem){
+     //   setBufsystem(systemName);
+   /*   console.log(systemName, 'systemName: use if(systemName )');
       if (systemName != ' ' ){
         const filtered = array.filter(item => item.subObjectName === subObject);
         console.log(filtered[0].data);
@@ -87,8 +108,8 @@ export default function CreateNote() {
        // if(filteredS[0].ciwexecutor){
         setNoteListSystem(false);
         //}
-      }
-      }  
+      }*/
+     // }  
     //setTimeout( uploadImage, 1000);
     //uploadImage(id);
   };
@@ -130,7 +151,13 @@ export default function CreateNote() {
  // console.log(noteListSystem);
   const getStructure = async () => {
         try {
-          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
+          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+            {method: 'GET',
+              headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }}
+          );
           const json = await response.json();
           setArray(json);
           console.log('ResponseSeeStructure:', response);
@@ -155,8 +182,9 @@ export default function CreateNote() {
   //console.log('noteListSubobj', noteListSubobj);
 
   useEffect(() => {
+    getToken();
     //запрос на структура для получение данных на выпадающие списки и прочее
-    if(codeCCS && req){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    if(codeCCS && req&& accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
     //формирование выпадающего списка для подобъекта
     if(statusReq && noteListSubobj){//вызов происходит только один раз
       setNoteListSubobj(false);
@@ -196,11 +224,14 @@ export default function CreateNote() {
 
       //setNoteListSystem(true);//передаем статус true в компонент для рендеринга после формирования списка
     }
-    if (numberII && execut){
+  /*  if (numberII && execut){
       submitData();
+    }*/
+    if (systemName){
+      setBufsystem(systemName);
     }
     
-    /*if(click === true && systemName!= ' ' && subObject != '' ){
+    /*if(click === true && systemName!= ' ' && subObject != '' ){*/
       
       if(systemName != bufsystem){
         setBufsystem(systemName);
@@ -228,13 +259,13 @@ export default function CreateNote() {
       }
       }  
 
-      if (numberII != '' && execut != ''){
+     /* if (numberII != '' && execut != ''){
         submitData();
       }
      
     }*/
         
-  }, [codeCCS, req, statusReq, noteListSubobj, subObject, systemName, numberII, execut]);
+  }, [accessToken, codeCCS, req, statusReq, noteListSubobj, subObject, systemName, numberII, execut]);
 
   const submitData = async () => {
 
@@ -242,6 +273,7 @@ export default function CreateNote() {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
@@ -303,6 +335,7 @@ export default function CreateNote() {
           method: 'post',
           body: body,
           headers: {
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -353,7 +386,7 @@ export default function CreateNote() {
           {/*</View>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
-          <ListOfSystem post = {systemName} subobj={subObject} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
+          <ListOfSystem post = {systemName} buf={bufsystem} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
           {/*<ListOfSystem onChange={(system) => setSystemName(system)}/>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>

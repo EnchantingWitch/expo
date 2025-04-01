@@ -5,6 +5,7 @@ import FormField from '@/components/FormField';
 import ListTypeObj from '@/components/ListTypeObj';
 import React, { Component, useState, useEffect } from 'react';
 import CustomButton from '@/components/CustomButton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Object = {
 
@@ -25,12 +26,31 @@ export default function TabOneScreen() {
   const [dirPnr, setDirPnr] = useState<string>();//руководитель пнр
   const [executorCmr, setExecutorCmr] = useState<string>();//исполнитель смр
   const [cuCmr, setCuCmr] = useState<string>();//куратор смр
-
+  const [accessToken, setAccessToken] = useState<any>('');
+  
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
   const request = async () => {
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/createObject', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -63,6 +83,10 @@ export default function TabOneScreen() {
   }
 
 };
+
+useEffect(() => {
+    getToken();  
+  }, []);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>

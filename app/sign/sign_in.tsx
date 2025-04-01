@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, View, TextInput, Button, StyleSheet, Text, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { router, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-
-type LoginResponse = {
-    success: boolean;
-    message?: string;
+type token = {
+    accessToken: string;
+    refreshToken: string;
+    //role: string;
 };
 
 const LoginModal = () => {
@@ -24,43 +24,84 @@ const LoginModal = () => {
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    const [accessToken, setAccessToken] = useState('');
+    const [refreshToken, setRefreshToken] = useState('');
+
     const fontScale = useWindowDimensions().fontScale;
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
 
-
-    const handleLogin = async () => {
+    const saveToken = async (tokenKey, token) => {
         try {
-            setLoading(true);
-            setErrorMessage('');
-
-            const response = await fetch('https://///////', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password, name }),
-            });
-
-            const data: LoginResponse = await response.json();
-
-            if (data.success) {
-                router.push('/(tabs)/structure')
-            } else {
-                setErrorMessage(data.message || 'Неверные учетные данные.');
-            }
+            await AsyncStorage.setItem(tokenKey, token);
+            console.log('Token - ', tokenKey, '- saved successfully!');
         } catch (error) {
-            setErrorMessage(error.message || 'Произошла ошибка при попытке войти.');
-        } finally {
-            setLoading(false);
+            console.error('Error saving token:', error);
         }
     };
+
+    const handleLogin = async () => {
+        try{
+            let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/login', {
+                 method: 'POST',
+                 headers: {
+                   'Content-Type': 'application/json',
+                 },
+                 body: JSON.stringify({
+                   username: name,
+                   password: password
+                 }),
+               });
+                console.log('ResponseSignIn:', response);
+               const token = await response.json()
+               console.log(token);
+               console.log(token.accessToken);
+               console.log(token.refreshToken);
+              
+               if (response.status === 200) {
+                 setAccessToken(token.accessToken);
+               setRefreshToken(token.refreshToken);
+                    saveToken('accessToken', token.accessToken);
+                    saveToken('refreshToken', token.refreshToken);
+                  
+               }
+              
+
+            }catch (error) {
+                console.error('Error:', error);
+            }finally{  
+
+            }
+
+    };
+
+    //функция для парсинга второй секции токена, чтобы вытащить роль пользователя
+    function parseJwt (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    };
+
+     useEffect(() => {
+    if(accessToken){  
+        const role = parseJwt(accessToken);
+        console.log(role.role);
+        console.log(role);
+        saveToken('userID', role.userId.toString());
+        if (role.role === 'ADMIN'){router.replace('/admin/menu')}
+        if (role.role === 'USER'){router.replace('/objs/objects')}
+    }
+  }, [accessToken]);
 
     return (
 
         <View style={styles.modalContainer}>
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите ваш логин</Text>
+            
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите логин</Text>
             <TextInput
                 style={styles.input}
                 value={name}
@@ -80,11 +121,23 @@ const LoginModal = () => {
                 <CustomButton
                     title="Войти"
                     handlePress={handleLogin} />
+                    
+                    
             )}
             <CustomButton
+                    title="Зарегистрироваться"
+                    handlePress={() => router.push('/sign/register')}/>
+
+                    
+          {/*}  <CustomButton
+                    title="getToken"
+                    handlePress={getToken} />*/}
+
+            {/*} <CustomButton
                 title="Закрыть"
                 handlePress={() => setIsVisible(false)} />
-           {/*} <CustomButton
+                
+           <CustomButton
                 title="Проверка передачи значения admin"
                 handlePress={() => {router.push({pathname: '/', params: {roleReq: 'admin' }})}} />
             <CustomButton

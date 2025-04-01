@@ -7,6 +7,7 @@ import { useWindowDimensions,  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import CustomButton from '@/components/CustomButton';;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type Structure = {
   id: number;
@@ -42,6 +43,7 @@ const Struct = () => {
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   console.log(codeCCS, 'codeCCS structure');
   console.log(capitalCSName, 'capitalCSName structure');
+  const [accessToken, setAccessToken] = useState<any>('');
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -65,7 +67,13 @@ const Struct = () => {
 
   const getStructure = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS);
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+          {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+        );
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
@@ -76,10 +84,30 @@ const Struct = () => {
         setLoading(false);
       }
     };
+
+    const getToken = async () => {
+      try {
+          const token = await AsyncStorage.getItem('accessToken');
+          //setAccessToken(token);
+          if (token !== null) {
+              console.log('Retrieved token:', token);
+              setAccessToken(token);
+              //вызов getAuth для проверки актуальности токена
+              //authUserAfterLogin();
+          } else {
+              console.log('No token found');
+              router.push('/sign/sign_in');
+          }
+      } catch (error) {
+          console.error('Error retrieving token:', error);
+      }
+  };
   
     useEffect(() => {
-      getStructure();
-    }, []);
+      getToken();
+      if (accessToken){getStructure();}
+      
+    }, [accessToken]);
 
     const [expandedSections, setExpandedSections] = useState(new Set());
 

@@ -4,6 +4,9 @@ import FormForObj from '@/components/FormForObj';
 import React, { Component, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
   systemsPNRQuantityAccepted: number; //принятых систем
@@ -28,6 +31,7 @@ export default function TabOneScreen() {
  /* console.log(Id, 'Id object');
   const ID = Id;*/
   console.log(codeCCS, 'codeCCS object');
+  const [accessToken, setAccessToken] = useState<any>('');
   //router.setParams({ ID: ID });
 
   const navigation = useNavigation();
@@ -41,6 +45,24 @@ export default function TabOneScreen() {
           ),
         });
   }, [navigation]);
+
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
   
 
   const [isLoading, setLoading] = useState(true);
@@ -48,7 +70,13 @@ export default function TabOneScreen() {
   
     const getCommonInf= async () => {
         try {
-          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/'+codeCCS);
+          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/'+codeCCS,
+            {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+          );
           const json = await response.json();
           setData(json);
           console.log('responseCommonInfObj', response);
@@ -60,8 +88,9 @@ export default function TabOneScreen() {
       };
     
       useEffect(() => {
-        getCommonInf();
-      }, []);
+        getToken();
+        if (accessToken){getCommonInf();}
+      }, [accessToken]);
 
       const fontScale = useWindowDimensions().fontScale;
 

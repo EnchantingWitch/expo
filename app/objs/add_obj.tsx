@@ -1,76 +1,167 @@
-import React, {useState} from 'react';
-import { StyleSheet, SafeAreaView, FlatList, Text, View, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
-import Checkbox from 'expo-checkbox';
-import { Link, Tabs, Redirect, router } from 'expo-router';
-import FormForObj from '@/components/FormForObj';
-import ListOfRoles from '@/components/ListOfRoles';
+import React, { useEffect, useState } from 'react';
+import { useWindowDimensions, View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
+import { Checkbox } from 'expo-checkbox';
+import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
-//import CheckBox from '@react-native-community/checkbox';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-export default function TabOneScreen() {
-    const [isSelected, setSelection] = useState(false);
-    const [role, setRole] = useState<string>('');
+type Object = {
+  capitalCSName: string;
+  codeCCS: string;
+  locationRegion: string;
+  objectType: string;
+  customer: string;//заказчик
+  CIWExecutor: string;//исполнитель СМР
+  CWExecutor: string;//исполнитель ПНР
+  customerSupervisor: string;// Куратор заказчика
+  CWSupervisor: string; // Куратор ПНР
+  CIWSupervisor: string; // куратор СМР 
+};
+
+const CheckboxList = () => {
+    const [checkedItems, setCheckedItems] = useState({});
+    const [data, setData] = useState<Object[]>([]);
+    const [accessToken, setAccessToken] = useState<any>('');
+    const [idUser, setIdUser] = useState<any>('');
+
+    const getObjects = async () => {
+      try {
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
+          {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+        );
+        const json = await response.json();
+        setData(json);
+        console.log('responsegetAllObjs',response)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        //setLoading(false);
+      }
+    };
+
+    const getToken = async (key, setF) => {
+      try {
+          const token = await AsyncStorage.getItem(key);
+          //setAccessToken(token);
+          if (token !== null) {
+              console.log('Retrieved token:', token);
+              setF(token);
+              //вызов getAuth для проверки актуальности токена
+              //authUserAfterLogin();
+          } else {
+              console.log('No token found');
+              router.push('/sign/sign_in');
+          }
+      } catch (error) {
+          console.error('Error retrieving token:', error);
+      }
+  };
+
+    useEffect(() => {
+      getToken('accessToken', setAccessToken);
+      if (accessToken){getObjects();}
+      if(idUser){handleSubmit();}
+  }, [accessToken, idUser]);
 
     const fontScale = useWindowDimensions().fontScale;
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={styles.container}>
+//что-то делает для отображения чекбоксов для каждого объекта по состоянию
+    const toggleCheckbox = (id) => {
+        setCheckedItems((prev) => ({
+            ...prev,
+            [id]: !prev[id],
+        }));
+    };
 
-    {/*  <FlatList
-        style={{width: '100%'}}
-        data={data}
-        keyExtractor={({commentId}) => commentId}
-        renderItem={({item}) => (   
-        */}
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: '5%',}}>
-
-                            <View style={{width: '10%', justifyContent: 'center'}}>
-                            <Checkbox
-                                value={isSelected}
-                                onValueChange={setSelection}
-                                color={isSelected ? '#0072C8' : undefined}
-                            />
-                            </View>
-                            <View style={{width: '50%', justifyContent: 'center'}}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>Объект 1</Text>
-                            </View>
-
-                            <View style={{width: '40%', justifyContent: 'center'}}>
-                            <ListOfRoles onChange = {(value) => setRole(value)}/>
-                            </View>
-
-                        </View>
-   {/*     )}
-      />    
-      */}
+    //выбранные объекты
+    const handleSubmit = async ()  => {
       
-    </View>
-    <CustomButton title='Запросить доступ' handlePress={() =>{router.push('./objects')}}/>
-    </SafeAreaView>
-  );
-}
+      const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
+      console.log('Selected IDs:', selectedIds);
+      console.log(JSON.stringify({
+        objectsToAdd : selectedIds,
+        description : 'описание',
+      }))
+      try {
+        //const id = await AsyncStorage.getItem('userID');
+        //console.log('isUser', id);
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/user/createApplication/'+idUser,
+          {method: 'POST',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+            },
+          body: JSON.stringify({
+            objectsToAdd : selectedIds,
+            description : 'описание',
+          })
+        }
+          
+        );
+       
+        console.log('responseСreateApplication',response)
+      } catch (error) {
+        console.error(error);
+      } finally {
+        router.push('./objects')
+        //setLoading(false);
+
+      }
+
+      // Здесь вы можете отправить запрос с выбранными ID
+    };
+
+    const renderItem = ({ item }) => (
+        <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32,   marginBottom: '5%',}}>
+            <Checkbox
+                value={!!checkedItems[item.codeCCS]}
+                onValueChange={() => toggleCheckbox(item.codeCCS)}
+                color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
+                style={{alignSelf: 'center'}}
+            />
+            <Text style={[styles.label, {fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text>
+        </View>
+    );
+
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={styles.container}>
+            <FlatList
+                data={data}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.codeCCS}
+            />
+
+        </View>
+         <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
+
+         </SafeAreaView>
+    );
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignSelf: 'center',
-    width: '96%',
-    //height: '70%',
-
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
+    container: {
+        flex: 1,
+        //justifyContent: 'center',
+        padding: '2%',
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    label: {
+        fontSize: 16,
+        marginLeft: 8,
+    },
 });
+
+export default CheckboxList;
