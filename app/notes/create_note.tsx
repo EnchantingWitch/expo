@@ -379,7 +379,7 @@ export default function CreateNote() {
             <View style={{width: '83%'}}>*/}
             <View style={{width: '100%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
-              <ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>
+              <ListOfSubobj selectedValue = {subObject} data={listSubObj} isDataLoaded={statusReq} onValueChange = {(subObj) => setSubObject(subObj)}/>
              
             </View>
 

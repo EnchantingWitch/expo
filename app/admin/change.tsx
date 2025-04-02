@@ -36,16 +36,17 @@ export default function TabOneScreen() {
       console.log('json',JSON.stringify({
         username : username,
       }));
+      const body = new FormData();
+      //data.append('name', 'Image Upload');
+      body.append("username", username);
+      console.log('body', body);
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/delete_user', {
-      method: 'POST',
+      method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+       'Content-Type': 'multipart/form-data'
       },
-      body: JSON.stringify({
-        username : username,
-      })
+      body: body,
     });
     console.log('ResponsedeleteUser:', response);
   if (response.status == 200){
@@ -63,16 +64,17 @@ export default function TabOneScreen() {
       console.log('json',JSON.stringify({
         username : username,
       }));
+      const body = new FormData();
+      //data.append('name', 'Image Upload');
+      body.append("username", username);
+      console.log('body', body);
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_user_role', {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+       'Content-Type': 'multipart/form-data'
       }, 
-      body: JSON.stringify({
-        username : username,
-      })
+      body: body,
     });
     console.log('ResponseroleOfAdmin:', response);
    if (response.status == 200){

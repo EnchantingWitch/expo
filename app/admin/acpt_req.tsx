@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet, Text, View, ScrollView, useWindowDimensions, FlatList } from 'react-native';
+import { TextInput, StyleSheet, Text, View, ScrollView, useWindowDimensions, FlatList, SafeAreaView, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import CustomButton from '@/components/CustomButton';
@@ -6,10 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 
 type Req = {
+  id: number;
   username: string;
-  organization: string;
-  date: string;
-  objectsToAdd: {
+  description: string;
+  userId: string;
+  objectsToAdd:[ {
     capitalCSName: string;
     codeCCS: string;
     locationRegion: string;
@@ -20,7 +21,7 @@ type Req = {
     customerSupervisor: string; // Куратор заказчика
     CWSupervisor: string; // Куратор ПНР
     CIWSupervisor: string; // куратор СМР 
-  }[];
+  }];
 };
 
 export default function TabOneScreen() {
@@ -64,6 +65,7 @@ export default function TabOneScreen() {
       });
       const json = await response.json();
       setData(json);
+      console.log(json);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -81,7 +83,7 @@ const handleSubmit = async ()  => {
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
   try {
-    const id = await AsyncStorage.getItem('userID');
+    //const id = await AsyncStorage.getItem('userID');
     const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_objects',
       {method: 'POST',
         headers: {
@@ -89,13 +91,17 @@ const handleSubmit = async ()  => {
         'Content-Type': 'application/json'
         },
       body: JSON.stringify({
-        id : id,
+        id : data.id,
         objects : selectedIds,
       })
     }
       
     );
     console.log('responseSetObjects',response)
+     if (response.status == 200){
+      Alert.alert('', 'Пользователю предоставлен доступ к выбранным объектам.', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -112,8 +118,8 @@ const handleSubmit = async ()  => {
     if (idReq && accessToken) { getReq(); }
   }, [idReq, accessToken]);
 
-  const renderObjectItem = ({ item }) => (
-    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32,   marginBottom: '5%',}}>
+  const renderItem = ({ item }) => (
+    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', height: 32,marginBottom: '5%',}}>
                 <Checkbox
                     value={!!checkedItems[item.codeCCS]}
                     onValueChange={() => toggleCheckbox(item.codeCCS)}
@@ -124,60 +130,42 @@ const handleSubmit = async ()  => {
             </View>
   );
 
-  const renderUserItem = ({ item }) => (
-    <View style={{ marginBottom: 20 }}>
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={styles.container}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Пользователь</Text>
       <TextInput
-      style={{fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
+      style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value={item.username}
+      value={data.username}
     />
-    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Организация</Text>
+    {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Организация</Text>
       <TextInput
-      style={{fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
+      style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value={item.organization}
+      value='{item.organization}'
     />
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
       <TextInput
-      style={{fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
+      style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value={item.date}
-    />
-<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Запрос на следующие объекты</Text>
-      <FlatList
-        data={item.objectsToAdd}
-        keyExtractor={(object) => object.codeCCS}
-        renderItem={renderObjectItem}
-      />
-    </View>
-  );
-
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={styles.container}>
-      <TextInput
-      style={{fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,
-        color: '#B3B3B3',
-        textAlign: 'center',
-        marginBottom: 20,
-      }}
-      placeholderTextColor="#111"
-      editable={false}
-      value={item.capitalCSName}
-    />
+      value='{item.date}'
+    />*/}
+     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
+     
         <FlatList
-          style={{ width: '100%' }}
-          data={data}
-          keyExtractor={(user) => user.username} // Используйте уникальное значение для ключа
-          renderItem={renderUserItem}
+          style={{ width: '96%' }}
+          data={data.objectsToAdd}
+          keyExtractor={(item, index) => index.toString()} // Используйте уникальное значение для ключа
+          renderItem={renderItem}
         />
       </View>
       <CustomButton title='Акцептовать заявку' handlePress={handleSubmit}/>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 

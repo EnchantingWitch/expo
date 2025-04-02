@@ -52,6 +52,7 @@ const DirectionLayout = () => {
       console.log('responseGetApplications', response);
       const json = await response.json();
       setData(json);
+      console.log(json);
     } catch (error) {
       console.error(error);
     } finally {
@@ -71,40 +72,42 @@ const DirectionLayout = () => {
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
           
-          <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>ФИО</Text>
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Организация</Text>
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Дата заявки</Text>
+          <View style={{ flexDirection: 'row', width: '90%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
+            <View style={{width: '48%', justifyContent: 'center'}}>
+                                  <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Логин пользователя</Text>
+                                  </View>
+                                  <View style={{width: '48%', justifyContent: 'center'}}>
+                                  <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Организация</Text>
+                                  </View>
+           {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Дата заявки</Text>*/}
           </View>
 
-          <View style={{ flex: 15, marginTop: 48}}>
+          <View style={{ flex: 15, marginTop: 12}}>
 
                { isLoading ? (
               <ActivityIndicator />
             ) : (
 
               <FlatList
-                      style={{width: '100%'}}
+                      style={{width: '96%'}}
                       data={data}
                       keyExtractor={({id}) => id}
                       renderItem={({item}) => (
              
-                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: './admin/acpt_req', params: {idReq: item.id }})}  }>
+                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/admin/acpt_req', params: {idReq: item.id }})}  }>
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
-                      <View style={{width: '15%', justifyContent: 'center'}}>
+                      <View style={{width: '48%', justifyContent: 'center'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.username}</Text>
                       </View>
           
-                      <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
+                      <View style={{width: '48%', marginStart: 2, justifyContent: 'center'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.organization}</Text>
                       </View>
                       
-                      <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
+                      <View style={{width: '0%', marginStart: 2, justifyContent: 'center'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.date}</Text>
                       
-                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
-                     {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                       </View>
                   </View>
                   </TouchableWithoutFeedback>

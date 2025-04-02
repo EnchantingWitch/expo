@@ -136,7 +136,7 @@ const [data, setData] = useState<Object[]>([]);
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       {/*<Text style={{textAlign: 'center', fontSize: ts(14), paddingVertical: '4%'}}>Доступные объекты КС</Text>*/}
     <View style={styles.container}>
-   {/*} <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: '051-2004430.008', capitalCSName: 'Тестовый объект'}})}}>
+    {/*<TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: '051-2004430.008', capitalCSName: 'Тестовый объект'}})}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', }}>
@@ -167,7 +167,7 @@ const [data, setData] = useState<Object[]>([]);
     </View>
     <View>
     <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
-    <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/></View>
+   {/*} <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/>*/}</View>
     </SafeAreaView>
   );
 }

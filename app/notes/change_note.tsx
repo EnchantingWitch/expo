@@ -2,11 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { router, Link, Tabs, useLocalSearchParams } from 'expo-router';
-import DropdownComponent1 from '@/components/ListOfSystem';
 import DropdownComponent2 from '@/components/ListOfCategories';
-import DateInputWithPicker from '@/components/CalendarOnWrite';
-import DateInputWithPicker2 from '@/components/calendar+10';
-import FormField from '@/components/FormField';
 import { styles } from './create_note';
 import * as ImagePicker from 'expo-image-picker';
 import ListOfSubobj from '@/components/ListOfSubobj';
@@ -89,6 +85,8 @@ const EditDataScreen: React.FC = () => {
   const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
   
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   
   const fontScale = useWindowDimensions().fontScale;
@@ -343,7 +341,6 @@ const json = JSON.stringify({
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/delePhotoById/'+idPhoto, {
           method: "DELETE",
-          //redirect: "follow",
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           //без headers 404
@@ -418,11 +415,13 @@ const json = JSON.stringify({
     //формирование выпадающего списка для подобъекта
     if(statusReq && noteListSubobj){//вызов происходит только один раз
       setNoteListSubobj(false);
+      setIsDataLoaded(false); 
       
       const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
       listSubObj.push(...buf);
       //setStatusReq(true);
       console.log(buf, 'listSubObj');
+      setIsDataLoaded(true);
     }
     //формирование выпадающего списка для системы после того как выбран подобъект
      if (editedSubObject ){
@@ -579,7 +578,14 @@ const json = JSON.stringify({
             value={editedSubObject}
             editable={false}
             />*/}
-            <ListOfSubobj list={listSubObj} post={editedSubObject} statusreq={statusReq} onChange={(subobj) => {setEditedSubObject(subobj);}}/>
+           {/*} <ListOfSubobj list={listSubObj} post={editedSubObject} statusreq={statusReq} onChange={(subobj) => {setEditedSubObject(subobj);}}/>*/}
+            <ListOfSubobj
+              data={listSubObj}
+              selectedValue={editedSubObject}
+              onValueChange={(subobj) => {setEditedSubObject(subobj);}}
+              isDataLoaded={isDataLoaded}
+            />
+
             </View>
 
           </View>  
