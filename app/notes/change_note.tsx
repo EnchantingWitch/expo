@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { router, Link, Tabs, useLocalSearchParams } from 'expo-router';
+import DropdownComponent1 from '@/components/ListOfSystem';
 import DropdownComponent2 from '@/components/ListOfCategories';
+import DateInputWithPicker from '@/components/CalendarOnWrite';
+import DateInputWithPicker2 from '@/components/calendar+10';
+import FormField from '@/components/FormField';
 import { styles } from './create_note';
 import * as ImagePicker from 'expo-image-picker';
 import ListOfSubobj from '@/components/ListOfSubobj';
@@ -50,9 +54,11 @@ const EditDataScreen: React.FC = () => {
     const [accessToken, setAccessToken] = useState<any>('');
  
     const [array, setArray] = useState<Structure[]>([]);//данные по структуре
-    const listSubObj = [];//список подобъектов из структуры
+    const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
+    const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
+   // const listSubObj = [];//список подобъектов из структуры
     const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
-    const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
+   // const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
     const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
     const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
     const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
@@ -85,8 +91,6 @@ const EditDataScreen: React.FC = () => {
   const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
   
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   
   const fontScale = useWindowDimensions().fontScale;
@@ -94,23 +98,30 @@ const EditDataScreen: React.FC = () => {
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
 
-  if(codeCCS && noteData){
-    setNoteData(false);
-    setEditedSerialNumber(serialNumb);
-    setEditedIinumber(numberii);
-    setEditedSubObject(subobj);
-    setBufsubobj(subobj);
-    setEditedSystemName(system);
-    setBufsystem(system);
-    setEditedDescription(comment);
-    setEditedCommentStatus(status);
-    setExecut(executor);
-    setEditedStartDate(startD);
-    setEditedEndDatePlan(planD);
-    setEditedEndDateFact(factD);
-    setEditedCommentCategory(category);
-    setEditedCommentExplanation(explan);
-  }
+    useEffect(() => {
+      if (codeCCS) {
+          setEditedSerialNumber(serialNumb);
+          setEditedIinumber(numberii);
+          setEditedSubObject(subobj);
+          setBufsubobj(subobj);
+          setEditedSystemName(system);
+          setBufsystem(system);
+          setEditedDescription(comment);
+          setEditedCommentStatus(status);
+          setExecut(executor);
+          setEditedStartDate(startD);
+          setEditedEndDatePlan(planD);
+          setEditedEndDateFact(factD);
+          setEditedCommentCategory(category);
+          setEditedCommentExplanation(explan);
+          // ... остальные setState
+      }
+  }, [codeCCS]);
+
+  console.log('startD дата выдачи',startD)
+  console.log('editedStartDate дата выдачи',editedStartDate)
+
+ 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
   const getToken = async () => {
@@ -162,48 +173,14 @@ const EditDataScreen: React.FC = () => {
   console.log(updateCom, 'UpdateCom');
 
   const handleSaveClick = async () => {
-   // if(editedSystemName && editedSubObject){
-      
-    //  if(editedSystemName != bufsystem){
-      //  setBufsystem(editedSystemName);
-      //console.log(editedSystemName, 'systemName: use if(systemName )');
-     /* if (editedSystemName != ' ' ){
-        const filtered = array.filter(item => item.subObjectName === editedSubObject);
-        //console.log(filtered[0].data);
-        if(filtered.length != 0){
-          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
-        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-          console.log(filteredS.length, 'filteredS.length');
-          console.log(filteredS, 'filteredS');
-          if(filteredS.length != 0){
-            console.log('1');
-            setEditedIinumber(filteredS[0].numberII);
-            setExecut(filteredS[0].ciwexecutor);
-            setUpdateCom(true);
-          }
-          else{
-            setEditedIinumber('');
-            setExecut('');
-            setEditedSystemName(' ');
-            setEditedSubObject(' ');
-          }
-        // if(filteredS[0].ciwexecutor){
-         // setNoteListSystem(false);
-      }
-        //}
-     // }
-   //   }  
-     
-    }*/
-
-    updateComment();
+    
     if (statusReqPhoto === false && singlePhoto != ''){postPhoto();}
     if (statusReqPhoto === true && singlePhoto === ''){deletePhoto();}
     if (changePhoto === true && statusReqPhoto === true){
-        deletePhoto;
-        if (statusDel === true){postPhoto;}//скорее всего надо в useEffect перенести
+        deletePhoto();
+        //if (statusDel === true){postPhoto;}//скорее всего надо в useEffect перенести
     }
-    
+    updateComment();
   }
 
 const json = JSON.stringify({
@@ -239,7 +216,9 @@ const json = JSON.stringify({
         const jsonData: Data = await response.json();
         setData(jsonData);
         setEditing(false);
-        alert('Данные успешно сохранены!');
+        //alert('Данные успешно сохранены!');
+         Alert.alert('', 'Данные по замечанию обновлены', [
+                                      {text: 'OK', onPress: () => console.log('OK Pressed')}])
       } else {
         throw new Error('Не удалось сохранить данные.');
       }
@@ -309,44 +288,17 @@ const json = JSON.stringify({
     }
   };
 
-  const putPhoto = async () => {
-    try{
-      const photoToUpload = singlePhoto;
-      const body = new FormData();
-      body.append("photo", {
-        uri: photoToUpload,
-        type: 'image/*',
-        name: 'photoToUpload'
-      })
-      let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
-      console.log(str);
-      let res = await fetch(
-        str,
-        {
-          method: 'PUT',
-          body: body,
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-      console.log('ResponsePhoto:', res);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-  }
-
-  const deletePhoto = async () => {
+   const deletePhoto = async () => {
     try {
-      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/delePhotoById/'+idPhoto, {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/deletePhotoById/'+idPhoto, {
           method: "DELETE",
+          //redirect: "follow",
           headers: {
             'Authorization': `Bearer ${accessToken}`,
           //без headers 404
            // 'Content-Type': 'application/json', //404
-            //'Content-Type': 'multipart/form-data' //500
-            //'Content-Type': 'text/plain' //404
+           // 'Content-Type': 'multipart/form-data' //401
+           // 'Content-Type': 'text/plain' //404
         },
       });
     console.log('deletePhoto', response);
@@ -365,14 +317,7 @@ const json = JSON.stringify({
       type: 'image/*',
       name: 'photoToUpload'
     })
-   /* console.log(body);
-    for (let [key, value] of body) {
-       console.log(key);
-      console.log(value);
-    }
-    console.log(singlePhoto.uri, 'singlePhoto');
-    console.log(photoToUpload.uri, 'photoToUpload');
-*/
+
     let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
     console.log(str);
     
@@ -412,84 +357,15 @@ const json = JSON.stringify({
       }
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req && accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
-    //формирование выпадающего списка для подобъекта
-    if(statusReq && noteListSubobj){//вызов происходит только один раз
-      setNoteListSubobj(false);
-      setIsDataLoaded(false); 
-      
-      const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
-      listSubObj.push(...buf);
-      //setStatusReq(true);
-      console.log(buf, 'listSubObj');
-      setIsDataLoaded(true);
-    }
-    //формирование выпадающего списка для системы после того как выбран подобъект
-     if (editedSubObject ){
-
-      const filtered = array.filter(item => item.subObjectName === editedSubObject);
-      console.log(filtered.length, 'filtered.length');
-      if(filtered.length != 0){
-        for (const pnrsystemId in filtered[0].data) {
-        
-            const buf = filtered.map(item => ({label: item.data[pnrsystemId].systemName, value:  item.data[pnrsystemId].systemName}));
-            console.log('listSystem',buf);
-            listSystem.push(...buf);
-
-        }  
-      }
-
-      if(editedSubObject != bufsubobj){ //это работает, но после каждого обновления subObject в systemName попадает с кеша(?) последнее значение
-        console.log('2');
-        setEditedSystemName('');
-        setEditedIinumber('');
-        setExecut('');
-        setBufsubobj(editedSubObject);
-      }
-      
-    }
+    
+    
     if (updateCom){
       updateComment();
     }
     if(editedSystemName){
       setBufsystem(editedSystemName);
     }
-    
-  /*  if(editedSubObject){
-      const filtered = array.filter(item => item.subObjectName === editedSubObject);
-      console.log(filtered.length, 'filtered.length');
-      if(filtered.length != 0){
-        for (const pnrsystemId in filtered[0].data) {
-        
-            const buf = filtered.map(item => ({label: item.data[pnrsystemId].systemName, value:  item.data[pnrsystemId].systemName}));
-            console.log('listSystem',buf);
-            listSystem.push(...buf);
  
-        }  
-      }
-      if(editedSubObject != bufsubobj){ //это работает, но после каждого обновления subObject в systemName попадает с кеша(?) последнее значение
-        console.log('2');
-        setEditedSystemName('');
-        setEditedIinumber('');
-        setExecut('');
-        setBufsubobj(editedSubObject);
-      }
-    }*/
-   /* if (editedSystemName!= ' ' && editedSubObject!= ''){
-      const filtered = array.filter(item => item.subObjectName === editedSubObject);
-        //console.log(filtered[0].data);
-        if(filtered.length != 0){
-          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
-        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-          console.log(filteredS.length, 'filteredS.length');
-          console.log(filteredS, 'filteredS');
-          if(filteredS.length != 0){
-            console.log('1');
-            setEditedIinumber(filteredS[0].numberII);
-            setExecut(filteredS[0].ciwexecutor);
-            setEditedSystemName(filteredS[0].systemName);
-          }
-        }
-    }*/
     if(editedSystemName!= ' ' && editedSubObject!= '' ){
       
       if(editedSystemName != bufsystem){
@@ -522,8 +398,31 @@ const json = JSON.stringify({
       }  
      
     }
-      }, [ accessToken, editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
+    if (statusDel === true){postPhoto();}
+      }, [statusDel, accessToken, editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
 
+   // Для подобъектов
+useEffect(() => {
+  if (array.length > 0) {
+    const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
+    setListSubObj(buf);
+    setStatusReq(true);
+  }
+}, [array]);
+
+// Для систем
+useEffect(() => {
+  if (editedSubObject && array.length > 0) {
+    const filtered = array.find(item => item.subObjectName === editedSubObject);
+    if (filtered) {
+      const systemList = filtered.data.map(system => ({
+        label: system.systemName,
+        value: system.systemName
+      }));
+      setListSystem(systemList);
+    }
+  }
+}, [editedSubObject, array]);
 
   return (
     <ScrollView style={[styles.container]}>
@@ -578,21 +477,23 @@ const json = JSON.stringify({
             value={editedSubObject}
             editable={false}
             />*/}
-           {/*} <ListOfSubobj list={listSubObj} post={editedSubObject} statusreq={statusReq} onChange={(subobj) => {setEditedSubObject(subobj);}}/>*/}
-            <ListOfSubobj
-              data={listSubObj}
-              selectedValue={editedSubObject}
-              onValueChange={(subobj) => {setEditedSubObject(subobj);}}
-              isDataLoaded={isDataLoaded}
+            <ListOfSubobj 
+                list={listSubObj} 
+                post={editedSubObject} 
+                statusreq={statusReq} 
+                onChange={(subobj) => setEditedSubObject(subobj)}
             />
-
-            </View>
+              </View>
 
           </View>  
             
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
-          <ListOfSystem list={listSystem} buf={bufsystem} post={editedSystemName} onChange={(subobj) => {setEditedSystemName(subobj);}}/>   
-          
+          <ListOfSystem 
+              list={listSystem} 
+              buf={bufsystem} 
+              post={editedSystemName} 
+              onChange={(system) => setEditedSystemName(system)}
+          />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
             style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 40
@@ -634,7 +535,8 @@ const json = JSON.stringify({
           </View>
 
           <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата выдачи и Плановая дата устранения */}
-            <CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>
+            <CalendarWithoutDel theme='min' statusreq={true} post={startD} onChange={(dateString) => setEditedStartDate(dateString)}/>
+            {/*<CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>*/}
             <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
           </View>
 

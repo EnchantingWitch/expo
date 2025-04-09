@@ -18,7 +18,7 @@ const LoginModal = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [organization, setOrganization] = useState('');
-    const [phone, setPhone] = useState('');
+    const [roleOfuser, setRole] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -26,6 +26,11 @@ const LoginModal = () => {
 
     const [accessToken, setAccessToken] = useState('');
     const [refreshToken, setRefreshToken] = useState('');
+    const [savedToken, setSavedToken] = useState(false);
+    const [savedId, setSavedId] = useState(false);
+
+
+    const [storageData, setStorageData] = useState([]);
 
     const fontScale = useWindowDimensions().fontScale;
 
@@ -39,7 +44,39 @@ const LoginModal = () => {
         } catch (error) {
             console.error('Error saving token:', error);
         }
+        finally{
+            if (tokenKey === 'accessToken'){setSavedToken(true);}
+            if (tokenKey === 'userID'){setSavedId(true);}
+        }
+        
     };
+
+
+    const fetchAllData = async () => {
+        try {
+          // Получаем все ключи
+          const keys = await AsyncStorage.getAllKeys();
+          
+          // Получаем все значения по ключам
+          const values = await AsyncStorage.multiGet(keys);
+          
+          // Преобразуем массив пар ключ-значение в массив объектов
+          const data = values.map(([key, value]) => {
+            try {
+              // Пытаемся распарсить JSON, если это возможно
+              return { key, value: JSON.parse(value) };
+            } catch (e) {
+              // Если не JSON, возвращаем как есть
+              return { key, value };
+            }
+          });
+          
+          setStorageData(data);
+        } catch (error) {
+          console.error('Ошибка при загрузке данных:', error);
+        }
+      };
+  console.log(storageData);
 
     const handleLogin = async () => {
         try{
@@ -60,14 +97,11 @@ const LoginModal = () => {
                console.log(token.refreshToken);
               
                if (response.status === 200) {
-                 setAccessToken(token.accessToken);
-               setRefreshToken(token.refreshToken);
-                    saveToken('accessToken', token.accessToken);
-                    saveToken('refreshToken', token.refreshToken);
-                  
+                setAccessToken(token.accessToken);
+                setRefreshToken(token.refreshToken); 
+                saveToken('refreshToken', token.refreshToken);
+                saveToken('accessToken', token.accessToken);
                }
-              
-
             }catch (error) {
                 console.error('Error:', error);
             }finally{  
@@ -86,16 +120,22 @@ const LoginModal = () => {
         return JSON.parse(jsonPayload);
     };
 
+
      useEffect(() => {
     if(accessToken){  
         const role = parseJwt(accessToken);
+        setRole(role.role);
         console.log(role.role);
         console.log(role);
         saveToken('userID', role.userId.toString());
-        if (role.role === 'ADMIN'){router.replace('/admin/menu')}
-        if (role.role === 'USER'){router.replace('/objs/objects')}
     }
-  }, [accessToken]);
+    if(savedToken && savedId){
+        if (roleOfuser === 'ADMIN'){router.replace('/admin/menu')}
+        if (roleOfuser === 'USER'){console.log('переход на домашнюю страницу'); router.replace('/objs/objects')}
+    }
+
+   // if(refreshToken){refreshTok();}
+  }, [savedToken, accessToken, savedId]);
 
     return (
 
@@ -129,9 +169,9 @@ const LoginModal = () => {
                     handlePress={() => router.push('/sign/register')}/>
 
                     
-          {/*}  <CustomButton
-                    title="getToken"
-                    handlePress={getToken} />*/}
+           {/*} <CustomButton
+                    title="refreshToken по определенному"
+                    handlePress={fetchAllData} />
 
             {/*} <CustomButton
                 title="Закрыть"

@@ -104,7 +104,7 @@ type token = {
           const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/isAdminRole',
             res
           );
-          console.log('ResponseAuthUser:', response2);
+          console.log('ResponseAdminRole:', response2);
           const text = await response2.text()
           console.log(text);
           if (response2.status === 200){
@@ -133,7 +133,6 @@ type token = {
       try {
          // console.log(accessToken);
           const str = `Bearer ${refreshToken}`;
-             // const str = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJUcmV3cXBvaSIsImlhdCI6MTc0MzE2MzI0NSwiZXhwIjoxNzQzMTk5MjQ1fQ.MCXn7n_RzjJxC3Vzk6TNfi7qeaCUaTJ2Ov6DWfiXRARimsOMepQHpxoDLmk94y850ifKwW1EDegKs8lwO4wn4A`;
           const res = {
           method: 'GET',
           headers: {
@@ -159,7 +158,7 @@ type token = {
                saveToken('refreshToken', refreshToken);
             const role = parseJwt(accessToken);
             console.log(role.role);
-            if (role.role === 'ADMIN'){router.replace('/admin/menu');}
+            if (role.role === 'ADMIN'){router.replace({pathname:'/admin/menu', params:{token: accessToken}});}
             if (role.role === 'USER'){router.replace('/objs/objects');}
           }
           else{

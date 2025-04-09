@@ -60,7 +60,7 @@ export default function TabOneScreen() {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           Accept: 'application/json',
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json',//'multipart/form-data', 'application/json'
         },
       });
       const json = await response.json();
@@ -82,18 +82,23 @@ export default function TabOneScreen() {
 const handleSubmit = async ()  => {
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
+  console.log(JSON.stringify({
+    id : data.userId,
+    objects : selectedIds,
+  }));
   try {
     //const id = await AsyncStorage.getItem('userID');
+    const body = new FormData();
+      //data.append('name', 'Image Upload');
+      body.append("id", data.userId);
+      body.append("objects", selectedIds);
     const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_objects',
       {method: 'POST',
         headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'multipart/form-data'
         },
-      body: JSON.stringify({
-        id : data.id,
-        objects : selectedIds,
-      })
+      body: body
     }
       
     );

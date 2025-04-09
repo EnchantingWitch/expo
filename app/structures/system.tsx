@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
+
 export type SystemPUT = {
   pnrsystemStatus: string;
   ciwexecutor: string;//исполнитель СМР
@@ -67,6 +68,8 @@ export default function TabOneScreen() {
   const [conditionII, setConditionII] = useState<boolean>(false);
 
   const [accessToken, setAccessToken] = useState<any>('');
+
+
 
   const getToken = async () => {
     try {
@@ -267,7 +270,7 @@ export default function TabOneScreen() {
                       <View style={{width: '50%', marginStart: 2}}>
                       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
                       <TextInput
-                        style={styles.input}
+                        style={[styles.input, {fontSize: ts(14)}]}
                         placeholderTextColor="#111"
                         //onChangeText={setComments}
                         value={comment}
@@ -279,7 +282,7 @@ export default function TabOneScreen() {
                       <View style={{width: '50%', marginStart: 2}}>
                       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
                       <TextInput
-                  style={styles.input}
+                  style={[styles.input, {fontSize: ts(14)}]}
                   placeholderTextColor="#111"
                 />
                       
@@ -289,7 +292,7 @@ export default function TabOneScreen() {
 
        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {fontSize: ts(14)}]}
                   placeholderTextColor="#111"
                   onChangeText={setCiwexecut}
                   value={ciwexecut}
@@ -297,7 +300,7 @@ export default function TabOneScreen() {
 
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, {fontSize: ts(14)}]}
                   placeholderTextColor="#111"
                   onChangeText={setCwexecut}
                   value={cwexecut}

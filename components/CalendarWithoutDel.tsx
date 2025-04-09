@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import minimumDate from '@react-native-community/datetimepicker';
 import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { parse, format } from 'date-fns';
 

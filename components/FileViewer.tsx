@@ -1,5 +1,4 @@
 import { StyleSheet, Text } from 'react-native';
-import { Image, type ImageSource } from "expo-image";
 
 type Props = {
   selectedFile?: any;

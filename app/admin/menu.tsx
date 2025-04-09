@@ -74,6 +74,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
                  if(response.status === 200){
                   removeToken('accessToken');
                   removeToken('refreshToken');
+                  removeToken('userID');
                   router.push('/sign/sign_in');
                  }
   

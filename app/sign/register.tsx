@@ -3,11 +3,9 @@ import { Modal, ScrollView, TouchableOpacity, SafeAreaView,  View, TextInput, Bu
 import { setNativeProps } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
-import RNFS from 'react-native-fs';
-import FileViewer from 'react-native-file-viewer';
 import { Alert } from 'react-native';
 //import Pdf from 'react-native-pdf';
-import Pdf from 'react-native-view-pdf';
+
 import { Ionicons } from '@expo/vector-icons';
 import Checkbox from 'expo-checkbox/build/ExpoCheckbox';
 
@@ -107,41 +105,31 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
             <TextInput
                 style={styles.input}
                 value={name}
-                onChangeText={(text) => setName(text)}
+                onChangeText={setName}
             />
-           {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
-            <TextInput
-                style={styles.input}
-                value={organization}
-                onChangeText={(text) => setOrganization(text)}
-            />
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Телефон</Text>
-            <TextInput
-                style={styles.input}
-                value={phone}
-                onChangeText={(text) => setPhone(text)}
-            />
-            */}
+           
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Email</Text>
             <TextInput
                 style={styles.input}
                 value={email}
-                onChangeText={(text) => setEmail(text)}
+                onChangeText={setEmail}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Пароль</Text>
             <TextInput
                 style={styles.input}
                 secureTextEntry
                 value={password}
-                onChangeText={(text) => setPassword(text)}
+                onChangeText={setPassword}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Подтвердите пароль</Text>
             <TextInput
                 style={styles.input}
                 secureTextEntry
                 value={confirmPassword}
-                onChangeText={(text) => setConfirmPassword(text)}
-            />   </View>
+                onChangeText={setConfirmPassword}
+            />  
+            {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+            </View>
 
     </ScrollView>
             <View style={{flexDirection: 'row', width: '100%', alignContent: 'center', paddingBottom: '2%'}}>
@@ -166,9 +154,9 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
                           <Ionicons name='close-outline' size={30} />
                         </TouchableOpacity>
                     <View style={styles.container}>
-                        <ScrollView>
+                        
                         <Text>Соглашение с политикой конфиденциальности и обработки персональных данных</Text>
-               </ScrollView> {/*<Pdf
+                {/*<Pdf
                 source={source}
                 style={styles.pdf}
                 onLoadComplete={(numberOfPages, filePath) => {

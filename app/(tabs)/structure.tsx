@@ -130,16 +130,16 @@ const Struct = () => {
       <TouchableWithoutFeedback onPress={() => handleToggle(section.id)}>{/** E0F2FE */}
       <View style={{flexDirection: 'row', backgroundColor: '#E0F2FE', width: '98%', height: 37,   marginBottom: '3%', marginTop: '2%', alignItems: 'center', borderRadius: 8, alignSelf: 'center'}}>
         
-        <View style={{width: '10%', }}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.numberKO}</Text>
+        <View style={{width: '10%', alignItems: 'center' }}>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: 15,includeFontPadding: false, }} numberOfLines={2}>{section.numberKO}</Text>
         </View>
 
-        <View style={{width: '55%'}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.subObjectName}</Text>
+        <View style={{width: '55%', }}>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: 15,includeFontPadding: false, }} numberOfLines={2}>{section.subObjectName}</Text>
         </View>
 
         <View style={{width: '21%'}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '18' }}>{section.comments}</Text>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: 15,includeFontPadding: false, }} numberOfLines={2}>{section.comments}</Text>
         </View>
 
         <View style={{width: '14%'}}>
@@ -185,18 +185,18 @@ const Struct = () => {
 
       return(
       <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS, capitalCSName: capitalCSName }})} style={{width: '99%'}}>
-      <View style={{borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end', flexDirection: 'row', width: '96%', height: 37, marginBottom: '2.5%', marginLeft: '1%', borderRadius: 8}}>
+      <View style={{flexDirection: 'row',borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end',   width: '96%', height: 37, marginBottom: '2.5%', marginLeft: '1%', borderRadius: 8}}>
 
-        <View style={{width: '7%',  justifyContent: 'center',}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '16' }}>{item.numberII}</Text>
+        <View style={{width: '7%',  justifyContent: 'center',alignSelf: 'center'}}>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: 15,includeFontPadding: false,}}  numberOfLines={2} >{item.numberII}</Text>
         </View>
         
-        <View style={{width: '57%',  justifyContent: 'center', }}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', lineHeight: '16' }}>{item.systemName}</Text>
+        <View style={{width: '57%',  justifyContent: 'center',alignSelf: 'center',  height: 37}}>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', lineHeight: 15, includeFontPadding: false, }}  numberOfLines={2}>{item.systemName}</Text>
         </View>
         
-        <View style={{width: '22%', justifyContent: 'center',}}>
-        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: '16'  }}>{item.comments}</Text>{/**{item.comments} */}
+        <View style={{width: '22%', justifyContent: 'center',alignSelf: 'center' }}>
+        <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: 15, includeFontPadding: false, }}  numberOfLines={2}>{item.comments}</Text>{/**{item.comments} */}
         </View>
 
         <View style={{width: '14%',  justifyContent: 'center'}}>
@@ -229,8 +229,8 @@ const Struct = () => {
         {(item.status =='Акт КО подписан') ? ( <View style={{width: '92%', height: '25', justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
         </View>
-
-      </View>
+</View>
+     
       </TouchableOpacity>
     )};
 

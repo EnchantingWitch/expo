@@ -5,109 +5,52 @@ import { Dropdown } from 'react-native-element-dropdown';
 export type ListToDrop = {
     label: string;
     value: string; 
-  };
-
-type Props = {
-    list: ListToDrop[];//список
-    post: string;//значение из бд статуса для просмотра, при записи передавать пустую строку
-    buf: string;//
-    statusreq?: boolean;//для обновления значения даты при получении даты с запроса
-    onChange: (subobj: string, ) => void; // Функция для обновления значения
-    onChangeStatus?: (subobj: boolean, ) => void; // 
 };
 
-const ListOfSystem = ({list, post, buf, statusreq, onChange, onChangeStatus }: Props) => {
-    const [value, setValue] = useState<string >();
-    const [data, setData] = useState<ListToDrop[]>([]);
-    const [isFocus, setIsFocus] = useState(false);
-    const [startD, setStartD] = useState<boolean>(true);//при первом рендеринге поставить значения из бд 
+type Props = {
+    list: ListToDrop[]; // список
+    post: string; // значение из бд статуса для просмотра
+    buf: string; // буферное значение
+    statusreq?: boolean; // для обновления значения даты при получении даты с запроса
+    onChange: (subobj: string) => void; // Функция для обновления значения
+    onChangeStatus?: (subobj: boolean) => void; 
+};
 
+const ListOfSystem = ({ list, post, buf, statusreq, onChange, onChangeStatus }: Props) => {
+    const [value, setValue] = useState<string>('');
+    const [isFocus, setIsFocus] = useState(false);
     const fontScale = useWindowDimensions().fontScale;
 
     const ts = (fontSize: number) => {
-        return (fontSize / fontScale)};
+        return (fontSize / fontScale);
+    };
 
-    useEffect(
-        () => {
-        if(list && buf != post && (post != ' ')){
-            setValue(post);
-            //значение из БД
-            console.log(post, 'post');
-            //onChange(post);
-            //setStartD(false);
-            console.log('List', list.length );
-            setData(list);
-
-          
-    console.log('startD',startD);
-            /*for (const label in list) {
-               if ( list[label].value === post){setValue(post);}
-               else {onChange('');setValue('');}
-        
-            } */
+    useEffect(() => {
+        // Устанавливаем значение из props при изменении post
+        if (post !== value) {
+          setValue(post || '');
         }
-        
-      /*  if(post != ' '){
-            setValue(post);
-            //setData(list);
-            console.log('post List', list );
-        }*/
-        /*if(subobj ){
-
-            console.log('!!!');
-            for (const label in list) {
-               
-               if ( list[label].value === post){setValue(post);}
-               else {onChange('');setValue('');}
-        
-            } 
-        }              */
-       if (statusreq && startD){//запись при первом и единственном рендеринге
-        setValue(post);//значение из БД
-        setStartD(false);
-        setData(list);
-    }
-        }, [ list, post, statusreq, startD, buf]
-    )
-    
-   /* if(list && statusreq){
-        setValue(post);//значение из БД
-        console.log('!');
-        //onChange(post);
-        //setStartD(false);
-        setData(list);
-        onChangeStatus(false);
+      }, [post]);
       
-        /*for (const label in list) {
-           if ( list[label].value === post){setValue(post);}
-           else {onChange('');setValue('');}
-    
-        } */
-   // }     
+      useEffect(() => {
+        // Обновляем родительский компонент при изменении значения
+        if (value && onChange) {
+          onChange(value);
+        }
+      }, [value]);
 
-    /*if (startD ){//запись при первом и единственном рендеринге
-        setStartD(false);
-        //setValue(post);//значение из БД
-        setData(list);
-    }*/
-    
-    if (value){
-        onChange(value);
-    }
- 
     return (
-       
         <View style={styles.container}>
             <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue',   }]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
+                style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14) }]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14) }]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
                 iconStyle={styles.iconStyle}
-                data={data}
+                data={list}
                 search
                 maxHeight={300}
-                itemTextStyle={{fontSize: ts(14)}}
+                itemTextStyle={{ fontSize: ts(14) }}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? 'Не выбрано' : 'Не выбрано'}
@@ -121,9 +64,10 @@ const ListOfSystem = ({list, post, buf, statusreq, onChange, onChangeStatus }: P
                 }}
             />
         </View>
-        
     );
 };
+
+// ... остальной код стилей остается без изменений
 
 export default ListOfSystem;
 

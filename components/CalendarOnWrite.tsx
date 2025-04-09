@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomButton from '@/components/CustomButton';
 import {router} from 'expo-router';
@@ -13,7 +13,11 @@ type Props = {
 const CalendarOnWrite = ({theme, onChange }: Props) => {
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+    const fontScale = useWindowDimensions().fontScale;
 
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)
+  };
 
     const handleDateChange = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -41,7 +45,7 @@ const CalendarOnWrite = ({theme, onChange }: Props) => {
     };
     if (theme === 'min'){ return(
         <View style={styles.containerrowMin}>
-            <TextInput style={styles.inputMin}
+            <TextInput style={[styles.inputMin, {fontSize: ts(14)}]}
                         //placeholder="Исполнитель"
                 placeholderTextColor="#111"
                 value={formatDate(date)}

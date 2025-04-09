@@ -1,11 +1,10 @@
 {
   "expo": {
     "name": "pnr",
-    "slug": "pnr",
+    "slug": "nav_app1",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo1.png",
-    "i_structure": "./assets/images/building-2.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -14,16 +13,14 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
-      "newArchEnabled": true
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo1.png",
         "backgroundColor": "#ffffff"
       },
-      "newArchEnabled": true,
-      "package": "com.enchanting_witch.pnr"
+      "package": "com.enchanting_witch.nav_app1"
     },
     "web": {
       "bundler": "metro",
@@ -38,8 +35,11 @@
       "typedRoutes": true
     },
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
-        "projectId": "c365cc04-aaf5-41ab-bd42-bf08a226b05f"
+        "projectId": "3545d814-1dd8-43d0-b7d2-68d3ce7e7d3a"
       }
     }
   }

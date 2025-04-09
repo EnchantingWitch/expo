@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions, Modal } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions, Modal, SafeAreaView } from 'react-native';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import DropdownComponent2 from '@/components/ListOfCategories';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
@@ -22,11 +22,13 @@ export type ListToDrop = {
 };
 
 export default function CreateNote() {
+  const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
+  const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [upLoading, setUpLoading] = useState(false);
   const [array, setArray] = useState<Structure[]>([]);//данные по структуре
-  const listSubObj = [];//список подобъектов из структуры
+  //const listSubObj = [];//список подобъектов из структуры
   const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
-  const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
+  //const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
   const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
   const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
   const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
@@ -185,45 +187,7 @@ export default function CreateNote() {
     getToken();
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req&& accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
-    //формирование выпадающего списка для подобъекта
-    if(statusReq && noteListSubobj){//вызов происходит только один раз
-      setNoteListSubobj(false);
-      const buf = array.map(item => ({label: item.subObjectName, value: item.subObjectName}));
-      listSubObj.push(...buf);
-      //console.log('listSubObj', listSubObj);
-     // setNoteListSystem(false); //ограничение на отправку листа систем в компонент
-    }
-    //формирование выпадающего списка для системы после того как выбран подобъект
-    if (subObject ){
-      //setSystemName(' '); //setExecut(''); setNumber(''); 
-     // console.log('noteListSystem',noteListSystem);
-    // setNoteListSystem(false);
-      const filtered = array.filter(item => item.subObjectName === subObject);
-      console.log(filtered[0].data);
-      for (const pnrsystemId in filtered[0].data) {
-       
-          const buf = filtered.map(item => ({label: item.data[pnrsystemId].systemName, value:  item.data[pnrsystemId].systemName}));
-          console.log('listSystem',buf);
-
-          listSystem.push(...buf);
-         // console.log('listSystem',listSystem);
-         // console.log('noteListSystem map',noteListSystem);
-          //setNoteListSystem(true);
-         // setSystemName(' ');
-      }  
-
-      if(subObject != bufsubobj){ //это работает, но после каждого обновления subObject в systemName попадает с кеша(?) последнее значение
-        console.log('2');
-        setSystemName('');
-        setNumber('');
-        setExecut('');
-        setBufsubobj(subObject);
-      }
-      //если была выбран другой подобъект очистить значение у системы, АИИ, исполнителя
-      //if(listSystem){setSystemName(''); setExecut(''); setNumber('');     }
-
-      //setNoteListSystem(true);//передаем статус true в компонент для рендеринга после формирования списка
-    }
+    
   /*  if (numberII && execut){
       submitData();
     }*/
@@ -267,7 +231,79 @@ export default function CreateNote() {
         
   }, [accessToken, codeCCS, req, statusReq, noteListSubobj, subObject, systemName, numberII, execut]);
 
+ // Формирование списка подобъектов
+ useEffect(() => {
+  if (array.length > 0) {
+    const subObjList = array.map(item => ({
+      label: item.subObjectName,
+      value: item.subObjectName
+    }));
+    setListSubObj(subObjList);
+  }
+}, [array]);
+
+// Формирование списка систем при изменении подобъекта
+useEffect(() => {
+  if (subObject && array.length > 0) {
+    const filtered = array.find(item => item.subObjectName === subObject);
+    if (filtered) {
+      const systemList = filtered.data.map(system => ({
+        label: system.systemName,
+        value: system.systemName
+      }));
+      setListSystem(systemList);
+      setSystemName(' '); // Сброс выбранной системы при изменении подобъекта
+      setNumber('');
+      setExecut('');
+    }
+  }
+}, [subObject, array]);
+
+// Обновление номера АИИ и исполнителя при изменении системы
+useEffect(() => {
+  if (systemName !== ' ' && systemName !== bufsystem && subObject) {
+    setBufsystem(systemName);
+    const filtered = array.find(item => item.subObjectName === subObject);
+    if (filtered) {
+      const systemData = filtered.data.find(item => item.systemName === systemName);
+      if (systemData) {
+        setNumber(systemData.numberII);
+        setExecut(systemData.ciwexecutor);
+      }
+    }
+  }
+}, [systemName, subObject, array]);
+
+console.log(JSON.stringify({
+  //iiNumber: '1',
+  iiNumber: numberII,
+  subObject: subObject,
+  //systemName: 'Сети связи',
+  systemName: systemName,
+  description: description,
+  commentStatus: "Не устранено",
+  executor: execut,
+  userName: 'userName',
+  startDate: startDate,
+  commentCategory: category,
+  commentExplanation: comExp,
+  codeCCS: codeCCS,
+  endDatePlan: planDate,
+  endDateFact: ' '
+}));
+
   const submitData = async () => {
+    if(subObject ==='' && systemName===' ' &&  description!=='' && category!==''){
+      Alert.alert('', 'Заполните поля подобъекта, системы. Если выпадающий список пустой, загрузите структуру.', [
+                              {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                 return;
+               }
+
+    if(subObject ==='' && systemName===' ' &&  description==='' && category===''){
+       Alert.alert('', 'Заполните поля подобъекта, системы, содержания замечания, категории', [
+                               {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                  return;
+                }
 
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/createComment', {
@@ -359,7 +395,8 @@ export default function CreateNote() {
 
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.container}>
+      <SafeAreaView style={styles.container}>
       <View style={styles.container}>
         <View style={{ flex: 1, alignItems: 'center' }}>
 
@@ -379,19 +416,31 @@ export default function CreateNote() {
             <View style={{width: '83%'}}>*/}
             <View style={{width: '100%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
-              <ListOfSubobj selectedValue = {subObject} data={listSubObj} isDataLoaded={statusReq} onValueChange = {(subObj) => setSubObject(subObj)}/>
+              <ListOfSubobj 
+                  list={listSubObj} 
+                  post={subObject} 
+                  statusreq={statusReq} 
+                  onChange={(subobj) => setSubObject(subobj)}
+              />
+              {/*<ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>*/}
              
             </View>
 
           {/*</View>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
-          <ListOfSystem post = {systemName} buf={bufsystem} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>
+          <ListOfSystem 
+            list={listSystem} 
+            buf={bufsystem} 
+            post={systemName} 
+            onChange={(system) => setSystemName(system)}/>
+
+          {/*<ListOfSystem post = {systemName} buf={bufsystem} list={listSystem} statusreq={noteListSystem} onChange = {(subObj) => setSystemName(subObj)}/>*/}
           {/*<ListOfSystem onChange={(system) => setSystemName(system)}/>*/}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
-            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight) }]} // Минимальная высота 40
+            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight),fontSize: ts(14)}]} // Минимальная высота 40
             multiline
             onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
@@ -450,7 +499,7 @@ export default function CreateNote() {
               {singlePhoto ? (
                 <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center'}}> 
                   <View style={{width: '48%', alignSelf: 'center'}}>
-                    <Text style={{textAlign: 'center'}}>Фото выбрано</Text>
+                    <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
                   </View>
                   <View style={{width: '33%'}}>
                     <TouchableOpacity onPress={() => setModalVisible(true)}> 
@@ -491,7 +540,7 @@ export default function CreateNote() {
               ) : (
               <View style={{ marginBottom: 8,  flexDirection: 'row'}}>
                 <View style={{width: '50%'}}>
-                  <Text style={{textAlign: 'center'}}>Фото не выбрано</Text>
+                  <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
                 </View>
                 <View style={{width: '46%'}}>
                   <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
@@ -511,21 +560,21 @@ export default function CreateNote() {
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, {fontSize: ts(14),}]}
             // placeholder="Комментарий"
             placeholderTextColor="#111"
             onChangeText={setComExp}
-            value={comExp} />
+            value={comExp} 
+            />
 
-          <View style={{ width: 272, height: 40, justifyContent: 'center', alignContent: 'center' }}>
-            
-          </View>
-        </View><CustomButton
+          
+        </View>
+      </View><CustomButton
               title="Добавить замечание"
               handlePress={TwoFunction} // Вызов функции отправки данных
             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
             />
-      </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }

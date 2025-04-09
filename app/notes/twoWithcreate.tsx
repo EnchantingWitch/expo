@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 import { router, useGlobalSearchParams } from 'expo-router';
-import { parse, set } from 'date-fns';
+
 import { StyleSheet, ScrollView, Platform, Text, TextInput, Modal, Image, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions, Alert } from 'react-native';
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
@@ -11,7 +11,7 @@ import listOfNotes from '../notes/see_note';
 import DropdownComponent2 from '@/components/ListOfCategories';
 
 import Calendar from '@/components/Calendar+'
-import { format } from 'date-fns'
+
 
 import * as ImagePicker from 'expo-image-picker';
 

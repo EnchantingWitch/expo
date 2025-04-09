@@ -104,19 +104,13 @@ const DirectionLayout = () => {
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
 
-        <PreviewLayout
-          selectedValue={direction}
-          values={['Объект', <DropdownComponent />]}
-          setSelectedValue={setDirection}>
-
-          
           <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>№</Text>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Содержание</Text>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Статус</Text>
           </View>
 
-          <View style={{ flex: 15, marginTop: 48}}>
+          <View style={{ flex: 15, marginTop: 12}}>
 
                { isLoading ? (
               <ActivityIndicator />
@@ -156,16 +150,12 @@ const DirectionLayout = () => {
 
           </View>
 
-          <View style={{
-            width: 272, height: 40, justifyContent: 'center',
-            //alignItems: 'center', backgroundColor: 'powderblue',
-          }}>
+          
             <CustomButton
               title="Добавить замечание"
               handlePress={() =>router.push({pathname: '/notes/create_note', params: { codeCCS: codeCCS, capitalCSName: capitalCSName }})} />
-          </View>
-        </PreviewLayout >
-
+         
+        
       </View >
     </View >
 
@@ -175,7 +165,7 @@ const DirectionLayout = () => {
 
 type PreviewLayoutProps = PropsWithChildren<{
   // label: string;
-  values: string[];
+ // values: string[];
   selectedValue: string;
   setSelectedValue: (value: string) => void;
 }>;
