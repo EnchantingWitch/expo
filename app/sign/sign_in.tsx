@@ -90,6 +90,10 @@ const LoginModal = () => {
                    password: password
                  }),
                });
+               console.log(JSON.stringify({
+                username: name,
+                password: password
+              }));
                 console.log('ResponseSignIn:', response);
                const token = await response.json()
                console.log(token);
@@ -141,15 +145,15 @@ const LoginModal = () => {
 
         <View style={styles.modalContainer}>
             
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите логин</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите почту</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 value={name}
                 onChangeText={(text) => setName(text)}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите пароль</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 secureTextEntry
                 value={password}
                 onChangeText={(text) => setPassword(text)}

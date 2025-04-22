@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {  router, useGlobalSearchParams, useRouter, useNavigation } from 'expo-router';
 import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
+import SystemsForTwo from '@/components/SystemsForTwo';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Structure } from './structure';
+
  
 type Note = {
   commentId: number; //id замечания , генерируется на сервере
@@ -32,6 +35,12 @@ const DirectionLayout = () => {
 
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
+  const [chooseSubobject, setChooseSubobject] = useState('');
+  const [chooseSystem, setChooseSystem] = useState('');
+  const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
+  const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
+  const [status, setStatus] = useState(true);
+  const [statusStructure, setStatusStructure] = useState(true);
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -72,6 +81,8 @@ const DirectionLayout = () => {
 
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Note[]>([]);
+  const [originalData, setOriginalData] = useState<Note[]>([]);
+  const [structure, setStructure] = useState<Structure[]>([]);
 
   const getNotes = async () => {
     try {
@@ -84,6 +95,8 @@ const DirectionLayout = () => {
       );
       const json = await response.json();
       setData(json);
+      setOriginalData(json);
+      console.log('ResponseGetNotes:', response);
     } catch (error) {
       console.error(error);
     } finally {
@@ -91,10 +104,107 @@ const DirectionLayout = () => {
     }
   };
 
+  const getStructure = async () => {
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
+      const json = await response.json();
+      setStructure(json);
+      console.log('ResponseSeeStructure:', response);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
     getToken();
-    if(codeCCS && accessToken){getNotes()};
-  }, [codeCCS, accessToken]);
+  }, []);
+
+  useEffect(() => {
+    if(codeCCS && accessToken && status){
+     getNotes();
+      //getStructure();
+      setStatus(false);
+    }
+    if(data.length > 0 && statusStructure){
+      //getNotes();
+      getStructure();
+      setStatusStructure(false);
+    }
+    //формирование выпадающего списка для подобъекта
+    if (structure.length > 0) {
+      const buf = structure.map(item => ({label: item.subObjectName, value: item.subObjectName}));
+      setListSubObj(buf);
+      
+      const allSystemNames = structure.flatMap(structure => 
+        structure.data.map(item => item.systemName)
+      );
+      const uniqueSystemNames = [...new Set(allSystemNames)];
+      const systemList = uniqueSystemNames.map(system => ({
+        label: system,
+        value: system
+      }));     
+      setListSystem(systemList);
+    }
+    
+  }, [codeCCS, accessToken, structure, data, status]);
+
+  // Добавление сброса выбранного значения в выпадающий список
+  useEffect(() => {
+    if (chooseSystem !== '' && chooseSystem !== 'Система' && !listSystem.some(item => item.value === 'Система')) { 
+      const item = {label: 'Система', value: 'Система'};
+      setListSystem(prev => [...prev, item]);
+      console.log('new ListSystem', listSystem);
+    }
+    if (chooseSubobject !== '' && chooseSubobject !== 'Подобъект' && !listSubObj.some(item => item.value === 'Подобъект')) { 
+      const item = {label: 'Подобъект', value: 'Подобъект'};
+      setListSubObj(prev => [...prev, item]);
+      console.log('new ListSystem', listSubObj);
+    }
+  }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
+
+  // 3.1 Используем useMemo для фильтрации данных по подобъекту
+  const filteredDataSubobj = useMemo(() => {
+    if (chooseSubobject === '' && chooseSystem === '') {
+      return originalData; // если фильтр не выбран, возвращаем все данные
+    }
+    return originalData.filter(item => item.subObject === chooseSubobject);
+  }, [originalData, chooseSubobject, chooseSystem]);
+
+  // 3.2 Используем useMemo для фильтрации данных по системе
+  const filteredDataSystem = useMemo(() => {
+    if (chooseSubobject === '' && chooseSystem === '') {
+      return originalData; // если фильтр не выбран, возвращаем все данные
+    }
+    return originalData.filter(item => item.systemName === chooseSystem);
+  }, [originalData, chooseSystem, chooseSubobject]);
+
+  const filteredDataSystemAndSubobj = useMemo(() => {
+    if (chooseSubobject === '' && chooseSystem === '') {
+      return originalData; // если фильтр не выбран, возвращаем все данные
+    }
+    const filteredS = filteredDataSubobj;
+    return filteredS.filter(item => item.systemName === chooseSystem);
+  }, [originalData, chooseSystem, chooseSubobject]);
+
+  // 4. Обновляем data при изменении фильтра
+  useEffect(() => {
+    
+    if ((chooseSubobject === '' || chooseSubobject === 'Подобъект') && chooseSystem !== '' && chooseSystem !== 'Система'){ setData(filteredDataSystem); console.log('только система');}
+    if ((chooseSystem === '' || chooseSystem === 'Система') && chooseSubobject !== '' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSubobj); console.log('только подобъект'); }
+    if (chooseSystem !== '' && chooseSubobject !== '' && chooseSystem !== 'Система' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSystemAndSubobj); console.log('система и подобъект'); }
+    if (chooseSystem === 'Система' && chooseSubobject === 'Подобъект' || chooseSystem === '' && chooseSubobject === 'Подобъект' || chooseSystem === 'Система' && chooseSubobject === ''){setData(originalData);}
+ 
+}, [filteredDataSubobj, chooseSystem, chooseSubobject, filteredDataSystem, filteredDataSystemAndSubobj]);
+
+  console.log('chooseSystem',chooseSystem);
+  console.log('listSystem',listSystem);
+  console.log('data',data);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -103,6 +213,11 @@ const DirectionLayout = () => {
         flex: 1, alignItems: 'center'
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
+<View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%'}}>
+        <SystemsForTwo list={listSubObj} nameFilter='Подобъект' onChange={(system) => setChooseSubobject(system)}/>
+        <SystemsForTwo list={listSystem} nameFilter='Система' onChange={(system) => setChooseSystem(system)}/>
+          
+        </View>
 
           <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>№</Text>

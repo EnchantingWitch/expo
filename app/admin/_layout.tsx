@@ -75,7 +75,7 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
-        name="change"
+        name="user"
         options={{
             title: 'Пользователь',//редактирование доступа пользователя удалить/изменить
           //  headerTitleStyle: {fontSize: ts(20)},
@@ -90,7 +90,7 @@ export default function TabLayout() {
       <Stack.Screen
         name="requests"
         options={{
-            title: 'Заявки',
+            title: 'Заявки на допуск к объектам',
           //  headerTitleStyle: {fontSize: ts(20)},
     
           headerTitleAlign: 'center',
@@ -103,7 +103,7 @@ export default function TabLayout() {
       <Stack.Screen
         name="users"
         options={{
-            title: 'Зарегистрированные пользователи',
+            title: 'Пользователи',
           //  headerTitleStyle: {fontSize: ts(20)},
     
           headerTitleAlign: 'center',

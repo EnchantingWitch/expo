@@ -345,6 +345,25 @@ const json = JSON.stringify({
     }
   }
 
+  const deleteNote = async () => {
+    try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/deleteComment/'+id, {
+          method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+    console.log('deleteNote', response);
+    if (response.status === 200) {
+      Alert.alert('', 'Замечание удалено', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    }
+  } catch (err) {
+  } finally {
+    router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
+  }
+  }
+
   useEffect(() => {
     getToken();
       //смена статуса при изменении даты
@@ -618,6 +637,9 @@ useEffect(() => {
                 <CustomButton
                   title="Сохранить изменения"
                   handlePress={handleSaveClick} />
+                  <CustomButton
+                  title="Удалить замечание"
+                  handlePress={deleteNote} />
                 <View>
                   <CustomButton
                     title="Отмена"

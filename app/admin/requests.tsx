@@ -5,11 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
  
 type Reqs = {
-  id: number;
+  id: number;//айди заявки
+  userId: number;
+  fullName: string;
   username: string;
   description: string;
-  organization:string; 
-  date:string; 
+  organisation: string;
+  role: string;
+ // date:string; 
   objectToAdd:[{
       capitalCSName: string,
       codeCCS: string,
@@ -72,12 +75,15 @@ const DirectionLayout = () => {
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
           
-          <View style={{ flexDirection: 'row', width: '90%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <View style={{width: '48%', justifyContent: 'center'}}>
-                                  <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Логин пользователя</Text>
+          <View style={{ flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
+            <View style={{width: '45%', justifyContent: 'center'}}>
+                                  <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>ФИО пользователя</Text>
                                   </View>
-                                  <View style={{width: '48%', justifyContent: 'center'}}>
+                                  <View style={{width: '35%', justifyContent: 'center'}}>
                                   <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Организация</Text>
+                                  </View>
+                                  <View style={{width: '20%', justifyContent: 'center'}}>
+                                  <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Дата</Text>
                                   </View>
            {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Дата заявки</Text>*/}
           </View>
@@ -97,16 +103,16 @@ const DirectionLayout = () => {
                   <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/admin/acpt_req', params: {idReq: item.id }})}  }>
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
-                      <View style={{width: '48%', justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.username}</Text>
+                      <View style={{width: '45%', justifyContent: 'center', paddingLeft: 5}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.fullName}</Text>
                       </View>
           
-                      <View style={{width: '48%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.organization}</Text>
+                      <View style={{width: '35%', marginStart: 2, justifyContent: 'center'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.organisation}</Text>
                       </View>
                       
-                      <View style={{width: '0%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.date}</Text>
+                      <View style={{width: '20%', marginStart: 2, justifyContent: 'center'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.date}</Text>
                       
                       </View>
                   </View>

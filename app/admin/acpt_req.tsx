@@ -144,7 +144,17 @@ const handleSubmit = async ()  => {
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value={data.username}
+      value={data.fullName}
+    />
+    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Роль пользователя</Text>
+    <TextInput
+      style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
+      placeholderTextColor="#111"
+      editable={false}
+      value={
+       data.role === 'USER'? 'Пользователь': 
+                                    data.role === 'ADMIN'? 'Администратор' : 'Без доступа'
+      }
     />
     {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Организация</Text>
       <TextInput

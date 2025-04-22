@@ -1,21 +1,29 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Stack, Tabs, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
-import { Pressable, Button, Image } from 'react-native';
+import { Pressable, Button, Image, useWindowDimensions } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+
+export default function TabLayout() {
+
+
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
+    
+    
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
-
-export default function TabLayout() {
   const colorScheme = useColorScheme();
   const {capitalCSName} = useGlobalSearchParams();
   console.log(capitalCSName, 'tab object capitalCSName');
@@ -35,6 +43,7 @@ export default function TabLayout() {
           title: capitalCSName,
           //title: 'Объект',
           headerTitleAlign: 'center',
+          tabBarLabelStyle: {fontSize: ts(10)}, 
           tabBarActiveTintColor: '#1E1E1E',
           //tabBarIcon: ({size,focused,color}) => {
            // return (
@@ -47,7 +56,8 @@ export default function TabLayout() {
              // />
            // );
         //  },
-        tabBarIcon: () => <TabBarIcon name="building-o" color='#1E1E1E' />,
+        tabBarIcon: ({ color }) => <TabBarIcon name="building-o" color={ color } />,
+       // tabBarIcon: () => <TabBarIcon name="building-o" color='#1E1E1E' />,
           //tabBarIcon: () => <Image src={'/assets/images/building-2'} style={{width: 10}}/>, 
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
@@ -57,15 +67,17 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="structure"
+      
         options={{
           title: 'Структура',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="sticky-note-o" color='#1E1E1E' />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="sticky-note-o" color={color} />,
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          tabBarLabelStyle: {fontSize: ts(10)},
+          headerStyle: { backgroundColor: '#FFFFFF', height: 70 },
         }}
       />
       <Tabs.Screen
@@ -74,11 +86,12 @@ export default function TabLayout() {
           title: 'Замечания',
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',
-          tabBarIcon: () => <TabBarIcon name="pencil-square-o" color='#1E1E1E' />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="pencil-square-o" color={ color } />,
           //tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          tabBarLabelStyle: {fontSize: ts(10)},
+          headerStyle: { backgroundColor: '#FFFFFF'},
 
         }}
       />

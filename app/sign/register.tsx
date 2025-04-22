@@ -37,19 +37,28 @@ const RegistrationModal = () => {
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
 
-console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
-    body: JSON.stringify({username: name,email: email,password: password}),});
+console.log(JSON.stringify({
+    email: email,
+    password: password,
+    fullName: name,
+    organisation: organization
+  }));
 
     const handleRegister = async () => {
         if (password !== confirmPassword) {
-             Alert.alert('', 'Пароли не совпадают', [
+             Alert.alert('', 'Пароли не совпадают.', [
                          {text: 'OK', onPress: () => console.log('OK Pressed')}])
             return;
         }
         if (isSelected === false){
-            Alert.alert('', 'Подтвердите согласие с политикой конфиденциальности и обработки персональных данных', [
+            Alert.alert('', 'Подтвердите согласие с политикой конфиденциальности и обработки персональных данных.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
-   return;
+            return;
+        }
+        if (email === ''  || password === '' || name === '' || organization === '' || email === ' '  || password === ' ' || name === ' ' || organization === ' '){
+            Alert.alert('', 'Заполните все поля регистрации.', [
+                {text: 'OK', onPress: () => console.log('OK Pressed')}])
+            return;
         }
       try{
         let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/registration', {
@@ -59,9 +68,10 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
                'Content-Type': 'application/json',
              },
              body: JSON.stringify({
-               username: name,
                email: email,
-               password: password
+               password: password,
+               fullName: name,
+               organisation: organization
              }),
            });
            console.log('ResponseRegistration:', response);
@@ -101,29 +111,35 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
             <ScrollView >
             <View style={styles.modalContainer}>
 
-            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Логин</Text>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>ФИО (полностью)</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 value={name}
                 onChangeText={setName}
             />
            
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Email</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 value={email}
                 onChangeText={setEmail}
             />
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
+            <TextInput
+                style={[styles.input, {fontSize: ts(14)}]}
+                value={organization}
+                onChangeText={setOrganization}
+            />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Пароль</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 secureTextEntry
                 value={password}
                 onChangeText={setPassword}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Подтвердите пароль</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, {fontSize: ts(14)}]}
                 secureTextEntry
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -141,7 +157,7 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
                                 style={{alignSelf: 'center'}}
                             /></View>
                 <TouchableOpacity onPress={() => setVisible(true)} style={{ width: '90%',  alignSelf: 'center'}}>
-                    <Text style={{color: '#0072C8', }}>Соглашаюсь с политикой конфиденциальности и обработки персональных данных</Text>
+                    <Text style={{color: '#0072C8', fontSize: ts(14) }}>Соглашаюсь с политикой конфиденциальности и обработки персональных данных</Text>
                     </TouchableOpacity>
              </View>   
                 <CustomButton
@@ -155,7 +171,7 @@ console.log({method: 'POST',headers: {'Content-Type': 'application/json',},
                         </TouchableOpacity>
                     <View style={styles.container}>
                         
-                        <Text>Соглашение с политикой конфиденциальности и обработки персональных данных</Text>
+                        <Text style={{ fontSize: ts(14) }}>Соглашение с политикой конфиденциальности и обработки персональных данных</Text>
                 {/*<Pdf
                 source={source}
                 style={styles.pdf}

@@ -90,12 +90,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     <View style={styles.background}>
 
         <CustomButton
-                    title="Заявки"
+                    title="Заявки на допуск к объектам"
                     handlePress={()=>{router.push('./requests')}} 
                    // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
                   />
         <CustomButton
-                      title="Зарегистрированные пользователи"
+                      title="Пользователи"
                       handlePress={()=>{router.push('./users')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
