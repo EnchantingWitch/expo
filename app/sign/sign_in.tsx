@@ -125,7 +125,7 @@ const LoginModal = () => {
     };
 
 
-     useEffect(() => {
+     useEffect(() => { 
     if(accessToken){  
         const role = parseJwt(accessToken);
         setRole(role.role);
@@ -140,6 +140,9 @@ const LoginModal = () => {
 
    // if(refreshToken){refreshTok();}
   }, [savedToken, accessToken, savedId]);
+
+ 
+  
 
     return (
 
@@ -173,10 +176,10 @@ const LoginModal = () => {
                     handlePress={() => router.push('/sign/register')}/>
 
                     
-           {/*} <CustomButton
+        {/*}   <CustomButton
                     title="refreshToken по определенному"
-                    handlePress={fetchAllData} />
-
+                    handlePress={refreshTok} />
+ 
             {/*} <CustomButton
                 title="Закрыть"
                 handlePress={() => setIsVisible(false)} />

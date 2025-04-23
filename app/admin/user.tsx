@@ -40,13 +40,6 @@ export default function TabOneScreen() {
     }
 };
 
-const saveClick = () => {
-  if (Role === 'Без доступа'){router.push('/admin/users');}//прописать метод
-  if (Role === 'Не указано'){router.push('/admin/users');}
-  if (Role === 'Пользователь'){setUser('Пользователь');}
-  if (Role === 'Администратор'){setUser('Администратор');}
-}
-
   const deleteUser = async () => {
     try {
       console.log('json',JSON.stringify({
@@ -77,11 +70,7 @@ const saveClick = () => {
 
   const setAdmin = async () => {
     try {
-      console.log('json',JSON.stringify({
-        username : username,
-      }));
       const body = new FormData();
-      //data.append('name', 'Image Upload');
       body.append("id", id);
       body.append("role", Role);
       console.log('body', body);
@@ -118,57 +107,28 @@ const saveClick = () => {
 };
 
 //const setUser = async (role: string) => {
-  const setUser = async () => {
+  const getUser = async () => {
   try {
-    console.log('json',JSON.stringify({
-      username : username,
-    }));
     const body = new FormData();
-    //data.append('name', 'Image Upload');
-    body.append("id", id);
-    body.append("role", Role);
-   /* if (Role === 'Без доступа'){
-      body.append("role", 'NONE');
-    }
-    if (Role === 'Пользователь'){
-      body.append("role", 'USER');
-    }
-    if (Role === 'Администратор'){
-      body.append("role", 'ADMIN');
-    }*/
-    console.log('body', body);
-  let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/acceptUser', {
-    method: 'POST',
+    console.log('body for GetUser', body);
+  let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/getUser/'+id, {
+    method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
      'Content-Type': 'multipart/form-data'
-    }, 
-    body: body,
+    }
   });
-  console.log('ResponseroleOfUser:', response);
- if (response.status == 200){
-  if (Role === 'USER'){
-    Alert.alert('', 'Пользователю предоставлен доступ.', [
-      {text: 'OK', onPress: () => console.log('OK Pressed')}])
-  }
-  if (Role === 'ADMIN'){
-    Alert.alert('', 'Пользователю дана роль администратора.', [
-      {text: 'OK', onPress: () => console.log('OK Pressed')}])
-  }
-  if (Role === 'NONE'){
-    Alert.alert('', 'Пользователю запрещен доступ.', [
-      {text: 'OK', onPress: () => console.log('OK Pressed')}])
-  }
-
+  
+  
+  console.log('ResponseGetUser:', response);
+  const json = await response.json()
+ console.log(json);
     //if (role === 'Администратор'){setStartAdminRole(true);}
-  }
+  
 } catch (error) {
   console.error('Error:', error);
 } finally {
- // if (role === 'Пользователь') {
  
-    router.push('/admin/users');
- // }
 }
 
 };
@@ -179,10 +139,11 @@ console.log(Role);
     getToken();
     setRole(role);
     if (startAdminRole){setAdmin();}
-  }, [role, startAdminRole]);
+    if (id) {getUser();}
+  }, [id, role, startAdminRole]);
 
   useEffect(() => {
-    setStatusRole(true);
+    if (Role && Role!=' ')setStatusRole(true);
   }, [Role]);
 
   return (

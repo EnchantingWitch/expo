@@ -58,12 +58,12 @@ type token = {
               
           console.log(res);
               //if(str!=''){
-          const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/authUser',
+          const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
             res
           );
           console.log('ResponseAuthUser:', response2);
-          const text = await response2.text()
-          console.log(text);
+          //const text = await response2.text()
+          //console.log(text);
           if (response2.status === 200){
             const role = parseJwt(accessToken);
             console.log(role.role);
@@ -101,12 +101,12 @@ type token = {
               
           console.log(res);
               //if(str!=''){
-          const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/isAdminRole',
+          const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
             res
           );
           console.log('ResponseAdminRole:', response2);
-          const text = await response2.text()
-          console.log(text);
+          //const text = await response2.text()
+          //console.log(text);
           if (response2.status === 200){
             const role = parseJwt(accessToken);
             console.log(role.role);
@@ -134,7 +134,7 @@ type token = {
          // console.log(accessToken);
           const str = `Bearer ${refreshToken}`;
           const res = {
-          method: 'GET',
+          method: 'POST',
           headers: {
             'Authorization': str,
             'Content-Type': 'application/json'

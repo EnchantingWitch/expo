@@ -123,9 +123,9 @@ const DirectionLayout = () => {
                   <TouchableWithoutFeedback 
                   style={{}}
                   onPress={() =>{ 
-                    console.log(data[parseInt(item.id, 10)].userInfo.fullName, 'item.userInfo');
+                    //console.log(data[parseInt(item.id, 10)].userInfo.fullName, 'item.userInfo');
                     const userInfo = item.userInfo;
-                   
+                   console.log(userInfo.organisation, 'userInfo.organisation');
                     router.push({pathname: '/admin/user', params: 
                       { username: item.username, 
                         organisation: userInfo.organisation!==''? userInfo.organisation : 'Не указано',  
@@ -134,7 +134,7 @@ const DirectionLayout = () => {
                         role: item.role }})}  }>
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row',   height: 37, alignContent: 'center',  marginBottom: '5%', borderRadius: 8}}>
           
-                      <View style={{width: '48%', justifyContent: 'center'}}>
+                      <View style={{width: '40%', justifyContent: 'center'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 3  }}>{item.userInfo.fullName}</Text>
                       </View>
           
@@ -144,14 +144,14 @@ const DirectionLayout = () => {
               <Text key={organisation}>{detail.organisation}</Text>
             ))}
               */}
-              <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 3 }}> {item.userInfo.organisation}</Text>
+              <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', marginStart: 3 }}> {item.userInfo.organisation}</Text>
                  
                      {/*} <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 3 }}> {item.userInfo[parseInt(item.id, 10)]?.organisation || 'Не указано'}</Text>
                  */}
                 
                       </View>    
 
-                      <View style={{width: '7%', justifyContent: 'center'}}>
+                      <View style={{width: '15%', justifyContent: 'center', alignItems: 'flex-end'}}>
                      
                       {(item.isEnabled ===true) && ( <Ionicons name="checkbox" size={25} color="#0072C8" />)}
                       {(item.isEnabled ===false) &&  <Ionicons name="square" size={25} color="#F0F9FF" />}

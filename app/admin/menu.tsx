@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
   const [singleFile, setSingleFile] = useState<any>('');
   const [load, setLoad]= useState<boolean>(false);
   const [accessToken, setAccessToken] = useState('');
+  const [refreshToken, setRefreshToken] = useState('');
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -21,7 +22,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
     const navigation = useNavigation();
     
         useEffect(() => {
+         
               navigation.setOptions({
+                
                 headerLeft: () => (
                   <TouchableOpacity onPress={getToken}>
                     <Ionicons name='exit-outline' size={25} style={{alignSelf: 'center'}}/>
@@ -30,6 +33,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
               });
               if(accessToken){handleLogout()}
         }, [navigation, accessToken]);
+        useEffect(() => {
+          getTok();
+            
+        }, []);
 
         const getToken = async () => {
           try {
@@ -44,6 +51,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
               console.error('Error retrieving token:', error);
           }
       };
+
+      const getTok = async () => {
+        try {
+            const token = await AsyncStorage.getItem('refreshToken');
+            if (token !== null) {
+              setRefreshToken(token);
+                console.log('Retrieved refresh token:', token);
+            } else {
+                console.log('No token found');
+            }
+        } catch (error) {
+            console.error('Error retrieving token:', error);
+        }
+    };
 
       const removeToken = async (tokenKey) => {
         try {
@@ -86,6 +107,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
   
       };
 
+      const refreshTok = async () => {
+        //  if (accessToken!=''){
+          try {
+             // console.log(accessToken);
+              const str = `Bearer ${refreshToken}`;
+              const res = {
+              method: 'POST',
+              headers: {
+                'Authorization': str,
+                'Content-Type': 'application/json'
+              },
+              };
+                  
+              console.log(res);
+                  //if(str!=''){
+              const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/refresh_token',
+                res
+              );
+              console.log('ResponseRefreshToken:', response2);
+             
+             
+              
+              } catch (error) {
+                  console.error(error);
+              }
+              //    }
+      }
+
   return (
     <View style={styles.background}>
 
@@ -104,11 +153,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
                       handlePress={()=>{router.push('./create_obj')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-        {/*<CustomButton
+        <CustomButton
                       title="change"
-                      handlePress={()=>{router.push('./change')}} 
+                      handlePress={()=>{refreshTok()}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
-        />*/}
+        />
 
     </View>
   );
