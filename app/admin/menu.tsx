@@ -153,11 +153,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
                       handlePress={()=>{router.push('./create_obj')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-        <CustomButton
+      {/*<CustomButton
                       title="change"
                       handlePress={()=>{refreshTok()}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
-        />
+        />*/}
 
     </View>
   );
