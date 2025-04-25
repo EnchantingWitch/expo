@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, View, TextInput, Button, StyleSheet, Text, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { router, useRouter } from 'expo-router';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type token = {
@@ -94,18 +95,23 @@ const LoginModal = () => {
                 username: name,
                 password: password
               }));
+               
+               if (!response.ok){
+                Alert.alert('Ошибка при авторизации', 'Проверьте корректность введенных почты и пароля.', [
+                                {text: 'OK', onPress: () => console.log('OK Pressed')}])
+               }
                 console.log('ResponseSignIn:', response);
                const token = await response.json()
                console.log(token);
                console.log(token.accessToken);
                console.log(token.refreshToken);
-              
-               if (response.status === 200) {
+              if (response.ok) {
                 setAccessToken(token.accessToken);
                 setRefreshToken(token.refreshToken); 
                 saveToken('refreshToken', token.refreshToken);
                 saveToken('accessToken', token.accessToken);
                }
+              
             }catch (error) {
                 console.error('Error:', error);
             }finally{  
@@ -167,9 +173,7 @@ const LoginModal = () => {
             ) : (
                 <CustomButton
                     title="Войти"
-                    handlePress={handleLogin} />
-                    
-                    
+                    handlePress={handleLogin} />        
             )}
             <CustomButton
                     title="Зарегистрироваться"

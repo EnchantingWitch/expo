@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
+import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions, Alert,} from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
 import { router, useLocalSearchParams } from "expo-router";
@@ -75,10 +75,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
       //alert(res.status);
       //Обратная связь пользователю по загрузке дока
       if (res.status == 200){
-        alert('Структура загружена успешно');
+       Alert.alert('', 'Структура загружена.', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')}])
       }
       if (res.status == 400) {
-        alert('Структура не загружена');
+        Alert.alert('', 'Структура не загружена.', [
+          {text: 'OK', onPress: () => console.log('OK Pressed')}])
+   
       }
       } catch (error) {
         console.error('Error:', error);

@@ -81,9 +81,15 @@ console.log(JSON.stringify({
            
            
            if(response.status === 200){
-                console.log('smth ok')
+                Alert.alert('', 'Заявка на регистрацию оправлена. После подтверждения заявки администратором, Вы сможете авторизоваться.', [
+                    {text: 'OK', onPress: () => console.log('OK Pressed')}])
                 router.push('/sign/sign_in');
            }
+           else{
+            Alert.alert('', 'Произошла ошибка при регистрации', [
+                {text: 'OK', onPress: () => console.log('OK Pressed')}])
+            //router.push('/sign/sign_in');
+       }
         }catch (error) {
             console.error('Error:', error);
           }
@@ -157,8 +163,10 @@ console.log(JSON.stringify({
                                 style={{alignSelf: 'center'}}
                             /></View>
                 <TouchableOpacity onPress={() => setVisible(true)} style={{ width: '90%',  alignSelf: 'center'}}>
-                    <Text style={{color: '#0072C8', fontSize: ts(14) }}>Соглашаюсь с политикой конфиденциальности и обработки персональных данных</Text>
-                    </TouchableOpacity>
+                    <Text style={{color: '#0072C8', fontSize: ts(14) }}>Соглашаюсь с {' '}
+                        <Text style={{textDecorationLine: 'underline' }}>политикой конфиденциальности и обработки персональных данных</Text>
+                    </Text>
+                </TouchableOpacity>
              </View>   
                 <CustomButton
                     title="Зарегистрироваться"
@@ -169,7 +177,7 @@ console.log(JSON.stringify({
                             <TouchableOpacity onPress={() => setVisible(false)} style = {{alignSelf: 'flex-end', }}>
                           <Ionicons name='close-outline' size={30} />
                         </TouchableOpacity>
-                    <View style={styles.container}>
+                    <View style={[styles.container, {width: '96%', alignItems: 'center'}]}>
                         
                         <Text style={{ fontSize: ts(14) }}>Соглашение с политикой конфиденциальности и обработки персональных данных</Text>
                 {/*<Pdf

@@ -172,4 +172,3 @@ const DirectionLayout = () => {
 };
 
 export default DirectionLayout;
-

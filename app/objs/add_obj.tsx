@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWindowDimensions, View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
+import { useWindowDimensions, View, Text, StyleSheet, FlatList, SafeAreaView, Alert } from 'react-native';
 import { Checkbox } from 'expo-checkbox';
 import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
@@ -34,9 +34,10 @@ const CheckboxList = () => {
             'Content-Type': 'application/json'
           }}
         );
+          console.log('responsegetAllObjs',response)
         const json = await response.json();
         setData(json);
-        console.log('responsegetAllObjs',response)
+      
       } catch (error) {
         console.error(error);
       } finally {
@@ -85,6 +86,11 @@ const CheckboxList = () => {
     const handleSubmit = async ()  => {
       
       const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
+      if(selectedIds.length === 0){
+        Alert.alert('', 'Выберите хотя бы один объект', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        return;
+      }
       console.log('Selected IDs:', selectedIds);
       console.log(JSON.stringify({
         objectsToAdd : selectedIds,
@@ -108,8 +114,17 @@ const CheckboxList = () => {
         );
        
         console.log('responseСreateApplication',response)
+        if (response.ok) {
+                Alert.alert('', 'Отправлен запрос на доступ', [
+                     {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        } 
+        else{
+          Alert.alert('', `Ошибка при отправке запроса`, [
+            {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        }
       } catch (error) {
         console.error(error);
+        
       } finally {
         router.push('./objects')
         //setLoading(false);

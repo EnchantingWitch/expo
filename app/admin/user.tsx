@@ -22,15 +22,16 @@ export default function TabOneScreen() {
   const {role} = useLocalSearchParams();
   const {id} = useLocalSearchParams();
   const [accessToken, setAccessToken] = useState<any>('');
+  const [userId, setUserId] = useState<any>('');
 
   console.log(Role, 'Role');
 
-  const getToken = async () => {
+  const getToken = async (key, setState) => {
     try {
-        const token = await AsyncStorage.getItem('accessToken');
+        const token = await AsyncStorage.getItem(key);
         if (token !== null) {
             console.log('Retrieved token:', token);
-            setAccessToken(token);
+            setState(token);
         } else {
             console.log('No token found');
             router.push('/sign/sign_in');
@@ -101,10 +102,56 @@ export default function TabOneScreen() {
   } catch (error) {
     console.error('Error:', error);
   } finally {
-    router.push('/admin/users');
+    if (userId === id){
+      logout();
+    }
+    else{router.push('/admin/users');}
+    
   }
 
 };
+
+const logout = async () => {
+  try{
+          
+    if (accessToken!== null){
+      const str = `Bearer ${accessToken}`;
+      console.log(str);
+                  
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': str,
+          'Content-Type': 'application/json',
+        },
+                   
+      });
+                 
+      console.log('ResponseLogout:', response);
+      if(response.status === 200){
+        removeToken('accessToken');
+        removeToken('refreshToken');
+        removeToken('userID');
+                  
+      }
+  
+    }
+  }catch (error) {
+      console.error('Error:', error);
+  }finally{  
+    router.push('/sign/sign_in');
+  }
+  
+};
+
+  const removeToken = async (tokenKey) => {
+    try {
+      await AsyncStorage.removeItem(tokenKey);
+      console.log('Token - ',tokenKey,'- removed successfully!');
+    } catch (error) {
+      console.error('Error removing token:', error);
+    }
+  };
 
 //const setUser = async (role: string) => {
   const getUser = async () => {
@@ -133,10 +180,12 @@ export default function TabOneScreen() {
 
 };
 console.log(Role);
+console.log(userId, 'userId');
 
 
  useEffect(() => {
-    getToken();
+    getToken('accessToken', setAccessToken);
+    getToken('userID', setUserId);
     setRole(role);
     if (startAdminRole){setAdmin();}
     if (id) {getUser();}
@@ -172,11 +221,20 @@ console.log(Role);
       value={username}
     />
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Роль</Text>
-    <ListOfAccessRole 
-                post={role as string} 
-                status={statusRole} 
-                onChange={(selectedRole) => setRole(selectedRole)}
-            />
+    {id !== '1'? 
+      <ListOfAccessRole 
+                  post={role as string} 
+                  status={statusRole} 
+                  onChange={(selectedRole) => setRole(selectedRole)}
+      />
+      : 
+      <TextInput
+      style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
+      placeholderTextColor="#111"
+      editable={false}
+      value='Администратор'
+      />
+    }
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
@@ -184,11 +242,21 @@ console.log(Role);
       editable={false}
       value='Дата заявки'
     />
+
+    {userId === id && userId !== '1'? 
+      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>При сохранении изменений в своей карточки будет выполнен выход и переход на страницу авторизации</Text>
+      : ''
+    }
         
     </View>
-    
-      <CustomButton title='Удалить пользователя' handlePress={deleteUser}/>
-      <CustomButton title='Сохранить' handlePress={setAdmin}/>
+    {id !== '1'? 
+      <View>
+        <CustomButton title='Удалить пользователя' handlePress={deleteUser}/>
+        <CustomButton title='Сохранить' handlePress={setAdmin}/>
+      </View>
+      : 
+      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>
+    }
     </SafeAreaView>
   ); 
 }

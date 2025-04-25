@@ -33,6 +33,7 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
 
       useEffect(() => {
         if(list){
+            console.log(list);
             const updated = List.map(item => {
                 const found = list.find(s => s.label === item.label);
                 return found ? { ...item, value: found.value } : item;
