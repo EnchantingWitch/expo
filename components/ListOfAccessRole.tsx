@@ -99,9 +99,11 @@ const styles = StyleSheet.create({
     placeholderStyle: {
         fontSize: 16,
         textAlign: 'center',
+        color: '#B3B3B3',
     },
     selectedTextStyle: {
         fontSize: 16,
+        color: '#B3B3B3',
         textAlign: 'center',
     },
     iconStyle: {

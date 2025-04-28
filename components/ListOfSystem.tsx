@@ -44,7 +44,7 @@ const ListOfSystem = ({ list, post, buf, statusreq, onChange, onChangeStatus }: 
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                 placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14) }]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14) }]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), lineHeight: ts(20),includeFontPadding: false, textAlignVertical: 'center' }]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
                 iconStyle={styles.iconStyle}
                 data={list}

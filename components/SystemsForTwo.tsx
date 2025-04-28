@@ -46,8 +46,8 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
         <View style={styles.container}>
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue'}]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14) }]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14) }]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)}]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
                 iconStyle={styles.iconStyle}
                 containerStyle={{
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#E0F2FE',
         //paddingBottom: 16,
-        width: '35%',
+        width: 120,
         borderRadius: 8,
     },
     dropdown: {
