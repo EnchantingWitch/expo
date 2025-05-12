@@ -1,18 +1,19 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
-import {  } from '@/components/Themed';
-import { Link, Tabs, Redirect, router } from 'expo-router';
-import FormField from '@/components/FormField';
-import ListTypeObj from '@/components/ListTypeObj';
-import React, { Component, useState, useEffect } from 'react';
 import CustomButton from '@/components/CustomButton';
+import FormField from '@/components/FormField';
+import ListOfRegion from '@/components/ListOfRegion';
+import ListTypeObj from '@/components/ListTypeObj';
+import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
 
 type Object = {
 
 };
 
 export default function TabOneScreen() {
-
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Object[]>([]);
 
@@ -93,7 +94,7 @@ useEffect(() => {
     <View style={styles.container}>
       <FormField title='Объект капитального строительства' onChange={(value) => setOks(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
       <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
-      <FormField title='Регион' onChange={(value) => setRegion(value)}/>
+      <ListOfRegion onChange={(value) => setRegion(value)}/>
       <ListTypeObj onChange = {(value) => setTypeObj(value)}/>
       <FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
@@ -101,7 +102,9 @@ useEffect(() => {
       <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
       <FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton title='Сохранить' handlePress={request}/>
+    </View>
     </View>
     </ScrollView>
   ); 

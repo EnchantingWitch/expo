@@ -1,14 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, SafeAreaView, ScrollView, TouchableOpacity, useWindowDimensions, Image, Modal } from 'react-native';
-import { Link, Tabs, useLocalSearchParams, router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Image, Modal, Platform, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import DropdownComponent2 from '@/components/list_categories';
 import Calendar from '@/components/Calendar+';
-import { styles } from './create_note';
 import CustomButton from '@/components/CustomButton';
-import { Buffer } from 'buffer';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { styles } from './create_note';
 
 
 
@@ -29,6 +27,7 @@ export type SystemGET = {
 }
 
 const DetailsScreen = () => {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useLocalSearchParams();//получение наименование ОКС 
@@ -280,7 +279,7 @@ console.log('statusReqPhoto',statusReqPhoto);
 
             <View style={{width: '60%', alignItems: 'center'}}>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: 19}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(19)}]}
             placeholderTextColor="#111"
             value={subObj}
             multiline
@@ -435,7 +434,7 @@ console.log('statusReqPhoto',statusReqPhoto);
             editable={false}
           />
 
-          <View style={{justifyContent: 'center', alignContent: 'center', }}>
+          <View style={{justifyContent: 'center', alignContent: 'center', paddingBottom: BOTTOM_SAFE_AREA + 20}}>
            <CustomButton title='Сохранить' handlePress ={ putComment } />
            <CustomButton title='Редактировать' handlePress ={() => router.replace({pathname: '/notes/change_note', 
            params: {

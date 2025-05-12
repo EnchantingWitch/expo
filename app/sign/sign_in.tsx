@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, View, TextInput, Button, StyleSheet, Text, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
-import { router, useRouter } from 'expo-router';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 type token = {
     accessToken: string;
@@ -12,6 +12,8 @@ type token = {
 };
 
 const LoginModal = () => {
+    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
     const router = useRouter();
    // const role = 'admin'
 
@@ -151,9 +153,21 @@ const LoginModal = () => {
   
 
     return (
-
-        <View style={styles.modalContainer}>
+        <ScrollView style={{flex: 1,
+            alignContent: 'center',
             
+            backgroundColor: 'white',}}>
+            <View style={{alignSelf: 'center', paddingTop: BOTTOM_SAFE_AREA +15  }}>
+            <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: '500',  textAlign: 'center' }}>Планшет ПНР</Text>
+            <Image 
+            style={{ width: 200, height: 200 }}
+            source={require('../../assets/images/logo1.png')} 
+            />
+            </View>
+            
+        <View style={styles.modalContainer}>
+           
+                        
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Введите почту</Text>
             <TextInput
                 style={[styles.input, {fontSize: ts(14)}]}
@@ -196,7 +210,10 @@ const LoginModal = () => {
                 handlePress={() => {router.push({pathname: '/', params: {roleReq: 'client' }})}} />*/}
 
         </View>
-
+        <View style={{alignSelf: 'center', width: '60%', paddingBottom: BOTTOM_SAFE_AREA + 20, }}>
+            <Text style={{ fontSize: ts(12), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Версия 1.01 07.05.2025</Text>
+            </View>
+        </ScrollView>
     );
 };
 

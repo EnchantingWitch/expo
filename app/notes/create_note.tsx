@@ -1,19 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, TouchableOpacity, Image, Alert, useWindowDimensions, Modal, SafeAreaView } from 'react-native';
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import DropdownComponent2 from '@/components/ListOfCategories';
-import DateInputWithPicker from '@/components/CalendarOnWrite';
 import DateInputWithPicker2 from '@/components/Calendar+';
+import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
-import { Video } from 'react-native-video';
-import ImageViewer from '@/components/ImageViewer';
-import * as ImagePicker from 'expo-image-picker';
+import DropdownComponent2 from '@/components/ListOfCategories';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+//import { Video } from 'react-native-video';
+import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Structure } from '../(tabs)/structure';
-import ListOfSubobj from '@/components/ListOfSubobj';
-import { setSeconds } from 'date-fns';
+//import { setSeconds } from 'date-fns';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type ListToDrop = {
@@ -22,6 +20,8 @@ export type ListToDrop = {
 };
 
 export default function CreateNote() {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [upLoading, setUpLoading] = useState(false);
@@ -569,11 +569,15 @@ console.log(JSON.stringify({
 
           
         </View>
-      </View><CustomButton
+      </View>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+            <CustomButton
               title="Добавить замечание"
               handlePress={TwoFunction} // Вызов функции отправки данных
             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
             />
+      </View>
+      
       </SafeAreaView>
     </ScrollView>
   );

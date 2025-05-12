@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions, Alert,} from "react-native";
-import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
-import { router, useLocalSearchParams } from "expo-router";
-import FileViewer from "@/components/FileViewer";
-import { isLoading } from "expo-font";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from "expo-document-picker";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
+    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
   const [singleFile, setSingleFile] = useState<any>('');
   const [load, setLoad]= useState<boolean>(false);
   
   const [accessToken, setAccessToken] = useState<any>('');
+  const [objname, setObjname] = useState<any>('');
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -87,7 +88,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
         console.error('Error:', error);
       }
       finally{
-        router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})
+        router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: objname}})
         //router.push('/(tabs)/structure'); setLoad(false);
       }  
   };
@@ -171,8 +172,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
     useEffect(() => {
       getToken();
-
-    }, []);
+      if(capitalCSName){setObjname(capitalCSName);}
+    }, [capitalCSName]);
 
   return (
     <View style={styles.background}>
@@ -191,14 +192,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
         </View>     
         
       </View>
-      <View>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton
                       title="Отправить"
                       handlePress={uploadImage} // Вызов функции отправки данных
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
         <View>
-          {load ? ( <ActivityIndicator size={'large'} style={{paddingTop: 10, }}/>):(<View/>)
+          {load ? ( <ActivityIndicator size={'large'} style={{paddingTop: 10, }}/>):('')
           }
         </View>
       </View>

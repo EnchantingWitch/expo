@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Modal, ScrollView, TouchableOpacity, SafeAreaView,  View, TextInput, Button, StyleSheet, Text, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
-import { setNativeProps } from 'react-native-reanimated';
-import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
-import { Alert } from 'react-native';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import Pdf from 'react-native-pdf';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +14,8 @@ type RegisterResponse = {
 };
 
 const RegistrationModal = () => {
+    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
     const [isVisible, setIsVisible] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -168,9 +168,10 @@ console.log(JSON.stringify({
                     </Text>
                 </TouchableOpacity>
              </View>   
+             <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
                 <CustomButton
                     title="Зарегистрироваться"
-                    handlePress={handleRegister} />
+                    handlePress={handleRegister} /></View>
 
                     {visible? (
                         <Modal>

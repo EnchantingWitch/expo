@@ -1,8 +1,8 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack, useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
-import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Stack, useGlobalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -16,7 +16,31 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   //const colorScheme = useColorScheme();
   const {systemName} = useGlobalSearchParams();//получение кода ОКС 
+  const {ii} = useGlobalSearchParams();//получение кода ОКС 
   console.log(systemName, 'systemName');
+  const [system, setSystem] = useState(' ');
+  const [syst, setSyst] = useState(' ');
+  const [ai, setAi] = useState(' ');
+   const fontScale = useWindowDimensions().fontScale;
+
+   const ts = (fontSize: number) => {
+    return (Math.round(fontSize / fontScale))};
+
+  useEffect(() => {
+    if (systemName!== undefined){setSyst(systemName);};
+
+  }, [systemName, ii]);
+  useEffect(() => {
+
+    if (ii!== undefined){setAi(ii)};
+  }, [ ii]);
+  useEffect(() => {
+
+    const str = ai+' '+syst+'           ';
+    setSystem(str);
+  }, [syst, ai]);
+
+  console.log('system', system);
 
   return (
 
@@ -28,9 +52,6 @@ export default function TabLayout() {
         headerShown: useClientOnlyValue(false, true),
 
       }}>
-
-
-
       <Stack.Screen
         name="load_registry"
         options={{
@@ -45,17 +66,20 @@ export default function TabLayout() {
       />
       <Stack.Screen
         name="system" 
-      //  initialParams={{ idSystem: 1 }}
         options={{
-          //title: {systemName},
-       //   title: 'Система',
-          title: systemName,
+          title: system? system : ' ',
           headerTitleAlign: 'center',
-
+          
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
           //headerTitle: systemName, 
-          headerStyle: { backgroundColor: '#FFFFFF', },
+          headerStyle: { backgroundColor: '#FFFFFF',  },
+          headerTitleStyle: {
+            fontSize: ts(20), // Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
+          
         }}
       />
       <Stack.Screen
@@ -67,7 +91,8 @@ export default function TabLayout() {
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
 
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: '#FFFFFF' 
+          },
         }}
       />
 

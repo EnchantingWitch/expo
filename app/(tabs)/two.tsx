@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions } from 'react-native';
-import type { PropsWithChildren } from 'react';
-import {  router, useGlobalSearchParams, useRouter, useNavigation } from 'expo-router';
-import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
 import SystemsForTwo from '@/components/SystemsForTwo';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 import type { Structure } from './structure';
 
  
@@ -29,10 +28,12 @@ type Note = {
 
 
 const DirectionLayout = () => {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    
   const router = useRouter();
   const currentDate = new Date; //console.log(currentDate);
   const [accessToken, setAccessToken] = useState<any>('');
-
+const [inputHeight, setInputHeight] = useState(40);
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   const [chooseSubobject, setChooseSubobject] = useState('');
@@ -213,6 +214,40 @@ const DirectionLayout = () => {
         flex: 1, alignItems: 'center'
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
+         <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15}}>
+            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+                      <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+                    </TouchableOpacity>
+
+            <TextInput
+                style={{
+                  flex: 1,
+                  paddingTop:  0,
+                  fontWeight: 500,
+                  height: Math.max(42,inputHeight), // min: 42, max: 100
+                  fontSize: ts(20),
+                  textAlign: 'center',          // Горизонтальное выравнивание.
+                  textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+                }}
+                multiline
+                editable={false}
+                onContentSizeChange={e => {
+                  const newHeight = e.nativeEvent.contentSize.height;
+                  setInputHeight(Math.max(42, newHeight));
+                }}
+              >
+                <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500 }}>
+                {capitalCSName}
+              </Text>
+              {"\n"}
+              <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500, paddingTop: 15 }}>
+                Замечания
+              </Text>
+              </TextInput>
+              
+    
+              </View>
+              
 <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%'}}>
         <SystemsForTwo list={listSubObj} nameFilter='Подобъект' onChange={(system) => setChooseSubobject(system)}/>
         <SystemsForTwo list={listSystem} nameFilter='Система' onChange={(system) => setChooseSystem(system)}/>

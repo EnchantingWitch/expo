@@ -1,15 +1,16 @@
-import { StyleSheet, Text, View, ScrollView, Alert, TextInput, useWindowDimensions, SafeAreaView } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState, useEffect } from 'react';
 import CustomButton from '@/components/CustomButton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ListOfAccessRole from '@/components/ListOfAccessRole';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function TabOneScreen() {
    const fontScale = useWindowDimensions().fontScale;
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [Role, setRole] = useState('');
   const [statusRole, setStatusRole] = useState(false);
@@ -250,7 +251,7 @@ console.log(userId, 'userId');
         
     </View>
     {id !== '1'? 
-      <View>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton title='Удалить пользователя' handlePress={deleteUser}/>
         <CustomButton title='Сохранить' handlePress={setAdmin}/>
       </View>

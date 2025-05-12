@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 export type ListToDrop = {
@@ -83,7 +83,7 @@ export default ListOfSubobj;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#E0F2FE',
+        backgroundColor: 'white',
         //paddingBottom: 16,
         width: 120,
         borderRadius: 8,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     dropdown: {
         height: 37,
         borderColor: '#E0F2FE',
-        borderWidth: 1,
+        borderWidth: 2,
         borderRadius: 8,
         paddingHorizontal: 8,
     },

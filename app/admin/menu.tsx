@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button,   TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
-import * as DocumentPicker from "expo-document-picker";
 import CustomButton from "@/components/CustomButton";
-import { router, useNavigation } from "expo-router";
-import FileViewer from "@/components/FileViewer";
-import { isLoading } from "expo-font";
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router, useNavigation } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-native";
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
@@ -153,11 +150,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
                       handlePress={()=>{router.push('./create_obj')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-       {/*} <CustomButton
-                      title="change"
-                      handlePress={()=>{refreshTok()}} 
+        <CustomButton
+                      title="Объекты"
+                      handlePress={()=>{router.push('./objs')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
-        />*/}
+        />
 
     </View>
   );

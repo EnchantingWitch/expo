@@ -1,12 +1,9 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Stack, Tabs } from 'expo-router';
-import { Pressable, Button, useWindowDimensions } from 'react-native';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { Header } from 'react-native/Libraries/NewAppScreen';
+import { useColorScheme } from '@/components/useColorScheme';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Stack } from 'expo-router';
+import React from 'react';
+import { useWindowDimensions } from 'react-native';
 
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -22,7 +19,7 @@ export default function TabLayout() {
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
-    return (fontSize / fontScale)};
+    return (Math.round(fontSize / fontScale))};
 
   return (
 
@@ -46,6 +43,11 @@ export default function TabLayout() {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       

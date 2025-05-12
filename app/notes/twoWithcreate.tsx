@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import type { PropsWithChildren } from 'react';
 import { router, useGlobalSearchParams } from 'expo-router';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, ScrollView, Platform, Text, TextInput, Modal, Image, View, ActivityIndicator, FlatList, Button, Pressable, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, TouchableHighlight, TouchableNativeFeedback, useWindowDimensions, Alert } from 'react-native';
-import DropdownComponent from '@/components/list_system_for_listOfnotes';
 import CustomButton from '@/components/CustomButton';
-import Note from '@/components/Note';
-import tw from 'tailwind-rn'
-import listOfNotes from '../notes/see_note';
-import DropdownComponent2 from '@/components/ListOfCategories';
+import DropdownComponent from '@/components/list_system_for_listOfnotes';
+import { ActivityIndicator, Alert, FlatList, Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+//import tw from 'tailwind-rn'
 
-import Calendar from '@/components/Calendar+'
+import Calendar from '@/components/Calendar+';
 
 
 import * as ImagePicker from 'expo-image-picker';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 

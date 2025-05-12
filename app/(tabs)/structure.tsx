@@ -1,13 +1,10 @@
-import React, { Component, useState, useEffect } from 'react';
-import { SectionList, ScrollView, FlatList, Image, LayoutAnimation, Platform, StyleSheet, Text, TouchableNativeFeedback, TouchableWithoutFeedback, TouchableOpacity, UIManager, View } from 'react-native'
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Link, router, useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
-import MonoSizeText from '@/components/FontSize'
-import { useWindowDimensions,  } from 'react-native';
+import CustomButton from '@/components/CustomButton';
+import MonoSizeText from '@/components/FontSize';
 import { Ionicons } from '@expo/vector-icons';
-
-import CustomButton from '@/components/CustomButton';;
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { default as React, useEffect, useState } from 'react';
+import { Modal, Platform, SectionList, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 
 export type Structure = {
   id: number;
@@ -37,13 +34,17 @@ export type Structure = {
 
 
 const Struct = () => {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    
   const [isSelected, setSelected] = useState(true);
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   console.log(codeCCS, 'codeCCS structure');
   console.log(capitalCSName, 'capitalCSName structure');
+  const [inputHeight, setInputHeight] = useState(40);
   const [accessToken, setAccessToken] = useState<any>('');
+  const [visible, setVisible] = useState<boolean>(false);
   
   const fontScale = useWindowDimensions().fontScale;
 
@@ -184,14 +185,14 @@ const Struct = () => {
       if (!isExpanded) return null;
 
       return(
-      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS, capitalCSName: capitalCSName }})} style={{width: '99%'}}>
+      <TouchableOpacity onPress={() =>router.push({pathname: '/structures/system', params: { post: item.pnrsystemId, codeCCS: codeCCS, capitalCSName: capitalCSName, ii:  item.numberII}})} style={{width: '99%'}}>
       <View style={{flexDirection: 'row',borderWidth: 2, borderColor: '#E0F2FE', alignSelf: 'flex-end',   width: '96%', height: 37, marginBottom: '2.5%', marginLeft: '1%', borderRadius: 8}}>
 
-        <View style={{width: '7%',  justifyContent: 'center',alignSelf: 'center'}}>
+        <View style={{width: '11%',  justifyContent: 'center',alignSelf: 'center'}}>
         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', lineHeight: ts(16),includeFontPadding: false,}}  numberOfLines={2} >{item.numberII}</Text>
         </View>
         
-        <View style={{width: '57%',  justifyContent: 'center',alignSelf: 'center',  height: 37}}>
+        <View style={{width: '53%',  justifyContent: 'center',alignSelf: 'center',  height: 37}}>
         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', lineHeight: ts(16), includeFontPadding: false, }}  numberOfLines={2}>{item.systemName}</Text>
         </View>
         
@@ -237,6 +238,30 @@ const Struct = () => {
 
     return(
       <View style={{ backgroundColor: 'white', flex: 1 }}>
+         <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15}}>
+    <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+    <TextInput
+        style={{
+          flex: 1,
+          paddingTop:  0,
+          fontWeight: 500,
+          height: Math.max(42,inputHeight), // min: 42, max: 100
+          fontSize: ts(20),
+          textAlign: 'center',          // Горизонтальное выравнивание.
+          textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+        }}
+        multiline
+        editable={false}
+        onContentSizeChange={e => {
+          const newHeight = e.nativeEvent.contentSize.height;
+          setInputHeight(Math.max(42, newHeight));
+        }}
+      >
+        {capitalCSName}
+      </TextInput>
+      </View>
       <View style={styles.container}>
 
         <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 32,}}>
@@ -252,8 +277,10 @@ const Struct = () => {
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Замеч</Text>
             </View>
 
-            <View style={{width: '14%', }}>
+            <View style={{width: '14%', flexDirection: 'column'}}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
+            <TouchableOpacity onPress={()=>setVisible(true)}>
+            <Ionicons name='help-circle-outline' size={20} style={{alignSelf: 'center', width: 22, color: '#0072C8'}} /></TouchableOpacity>
             </View>
         </View>
 
@@ -265,11 +292,85 @@ const Struct = () => {
             renderSectionHeader={renderSectionHeader} 
         />
        
+
+         <Modal
+                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
+                    transparent={true} // Установите true, чтобы сделать фон полупрозрачным
+                    visible={visible}
+                    onRequestClose={() => setVisible(false)} // Для Android
+                    >
+                    <View style={styles.modalContainer}>
+                      
+                      <View style={styles.modalContent}>
+                        <TouchableOpacity onPress={() => setVisible(false)} style = {{alignSelf: 'flex-end', }}>
+                          <Ionicons name='close-outline' size={30} />
+                        </TouchableOpacity>
+   <View style={{flexDirection: 'row', justifyContent: 'center'}}      >       
+    <View style={{width: '20%'}}>   
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View>
+          <View style={{width: '80%', height: '25',justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>
+
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>
+
+        <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>ИИ</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View> 
+
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: 'white', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>КО</Text></View>
+          <View style={{width: '80%', height: '25', justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8, marginBottom: 5}}>
+          <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>
+    </View>  
+
+    <View style={{width: '50%'}}>   
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left', marginBottom: 11.2  }}>Ведутся СМР</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left', marginBottom: 11.2  }}>Завершены СМР</Text>
+
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Предъявлено в ПНР</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left', marginBottom: 11.2 }}>Принято в ПНР</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Ведутся ПНР</Text>
+        
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Проведены ИИ</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Акт ИИ на подписи</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Акт ИИ подписан</Text>
+
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Проводится КО</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left'  , marginBottom: 11.2}}>Проведено КО</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Акт КО на подписи</Text>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Акт КО подписан</Text>
+
+      </View> 
+
+
+
+        </View>  
+                      </View>
+                    </View>
+                  </Modal>
+
+
+
       </View>
        <CustomButton
                     title="Загрузить"
-                    handlePress={() => router.push({pathname: '/structures/load_registry', params: {codeCCS: codeCCS}})} />
+                    handlePress={() => router.push({pathname: '/structures/load_registry', params: {codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
       </View>
+
+      
     );
   };
 
@@ -287,6 +388,22 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+    
+  },
+  modalContent: {
+    width: 300,
+    height: 400,
+    padding: 5,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    justifyContent: 'center',
   },
 });
 

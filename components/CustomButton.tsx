@@ -1,6 +1,6 @@
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, useWindowDimensions } from "react-native";
 import React from "react";
-import { Style } from "tailwind-rn";
+import { Text, TouchableOpacity, useWindowDimensions } from "react-native";
+//import { Style } from "tailwind-rn";
 
 type Props = {
   title: string;

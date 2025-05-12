@@ -1,11 +1,10 @@
-import { ActivityIndicator, TouchableOpacity, SafeAreaView, FlatList, StyleSheet, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
-import {  } from '@/components/Themed';
-import { Link, Tabs, Redirect, router, useRouter, useNavigation,  useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
-import FormForObj from '@/components/FormForObj';
 import CustomButton from '@/components/CustomButton';
+import { } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
-import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 
 type Object = {
   capitalCSName: string;
@@ -21,6 +20,8 @@ type Object = {
 };
 
 export default function TabOneScreen() {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
 const fontScale = useWindowDimensions().fontScale;
 const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
@@ -35,11 +36,6 @@ const {token}=useGlobalSearchParams();
 
 //const [isGetTok, setIsGetTok] = useState(true);
 
-type token = {
-  accessToken: string;
-  refreshToken: string;
-  //role: string;
-};
 
  //const [accessToken, setAccessToken] = useState('');
     const [refreshToken, setRefreshToken] = useState('');
@@ -68,7 +64,7 @@ const refreshTok = async () => {
         console.log('ResponseRefreshToken:', response2);
        
         if (response2.status === 200){ 
-          const token: token = await response2.json()
+        /*  const token: token = await response2.json()
              console.log(token.accessToken);
              console.log(token.refreshToken);
              setAccessToken(token.accessToken);
@@ -112,6 +108,15 @@ const refreshTok = async () => {
               });
              // if(accessToken){handleLogout()}
         }, [navigation, accessToken, token]);
+        useEffect(() => {
+                  if (token){setAccessToken(token);}
+                }, [token]);
+        
+                useEffect(() => {
+                    if(accessToken === ''){getToken();}
+                    if (accessToken){getObjects();}
+                       
+                  }, [ accessToken]);
 
         const getToken = async () => {
           try {
@@ -210,9 +215,9 @@ const refreshTok = async () => {
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
                         <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS, capitalCSName: item.capitalCSName}})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,  justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
-                            <View style={{width: '98%', }}>
+                            <View style={{width: '98%', justifyContent: 'center',}}>
                             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
                             </View>
                                            
@@ -221,9 +226,10 @@ const refreshTok = async () => {
        )}
        /> 
     </View>
-    <View>
+    <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
     <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
-   {/*} <CustomButton title='refresh' handlePress={refreshTok}/>*/}
+    {/*}  <CustomButton title='Диаграммы' handlePress={() =>{router.push('/objs/diagrams')}}/>
+  <CustomButton title='refresh' handlePress={refreshTok}/>*/}
    {/*} <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/>*/}</View>
     </SafeAreaView>
   );

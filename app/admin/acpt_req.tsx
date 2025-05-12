@@ -1,9 +1,9 @@
-import { TextInput, StyleSheet, Text, View, ScrollView, useWindowDimensions, FlatList, SafeAreaView, Alert } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import React, { useState, useEffect } from 'react';
 import CustomButton from '@/components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 type Req = {
   id: number;
@@ -25,6 +25,7 @@ type Req = {
 };
 
 export default function TabOneScreen() {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
   const [data, setData] = useState<Req[]>([]);
   const { idReq } = useLocalSearchParams();
    const [checkedItems, setCheckedItems] = useState({});
@@ -124,13 +125,14 @@ const handleSubmit = async ()  => {
   }, [idReq, accessToken]);
 
   const renderItem = ({ item }) => (
-    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', height: 32,marginBottom: '5%',}}>
+    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', height: 37, marginBottom: '5%',}}>
                 <Checkbox
                     value={!!checkedItems[item.codeCCS]}
                     onValueChange={() => toggleCheckbox(item.codeCCS)}
                     color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
                     style={{alignSelf: 'center'}}
                 />
+                
                 <Text style={[ { marginLeft: 8,fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text>
             </View>
   );
@@ -179,7 +181,9 @@ const handleSubmit = async ()  => {
           renderItem={renderItem}
         />
       </View>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
       <CustomButton title='Акцептовать заявку' handlePress={handleSubmit}/>
+      </View>
     </SafeAreaView>
   );
 }

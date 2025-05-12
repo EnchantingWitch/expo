@@ -1,8 +1,8 @@
-import { SafeAreaView, StyleSheet, Text, View, ScrollView, useWindowDimensions, TouchableOpacity } from 'react-native';
-import { Link, Tabs, Redirect, router, useGlobalSearchParams, useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import FormForObj from '@/components/FormForObj';
-import React, { Component, useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View, } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,8 +25,12 @@ type Object = {
 };
 
 export default function TabOneScreen() {
+   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+  
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
+  const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
+    const [inputHeight, setInputHeight] = useState(40);
  // const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
  /* console.log(Id, 'Id object');
   const ID = Id;*/
@@ -99,8 +103,34 @@ export default function TabOneScreen() {
      
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+   <View style={{ flex: 1, backgroundColor: 'white' }}>
+     <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15 }}>
+    <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+    <TextInput
+        style={{
+          flex: 1,
+          paddingTop:  0,
+          fontWeight: 500,
+          height: Math.max(42,inputHeight), // min: 42, max: 100
+          fontSize: ts(20),
+          textAlign: 'center',          // Горизонтальное выравнивание.
+          textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+        }}
+        multiline
+        editable={false}
+        onContentSizeChange={e => {
+          const newHeight = e.nativeEvent.contentSize.height;
+          setInputHeight(Math.max(42, newHeight));
+        }}
+      >
+        {capitalCSName}
+      </TextInput>
+      </View>
+    <ScrollView >
     <View style={styles.container}>
+   
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8, textAlign: 'right' }}>{codeCCS}</Text>
       <FormForObj title='Принято в ПНР' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.systemsPNRTotalQuantity} number2={data.systemsPNRQuantityAccepted} number3={data.systemsPNRDynamic}></FormForObj>
       <FormForObj title='Акты ИИ' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsIITotalQuantity} number2={data.actsIISignedQuantity} number3={data.actsIIDynamic}></FormForObj>
@@ -109,7 +139,7 @@ export default function TabOneScreen() {
       <FormForObj title='Дефекты оборудования' text1='Всего' text2='Не устранено'  number1={data.defectiveActsTotalQuantity} number2={data.defectiveActsNotResolvedQuantity}></FormForObj>
       <FormForObj title='Персонал' text1='Всего' text2='Динамика' number1={data.busyStaff} number2={0} ></FormForObj>
     </View>
-    </ScrollView>
+    </ScrollView></View>
   ); 
 }
 

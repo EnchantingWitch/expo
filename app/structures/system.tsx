@@ -1,14 +1,11 @@
-import { StyleSheet, Text, View, ScrollView, TextInput, useWindowDimensions, Alert  } from 'react-native';
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { } from '@/components/Themed';
-import { Dropdown } from 'react-native-element-dropdown';
 import DateInputWithPicker from '@/components/Calendar+';
-import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
-import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import DropdownComponent from '@/components/ListStatusSystem';
-import React, {useEffect, useState} from 'react';
+import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 
 
@@ -42,6 +39,8 @@ export type SystemGET = {
 }
 
 export default function TabOneScreen() {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
   const router = useRouter();
   const {post} = useLocalSearchParams();//получение id системы
  // const post = 256;
@@ -305,9 +304,10 @@ export default function TabOneScreen() {
                   onChangeText={setCwexecut}
                   value={cwexecut}
                 />
- 
+ <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
       <CustomButton title='Подтвердить'  handlePress={() => putSystem() }/>
       <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
+    </View>
     </View>
     </ScrollView>
   );

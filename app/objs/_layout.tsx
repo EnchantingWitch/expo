@@ -1,12 +1,16 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack } from 'expo-router';
-import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Stack } from 'expo-router';
+import { default as React } from 'react';
+import { useWindowDimensions } from 'react-native';
 
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 export default function TabLayout() {
+   const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (Math.round(fontSize / fontScale))};
+
   return (
 
     <Stack
@@ -28,6 +32,11 @@ export default function TabLayout() {
           headerShadowVisible: false,
 
           headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTitleStyle: {
+            fontSize: ts(20), // Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
         }}
       />
 
@@ -41,9 +50,31 @@ export default function TabLayout() {
           headerShadowVisible: false,
 
           headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTitleStyle: {
+            fontSize: ts(20), // Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
         }}
       />
      
+     <Stack.Screen
+        name="diagrams"
+        options={{
+          title: ' ',
+
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTitleStyle: {
+            fontSize: ts(20), // Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
+        }}
+      />
      
     </Stack>
   )

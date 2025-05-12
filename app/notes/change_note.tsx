@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TextInput, Button, ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert, useWindowDimensions } from 'react-native';
-import CustomButton from '@/components/CustomButton';
-import { router, Link, Tabs, useLocalSearchParams } from 'expo-router';
-import DropdownComponent1 from '@/components/ListOfSystem';
-import DropdownComponent2 from '@/components/ListOfCategories';
-import DateInputWithPicker from '@/components/CalendarOnWrite';
-import DateInputWithPicker2 from '@/components/calendar+10';
-import FormField from '@/components/FormField';
-import { styles } from './create_note';
-import * as ImagePicker from 'expo-image-picker';
-import ListOfSubobj from '@/components/ListOfSubobj';
-import ListOfSystem from '@/components/ListOfSystem';
 import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
-import { Structure } from '../(tabs)/structure';
+import CustomButton from '@/components/CustomButton';
+import DropdownComponent2 from '@/components/ListOfCategories';
+import ListOfSubobj from '@/components/ListOfSubobj';
+import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Structure } from '../(tabs)/structure';
+import { styles } from './create_note';
 
 
 interface Data {
@@ -97,6 +93,8 @@ const EditDataScreen: React.FC = () => {
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
+    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     useEffect(() => {
       if (codeCCS) {
@@ -633,17 +631,14 @@ useEffect(() => {
                 <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
                 <DropdownComponent2 post = {editedCommentCategory} onChange={(category) => setEditedCommentCategory(category)}/>
 
-          
+          <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+
                 <CustomButton
                   title="Сохранить изменения"
                   handlePress={handleSaveClick} />
                   <CustomButton
                   title="Удалить замечание"
                   handlePress={deleteNote} />
-                <View>
-                  <CustomButton
-                    title="Отмена"
-                    handlePress ={() => router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }})}  />
                 </View>
               </View>
             </View>

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useWindowDimensions, View, Text, StyleSheet, FlatList, SafeAreaView, Alert } from 'react-native';
-import { Checkbox } from 'expo-checkbox';
-import { router } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Checkbox } from 'expo-checkbox';
+import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 
 type Object = {
@@ -20,6 +20,8 @@ type Object = {
 };
 
 const CheckboxList = () => {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
     const [checkedItems, setCheckedItems] = useState({});
     const [data, setData] = useState<Object[]>([]);
     const [accessToken, setAccessToken] = useState<any>('');
@@ -135,14 +137,15 @@ const CheckboxList = () => {
     };
 
     const renderItem = ({ item }) => (
-        <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32,   marginBottom: '5%',}}>
+        <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,   marginBottom: '5%',}}>
             <Checkbox
                 value={!!checkedItems[item.codeCCS]}
                 onValueChange={() => toggleCheckbox(item.codeCCS)}
                 color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
                 style={{alignSelf: 'center'}}
             />
-            <Text style={[styles.label, {fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text>
+            <View style={{justifyContent: 'center'}}>
+            <Text style={[styles.label, {fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text></View>
         </View>
     );
 
@@ -156,9 +159,10 @@ const CheckboxList = () => {
             />
 
         </View>
-         <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
-
-         </SafeAreaView>
+        <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+          <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
+        </View>
+    </SafeAreaView>
     );
 };
 
