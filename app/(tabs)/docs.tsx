@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { openBrowserAsync } from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Linking, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 export default function Docs() {
    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
@@ -82,6 +82,24 @@ export default function Docs() {
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
+
+  const handleLink = async (event, link) => {
+    try {
+       if (Platform.OS !== 'web') {
+                  // Предотвращаем стандартное поведение открытия ссылки в браузере по умолчанию на мобильных устройствах
+                  event.preventDefault();
+                  // Открываем ссылку во встроенном браузере приложения
+                  await openBrowserAsync(link);
+                } else {
+                  // На вебе открываем ссылку в новой вкладке
+                  window.open(link, '_blank');
+                }
+    } catch (error) {
+      Alert.alert('Ошибка', `${error}`, [
+                                {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        console.error('Error retrieving token:', error);
+    }
+};
      
 
   return (
@@ -114,14 +132,16 @@ export default function Docs() {
     <ScrollView >
     <View style={styles.container}>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing")}} 
+            style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
                     <Image 
                     style={{ width: 100, height: 100 }}
                     source={require('../../assets/images/WorkDocs.svg')} 
                     />
                     <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Рабочая</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/19GtmZhV7ZBnAJFZMAg2P9TXwjrzzEMwB?usp=sharing")}}
+             style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
                     <Image 
                     style={{ width: 100, height: 100 }}
                     source={require('../../assets/images/factoryDocs.svg')} 
@@ -130,14 +150,16 @@ export default function Docs() {
             </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1BFdk1S5iuZl6ySTI48MZYd15jlWuxx_8?usp=sharing")}}
+             style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
                     <Image 
                     style={{ width: 100, height: 100 }}
                     source={require('../../assets/images/preparationDocs.svg')} 
                     />
                     <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Подготовительная</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1VGxUo6iSzaisRgOFenGP0ZvqMZdeFaEG?usp=sharing")}}
+             style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
                     <Image 
                     style={{ width: 100, height: 100 }}
                     source={require('../../assets/images/executionDocs.svg')} 
@@ -146,19 +168,25 @@ export default function Docs() {
             </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/14d62EIGcNx4Qre6TYaJ4nDBad9f7ItZq?usp=sharing")}}
+             style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
                     <Image 
                     style={{ width: 100, height: 100 }}
                     source={require('../../assets/images/standartDocs.svg')} 
                     />
                     <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Нормативная</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => () => Linking.openURL('https://expo.dev/your-path')} style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
-                    <Image 
-                    style={{ width: 100, height: 100 }}
-                    source={require('../../assets/images/monitoring.svg')} 
-                    />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Мониторинг ПНР</Text>
+            <TouchableOpacity 
+              style={{width: '50%', alignItems: 'center', marginBottom: 15}}
+              onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing")}}
+            >
+              <Image 
+                style={{ width: 100, height: 100 }}
+                source={require('../../assets/images/monitoring.svg')} 
+              />
+              <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>
+                Мониторинг ПНР
+              </Text>
             </TouchableOpacity>
         </View>
     </View>

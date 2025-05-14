@@ -1,12 +1,23 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, Platform, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import DropdownComponent2 from '@/components/list_categories';
 import Calendar from '@/components/Calendar+';
 import CustomButton from '@/components/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { styles } from './create_note';
+import * as FileSystem from 'expo-file-system';
+import { Image } from 'expo-image';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing';
+import { Dimensions } from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  clamp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
 
 
 
@@ -25,7 +36,7 @@ export type SystemGET = {
   codeCCS: string;
   executor: string;//исполнитель 
 }
-
+const { width, height } = Dimensions.get('window');
 const DetailsScreen = () => {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
@@ -59,11 +70,12 @@ const DetailsScreen = () => {
   const [statusReq, setStatusReq] = useState<boolean>(false);//для передачи даты после запроса
   const [startReq, setStartReq] = useState<boolean>(true);//для вызова getComment только при первом получении post
   const [statusReqPhoto, setStatusReqPhoto] = useState<boolean>(false);//для вызова getComment только при первом получении post
-
+  
   //для чтения фото и его сборки
   const [uriPhoto, setUriPhoto] = useState<string>('');
   const [contentType, setContentType] = useState<string>('');
   const [bytes, setBytes] = useState();
+  const [statusActivityIndicator, setStatusActivityIndicator] = useState(true);
 
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   
@@ -159,13 +171,16 @@ console.log('statusReqPhoto',statusReqPhoto);
         );
         const json = await response.json();
         console.log('ResponseGetPhoto:', response);
-        console.log('ResponseGetPhoto json:', json);
+        //console.log('ResponseGetPhoto json:', json);
         setBytes(json.bytes);
         setContentType(json.contentType);
         setStatusReqPhoto(true);
+        setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
         //setStatusReq(true);
       } catch (error) {
         console.error('Ошибка при получении фото:', error);
+        setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
+        //setStatusReqPhoto(true);
         //setStatusReq(false);
       } finally {
         //const src = `data:,${contentType}${bytes}`;
@@ -233,6 +248,178 @@ console.log('statusReqPhoto',statusReqPhoto);
       console.log(post, 'commentID')
     }
 
+    useEffect(() => {
+      if(statusReqPhoto ){
+        //const base64String = Buffer.from(bytes).toString('base64');
+        //console.log(`data:image/png;base64,${bytes}`);
+        setUriPhoto(`data:image/*;base64,${bytes}`)
+         // 
+         setContentType(detectImageType(bytes));
+         console.log('contentType', contentType);
+      }
+      }, [statusReqPhoto]);
+    
+
+    //зумирование фото
+
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+
+  const pinchGesture = Gesture.Pinch()
+  .onUpdate((e) => {
+    scale.value = savedScale.value * e.scale;
+  })
+  .onEnd(() => {
+    savedScale.value = scale.value;
+    scale.value = withSpring(Math.min(Math.max(scale.value, 1), 3));
+  });
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX/3;
+      translateY.value = e.translationY/3;
+    })
+    .onEnd(() => {//возвращает в центр изображение
+      if (scale.value <= 1) {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+
+      translateX.value = withSpring(clamp(translateX.value, -0.5, 0.5));
+      translateY.value = withSpring(clamp(translateY.value, -0.5, 0.5));
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
+
+//определение контента типа фотографии
+  function detectImageType(base64: string) {
+    const signature = base64.substring(0, 30);
+    if (signature.startsWith('/9j')) return 'image/jpeg';
+    if (signature.startsWith('iVBOR')) return 'image/png';
+    if (signature.startsWith('R0lGOD')) return 'image/gif';
+    return 'image/jpeg'; // default
+  }
+
+// Функция показа уведомления об успешном скачивании
+{/*async function showDownloadNotification(filename: string) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Скачивание завершено',
+      body: `Файл ${filename} сохранен в галерею`,
+      sound: true, // Звуковое сопровождение
+      data: { type: 'download-complete' }, // Дополнительные данные
+    },
+    trigger: null, // Отправить немедленно
+  });
+}
+
+// Функция показа уведомления об ошибке
+async function showErrorNotification(error: Error) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Ошибка скачивания',
+      body: error.message || 'Не удалось сохранить файл',
+      sound: true,
+    },
+    trigger: null,
+  });
+}
+  */}
+
+  //скачивание фото
+  async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
+    try {
+      // 1. Запрашиваем разрешения
+      if (Platform.OS === 'android') {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Ошибка', 'Необходимо разрешение на доступ к медиафайлам');
+          return;
+        }
+      }
+
+      // 2. Создаем имя файла
+      const fileExtension = contentType.split('/')[1] || 'jpeg';
+      const fileName = `photo_${Date.now()}.${fileExtension}`;
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+  
+      // 3. Записываем base64 в файл (без префикса data:...)
+      const base64Data = bytes.startsWith('data:') 
+        ? bytes.split(',')[1] 
+        : bytes;
+      
+      await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+        encoding: FileSystem.EncodingType.Base64
+      });
+  
+      // 4. Сохраняем в галерею
+      if (Platform.OS === 'ios') {
+        await MediaLibrary.saveToLibraryAsync(fileUri);
+      } else {
+        const asset = await MediaLibrary.createAssetAsync(fileUri);
+        await MediaLibrary.createAlbumAsync('Download', asset, false);
+      }
+
+      //await showDownloadNotification(filename);
+      Alert.alert('Успех', 'Фото сохранено в галерею');
+    } catch (error) {
+      console.error('Ошибка сохранения:', error);
+      //await showErrorNotification(error);
+      Alert.alert('Ошибка', 'Не удалось сохранить фото');
+    }
+  }
+
+  //перессылка фотографии
+  async function shareImage(imageUri: string) {
+    let tempUri = imageUri;
+  
+    try {
+      if (!(await Sharing.isAvailableAsync())) {
+        alert('Sharing не доступен');
+        return;
+      }
+  
+      // Обработка base64
+      if (imageUri.startsWith('data:')) {
+        const mimeType = imageUri.match(/^data:(image\/\w+);/)?.[1] || 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const base64Data = imageUri.split(',')[1];
+  
+        if (base64Data.length > 10 * 1024 * 1024) {
+          alert('Изображение должно быть меньше 10MB');
+          return;
+        }
+  
+        tempUri = `${FileSystem.cacheDirectory}image_${Date.now()}.${ext}`;
+        await FileSystem.writeAsStringAsync(tempUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
+  
+      await Sharing.shareAsync(tempUri, {
+        mimeType: 'image/*',
+        dialogTitle: 'Поделиться изображением',
+        UTI: 'public.image',
+      });
+  
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Не удалось отправить');
+    } finally {
+      if (tempUri !== imageUri) {
+        await FileSystem.deleteAsync(tempUri).catch(console.warn);
+      }
+    }
+  }
 
 
   return (
@@ -388,31 +575,61 @@ console.log('statusReqPhoto',statusReqPhoto);
                       <Image
                       source = {{uri: `data:${contentType};base64,${bytes}`}}
                       style={styles.image}
+                     // placeholder="Фотография загружается или отсутствует"
                       />
                     </TouchableOpacity>
 
                     <Modal
-                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
-                    transparent={true} // Установите true, чтобы сделать фон полупрозрачным
-                    visible={modalVisible}
-                    onRequestClose={() => setModalVisible(false)} // Для Android
+                      animationType="slide"
+                      transparent={true}
+                      visible={modalVisible}
+                      onRequestClose={() => setModalVisible(false)}
                     >
-                    <View style={styles.modalContainer}>
-                      
-                      <View style={styles.modalContent}>
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
-                          <Ionicons name='close-outline' size={30} />
-                        </TouchableOpacity>
-                        <Image
-                        source = {{uri: `data:${contentType};base64,${bytes}`}}
-                      style={styles.imageModal}
-                      />
-                      </View>
-                    </View>
-                  </Modal>
+                      <GestureHandlerRootView style={{ flex: 1 }}>
+                        <View style={styles.modalContainer}>
+                          <View style={styles.modalContent}>
 
+                            <View style={{flexDirection: 'row', }}>
+                              <TouchableOpacity 
+                                onPress={() => downloadBase64Image( contentType, bytes)}
+                                style={{alignItems: 'center', width: '33%', }}
+                              >
+                                 <Ionicons name='download-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                onPress={() => shareImage(`data:${contentType};base64,${bytes}`)}
+                                style={{alignItems: 'center', width: '33%' }}
+                              >
+                                 <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                onPress={() => setModalVisible(false)} 
+                                style={{alignItems: 'center', width: '33%' }}
+                              >
+                                <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+                            </View>
+                            
+                            <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
+                              <Animated.View style={animatedStyle}>
+                                <Image
+                                  source={{uri: `data:${contentType};base64,${bytes}`}}
+                                  style={styles.imageModal}
+                                  contentFit="contain"
+                                  transition={200}
+                                />
+                              </Animated.View>
+                            </GestureDetector>
+                          </View>
+                        </View>
+                      </GestureHandlerRootView>
+                    </Modal>
                   </View>
-              ):''}
+              ):
+              statusActivityIndicator === true ? (<ActivityIndicator size={'large'} style={{paddingTop: 10}}/>):''
+              }
             </View>
             
               
@@ -463,5 +680,52 @@ console.log('statusReqPhoto',statusReqPhoto);
 
   );
 }
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    width: '96%',
+    height: 42,
+    paddingVertical: 'auto',
+    color: '#B3B3B3',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  image: {
+    //width: '100%',
+    height: 42,
+    borderRadius: 8,
+    //justifyContent: 'center'
+    //alignItems: 'center',
+    //left: 38
+  },
+  imageModal: {
+    height: height,
+    width: width,
+    borderRadius: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Полупрозрачный фон
+    
+  },
+  modalContent: {
+    width: '100%',
+    height: '100%',
+    padding: 5,
+    //backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+    
+  },
+});
 
 export default DetailsScreen;
