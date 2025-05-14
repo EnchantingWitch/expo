@@ -6,13 +6,25 @@ import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  clamp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
 import { Structure } from '../(tabs)/structure';
 import { styles } from './create_note';
 
+const { width, height } = Dimensions.get('window');
 
 interface Data {
   commentId: number;
@@ -88,7 +100,8 @@ const EditDataScreen: React.FC = () => {
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
   
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
-  
+  const [statusActivityIndicator, setStatusActivityIndicator] = useState(true);
+
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -276,10 +289,12 @@ const json = JSON.stringify({
       setSinglePhoto(`data:${json.contentType};base64,${json.bytes}`);
       console.log(singlePhoto);
       setStatusReqPhoto(true);
+      setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
       setIdPhoto(json.id);
       console.log('json.id', json.id);
     } catch (error) {
       console.error('Ошибка при получении фото:', error);
+      setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
       //setStatusReq(false);
     } finally {
 
@@ -441,6 +456,143 @@ useEffect(() => {
   }
 }, [editedSubObject, array]);
 
+
+    //зумирование фото
+  
+    const scale = useSharedValue(1);
+    const savedScale = useSharedValue(1);
+    const translateX = useSharedValue(0);
+    const translateY = useSharedValue(0);
+  
+  
+    const pinchGesture = Gesture.Pinch()
+    .onUpdate((e) => {
+      scale.value = savedScale.value * e.scale;
+    })
+    .onEnd(() => {
+      savedScale.value = scale.value;
+      scale.value = withSpring(Math.min(Math.max(scale.value, 1), 3));
+    });
+  
+    const panGesture = Gesture.Pan()
+      .onUpdate((e) => {
+        translateX.value = e.translationX/3;
+        translateY.value = e.translationY/3;
+      })
+      .onEnd(() => {//возвращает в центр изображение
+        if (scale.value <= 1) {
+          translateX.value = withSpring(0);
+          translateY.value = withSpring(0);
+  
+        translateX.value = withSpring(clamp(translateX.value, -0.5, 0.5));
+        translateY.value = withSpring(clamp(translateY.value, -0.5, 0.5));
+        }
+      });
+  
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [
+        { scale: scale.value },
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+      ],
+    }));
+  
+  //определение контента типа фотографии
+    function detectImageType(base64: string) {
+      const signature = base64.substring(0, 30);
+      if (signature.startsWith('/9j')) return 'image/jpeg';
+      if (signature.startsWith('iVBOR')) return 'image/png';
+      if (signature.startsWith('R0lGOD')) return 'image/gif';
+      return 'image/jpeg'; // default
+    }
+  
+  
+    //скачивание фото
+    async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
+      try {
+        // 1. Запрашиваем разрешения
+        if (Platform.OS === 'android') {
+          const { status } = await MediaLibrary.requestPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Ошибка', 'Необходимо разрешение на доступ к медиафайлам');
+            return;
+          }
+        }
+  
+        // 2. Создаем имя файла
+        const fileExtension = contentType.split('/')[1] || 'jpeg';
+        const fileName = `photo_${Date.now()}.${fileExtension}`;
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+    
+        // 3. Записываем base64 в файл (без префикса data:...)
+        const base64Data = bytes.startsWith('data:') 
+          ? bytes.split(',')[1] 
+          : bytes;
+        
+        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64
+        });
+    
+        // 4. Сохраняем в галерею
+        if (Platform.OS === 'ios') {
+          await MediaLibrary.saveToLibraryAsync(fileUri);
+        } else {
+          const asset = await MediaLibrary.createAssetAsync(fileUri);
+          await MediaLibrary.createAlbumAsync('Download', asset, false);
+        }
+  
+        //await showDownloadNotification(filename);
+        Alert.alert('Успех', 'Фото сохранено в галерею');
+      } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        //await showErrorNotification(error);
+        Alert.alert('Ошибка', 'Не удалось сохранить фото');
+      }
+    }
+  
+    //перессылка фотографии
+    async function shareImage(imageUri: string) {
+      let tempUri = imageUri;
+    
+      try {
+        if (!(await Sharing.isAvailableAsync())) {
+          alert('Sharing не доступен');
+          return;
+        }
+    
+        // Обработка base64
+        if (imageUri.startsWith('data:')) {
+          const mimeType = imageUri.match(/^data:(image\/\w+);/)?.[1] || 'image/jpeg';
+          const ext = mimeType.split('/')[1] || 'jpg';
+          const base64Data = imageUri.split(',')[1];
+    
+          if (base64Data.length > 10 * 1024 * 1024) {
+            alert('Изображение должно быть меньше 10MB');
+            return;
+          }
+    
+          tempUri = `${FileSystem.cacheDirectory}image_${Date.now()}.${ext}`;
+          await FileSystem.writeAsStringAsync(tempUri, base64Data, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+    
+        await Sharing.shareAsync(tempUri, {
+          mimeType: 'image/*',
+          dialogTitle: 'Поделиться изображением',
+          UTI: 'public.image',
+        });
+    
+      } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Не удалось отправить');
+      } finally {
+        if (tempUri !== imageUri) {
+          await FileSystem.deleteAsync(tempUri).catch(console.warn);
+        }
+      }
+    }
+
   return (
     <ScrollView style={[styles.container]}>
       <SafeAreaView>
@@ -585,26 +737,53 @@ useEffect(() => {
                       //style={styles.image}
                       />
                     </TouchableOpacity>
-          
-                        <Modal
-                        animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
-                        transparent={true} // Установите true, чтобы сделать фон полупрозрачным
-                        visible={modalVisible}
-                        onRequestClose={() => setModalVisible(false)} // Для Android
-                        >
+                    <Modal
+                      animationType="slide"
+                      transparent={true}
+                      visible={modalVisible}
+                      onRequestClose={() => setModalVisible(false)}
+                    >
+                      <GestureHandlerRootView style={{ flex: 1 }}>
                         <View style={styles.modalContainer}>
-                          
                           <View style={styles.modalContent}>
-                            <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
-                              <Ionicons name='close-outline' size={30} />
-                            </TouchableOpacity>
-                            <Image
-                            source={{ uri: singlePhoto }}
-                          style={styles.imageModal}
-                          />
+
+                            <View style={{flexDirection: 'row', }}>
+                              <TouchableOpacity 
+                                onPress={() => downloadBase64Image( 'image/jpeg', singlePhoto)}
+                                style={{alignItems: 'center', width: '33%', }}
+                              >
+                                 <Ionicons name='download-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                onPress={() => shareImage(singlePhoto)}
+                                style={{alignItems: 'center', width: '33%' }}
+                              >
+                                 <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                onPress={() => setModalVisible(false)} 
+                                style={{alignItems: 'center', width: '33%' }}
+                              >
+                                <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+                            </View>
+                            
+                            <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
+                              <Animated.View style={animatedStyle}>
+                                <Image
+                                  source={{uri: singlePhoto}}
+                                  style={styles.imageModal}
+                                  contentFit="contain"
+                                  transition={200}
+                                />
+                              </Animated.View>
+                            </GestureDetector>
                           </View>
                         </View>
-                      </Modal>
+                      </GestureHandlerRootView>
+                    </Modal>
 
                     </View>
                   <View style={{width: '24%' ,alignSelf: 'center'}}>
@@ -615,13 +794,16 @@ useEffect(() => {
                 
               </View>
               ) : (
-              <View style={{ marginBottom: 8}}>
-                <View style={{width: '100%'}}>
-                  <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
-                    <Ionicons name='image-outline' size={30}></Ionicons>
-                  </TouchableOpacity> 
-                  </View>
-              </View>
+               statusActivityIndicator === true ? (<ActivityIndicator size={'large'} style={{paddingTop: 2}}/>): 
+                (
+                <View style={{ marginBottom: 8}}>
+                  <View style={{width: '100%'}}>
+                    <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+                      <Ionicons name='image-outline' size={30}></Ionicons>
+                    </TouchableOpacity> 
+                    </View>
+                </View>
+                )
               )
               }
             </View>

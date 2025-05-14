@@ -4,7 +4,7 @@ import CustomButton from '@/components/CustomButton';
 import DropdownComponent2 from '@/components/ListOfCategories';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Dimensions, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import { Video } from 'react-native-video';
 import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
@@ -13,11 +13,23 @@ import * as ImagePicker from 'expo-image-picker';
 import { Structure } from '../(tabs)/structure';
 //import { setSeconds } from 'date-fns';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import { Image } from 'expo-image';
+import * as Sharing from 'expo-sharing';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  clamp,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring
+} from 'react-native-reanimated';
+
 
 export type ListToDrop = {
   label: string;
   value: string; 
 };
+const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
@@ -50,6 +62,7 @@ export default function CreateNote() {
   const [bufsystem, setBufsystem] = useState('');
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   const [click, setClick] = useState(false);//
+  const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
 
   const [accessToken, setAccessToken] = useState<any>('');
 
@@ -87,44 +100,33 @@ export default function CreateNote() {
   const TwoFunction = () => {
 
     submitData();
-     // if(systemName != bufsystem){
-     //   setBufsystem(systemName);
-   /*   console.log(systemName, 'systemName: use if(systemName )');
-      if (systemName != ' ' ){
-        const filtered = array.filter(item => item.subObjectName === subObject);
-        console.log(filtered[0].data);
-        const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
-       // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-        console.log(filteredS.length, 'filteredS.length');
-        console.log(filteredS, 'filteredS');
-        if(filteredS.length != 0){
-          console.log('1');
-          setNumber(filteredS[0].numberII);
-          setExecut(filteredS[0].ciwexecutor);
-        }
-        else{
-          setNumber('');
-          setExecut('');
-          setSystemName(' ');
-        }
-       // if(filteredS[0].ciwexecutor){
-        setNoteListSystem(false);
-        //}
-      }*/
-     // }  
-    //setTimeout( uploadImage, 1000);
-    //uploadImage(id);
   };
 
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
+  useEffect(() => {
+    if (wayToGetPhoto === 1) {
+      selectCamera();
+    }
+    if (wayToGetPhoto === 2) {
+      selectPhoto();
+    }
+  }, [wayToGetPhoto]);
+
+    useEffect(() => {
+    if (singlePhoto === '') {
+      setWayToGetPhoto(0);
+    }
+  }, [singlePhoto]);
 
   const selectPhoto = async () => {
     // Opening Document Picker to select one file
     try {
+   
       const res = await ImagePicker.launchImageLibraryAsync({
 
       });
+
       // Printing the log realted to the file
       console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
@@ -146,8 +148,38 @@ export default function CreateNote() {
     }
   };
 
+  const selectCamera = async () => {
+    // Opening Document Picker to select one file
+    try {
+      const res = await ImagePicker.launchCameraAsync({
+      });
+
+      // Printing the log realted to the file
+      console.log('res : ' + JSON.stringify(res));
+      if (res.assets && res.assets[0].uri) {
+        setSinglePhoto(res.assets[0].uri)
+      }
+      // Setting the state to show single file attributes
+
+    } catch (err) {
+      setSinglePhoto('');
+      // Handling any exception (If any)
+      if (ImagePicker.Cancel(err)) {
+        // If user canceled the document selection
+        alert('Canceled');
+      } else {
+        // For Unknown Error
+        alert('Unknown Error: ' + JSON.stringify(err));
+        throw err;
+      }
+    }
+
+
+  };
+
   const cancelPhoto = async () => {
     setSinglePhoto('');
+    setWayToGetPhoto(0);
   };
   //console.log(noteListSystem);
  // console.log(noteListSystem);
@@ -393,6 +425,97 @@ console.log(JSON.stringify({
     }
   }
 
+  const chooseCameraOrPhoto =  () => {
+       Alert.alert('', 'С помощью чего хотите добавить фотографию?', [
+             //{text: 'Отмена', onPress: () => console.log('OK Pressed')},
+             {text: 'Камера', onPress: () => setWayToGetPhoto(1)}, 
+             {text: 'Альбом', onPress: () => setWayToGetPhoto(2)}
+          ],)
+  };
+
+   //зумирование фото
+
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+
+  const pinchGesture = Gesture.Pinch()
+  .onUpdate((e) => {
+    scale.value = savedScale.value * e.scale;
+  })
+  .onEnd(() => {
+    savedScale.value = scale.value;
+    scale.value = withSpring(Math.min(Math.max(scale.value, 1), 3));
+  });
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX/3;
+      translateY.value = e.translationY/3;
+    })
+    .onEnd(() => {//возвращает в центр изображение
+      if (scale.value <= 1) {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+
+      translateX.value = withSpring(clamp(translateX.value, -0.5, 0.5));
+      translateY.value = withSpring(clamp(translateY.value, -0.5, 0.5));
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
+
+   //перессылка фотографии
+    async function shareImage(imageUri: string) {
+      let tempUri = imageUri;
+    
+      try {
+        if (!(await Sharing.isAvailableAsync())) {
+          alert('Sharing не доступен');
+          return;
+        }
+    
+        // Обработка base64
+        if (imageUri.startsWith('data:')) {
+          const mimeType = imageUri.match(/^data:(image\/\w+);/)?.[1] || 'image/jpeg';
+          const ext = mimeType.split('/')[1] || 'jpg';
+          const base64Data = imageUri.split(',')[1];
+    
+          if (base64Data.length > 10 * 1024 * 1024) {
+            alert('Изображение должно быть меньше 10MB');
+            return;
+          }
+    
+          tempUri = `${FileSystem.cacheDirectory}image_${Date.now()}.${ext}`;
+          await FileSystem.writeAsStringAsync(tempUri, base64Data, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        }
+    
+        await Sharing.shareAsync(tempUri, {
+          mimeType: 'image/*',
+          dialogTitle: 'Поделиться изображением',
+          UTI: 'public.image',
+        });
+    
+      } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Не удалось отправить');
+      } finally {
+        if (tempUri !== imageUri) {
+          await FileSystem.deleteAsync(tempUri).catch(console.warn);
+        }
+      }
+    }
+
 
   return (
     <ScrollView style={styles.container}>
@@ -510,24 +633,47 @@ console.log(JSON.stringify({
                     </TouchableOpacity>
 
                     <Modal
-                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
-                    transparent={true} // Установите true, чтобы сделать фон полупрозрачным
-                    visible={modalVisible}
-                    onRequestClose={() => setModalVisible(false)} // Для Android
+                      animationType="slide"
+                      transparent={true}
+                      visible={modalVisible}
+                      onRequestClose={() => setModalVisible(false)}
                     >
-                    <View style={styles.modalContainer}>
-                      
-                      <View style={styles.modalContent}>
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style = {{alignSelf: 'flex-end', }}>
-                          <Ionicons name='close-outline' size={30} />
-                        </TouchableOpacity>
-                        <Image
-                        source={{ uri: singlePhoto }}
-                      style={styles.imageModal}
-                      />
-                      </View>
-                    </View>
-                  </Modal>
+                      <GestureHandlerRootView style={{ flex: 1 }}>
+                        <View style={styles.modalContainer}>
+                          <View style={styles.modalContent}>
+
+                            <View style={{flexDirection: 'row', }}>
+
+
+                              <TouchableOpacity 
+                                onPress={() => shareImage(singlePhoto)}
+                                style={{alignItems: 'center', width: '50%' }}
+                              >
+                                 <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+
+                              <TouchableOpacity 
+                                onPress={() => setModalVisible(false)} 
+                                style={{alignItems: 'center', width: '50%' }}
+                              >
+                                <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
+                              </TouchableOpacity>
+                            </View>
+                            
+                            <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
+                              <Animated.View style={animatedStyle}>
+                                <Image
+                                  source={{uri: singlePhoto}}
+                                  style={styles.imageModal}
+                                  contentFit="contain"
+                                  transition={200}
+                                />
+                              </Animated.View>
+                            </GestureDetector>
+                          </View>
+                        </View>
+                      </GestureHandlerRootView>
+                    </Modal>
 
                   </View>
                   <View style={{width: '10%', alignSelf: 'center' }}>
@@ -543,7 +689,7 @@ console.log(JSON.stringify({
                   <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
                 </View>
                 <View style={{width: '46%'}}>
-                  <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+                  <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
                     <Ionicons name='image-outline' size={30}></Ionicons>
                   </TouchableOpacity> 
                   </View>
@@ -584,7 +730,7 @@ console.log(JSON.stringify({
 }
 
 export const styles = StyleSheet.create({
-  container: {
+ container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -609,22 +755,22 @@ export const styles = StyleSheet.create({
     //left: 38
   },
   imageModal: {
-    height: '90%',
-    width: '90%',
+    height: height,
+    width: width,
     borderRadius: 4,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Полупрозрачный фон
     
   },
   modalContent: {
-    width: 300,
-    height: 430,
+    width: '100%',
+    height: '100%',
     padding: 5,
-    backgroundColor: 'white',
+    //backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
     

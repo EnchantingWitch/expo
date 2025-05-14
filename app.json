@@ -1,17 +1,13 @@
 {
   "expo": {
     "name": "pnr",
-    "slug": "nav_app1",
+    "slug": "pr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo1.png",
-    "scheme": "myapp",
+    "scheme": "pr",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/logo1.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
@@ -20,7 +16,8 @@
         "foregroundImage": "./assets/images/logo1.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.enchanting_witch.nav_app1"
+      "edgeToEdgeEnabled": true,
+      "package": "com.enchanting_witch.pr"
     },
     "web": {
       "bundler": "metro",
@@ -29,17 +26,23 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/logo1.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "router": {
-        "origin": false
-      },
+      "router": {},
       "eas": {
-        "projectId": "3545d814-1dd8-43d0-b7d2-68d3ce7e7d3a"
+        "projectId": "6fecdf1c-cb1f-4ee1-bd32-c2aee6563963"
       }
     }
   }

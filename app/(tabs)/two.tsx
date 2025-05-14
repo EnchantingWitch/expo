@@ -38,6 +38,7 @@ const [inputHeight, setInputHeight] = useState(40);
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   const [chooseSubobject, setChooseSubobject] = useState('');
   const [chooseSystem, setChooseSystem] = useState('');
+  const [chooseStatus, setChooseStatus] = useState('');
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [status, setStatus] = useState(true);
@@ -98,6 +99,8 @@ const [inputHeight, setInputHeight] = useState(40);
       setData(json);
       setOriginalData(json);
       console.log('ResponseGetNotes:', response);
+      console.log('ResponseGetNotes:', json);
+      
     } catch (error) {
       console.error(error);
     } finally {
@@ -177,6 +180,13 @@ const [inputHeight, setInputHeight] = useState(40);
     return originalData.filter(item => item.subObject === chooseSubobject);
   }, [originalData, chooseSubobject, chooseSystem]);
 
+  const filteredDataSubobjAndStatus = useMemo(() => {
+    if ((chooseStatus === '' || chooseStatus==='Все')) {
+      return originalData; // если фильтр не выбран, возвращаем все данные
+    }
+    return originalData.filter(item => item.commentStatus === chooseStatus);
+  }, [originalData, chooseSubobject, chooseSystem, chooseStatus]);
+
   // 3.2 Используем useMemo для фильтрации данных по системе
   const filteredDataSystem = useMemo(() => {
     if (chooseSubobject === '' && chooseSystem === '') {
@@ -191,6 +201,8 @@ const [inputHeight, setInputHeight] = useState(40);
     }
     const filteredS = filteredDataSubobj;
     return filteredS.filter(item => item.systemName === chooseSystem);
+
+    
   }, [originalData, chooseSystem, chooseSubobject]);
 
   // 4. Обновляем data при изменении фильтра
@@ -199,9 +211,10 @@ const [inputHeight, setInputHeight] = useState(40);
     if ((chooseSubobject === '' || chooseSubobject === 'Подобъект') && chooseSystem !== '' && chooseSystem !== 'Система'){ setData(filteredDataSystem); console.log('только система');}
     if ((chooseSystem === '' || chooseSystem === 'Система') && chooseSubobject !== '' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSubobj); console.log('только подобъект'); }
     if (chooseSystem !== '' && chooseSubobject !== '' && chooseSystem !== 'Система' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSystemAndSubobj); console.log('система и подобъект'); }
-    if (chooseSystem === 'Система' && chooseSubobject === 'Подобъект' || chooseSystem === '' && chooseSubobject === 'Подобъект' || chooseSystem === 'Система' && chooseSubobject === ''){setData(originalData);}
+
+    //if (chooseSystem === 'Система' && chooseSubobject === 'Подобъект' || chooseSystem === '' && chooseSubobject === 'Подобъект' || chooseSystem === 'Система' && chooseSubobject === ''){setData(filteredDataSubobjAndStatus);}
  
-}, [filteredDataSubobj, chooseSystem, chooseSubobject, filteredDataSystem, filteredDataSystemAndSubobj]);
+}, [filteredDataSubobj, chooseSystem, chooseSubobject, filteredDataSystem, filteredDataSystemAndSubobj, filteredDataSubobjAndStatus]);
 
   console.log('chooseSystem',chooseSystem);
   console.log('listSystem',listSystem);
@@ -251,6 +264,8 @@ const [inputHeight, setInputHeight] = useState(40);
 <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%'}}>
         <SystemsForTwo list={listSubObj} nameFilter='Подобъект' onChange={(system) => setChooseSubobject(system)}/>
         <SystemsForTwo list={listSystem} nameFilter='Система' onChange={(system) => setChooseSystem(system)}/>
+       {/* <SystemsForTwo list={[{"label": "Все", "value": "Все"}, {"label": "Устранено", "value": "Устранено"}, {"label": "Не устранено", "value": "Не устранено"}]} 
+        nameFilter='Все' onChange={(system) => setChooseStatus(system)}/> */}
           
         </View>
 
