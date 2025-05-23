@@ -78,6 +78,7 @@ const Struct = () => {
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
+     //   console.log('json:', json);
         //console.log('ResponseSeeStructure json:', json );
       } catch (error) {
         console.error(error);

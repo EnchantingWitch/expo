@@ -1,12 +1,13 @@
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
+import ListOfOrganizations from '@/components/ListOfOrganizations';
 import ListOfRegion from '@/components/ListOfRegion';
 import ListTypeObj from '@/components/ListTypeObj';
 import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 type Object = {
 
@@ -14,6 +15,12 @@ type Object = {
 
 export default function TabOneScreen() {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
+
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Object[]>([]);
 
@@ -96,11 +103,17 @@ useEffect(() => {
       <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
       <ListOfRegion onChange={(value) => setRegion(value)}/>
       <ListTypeObj onChange = {(value) => setTypeObj(value)}/>
-      <FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>
+      {/*<FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>*/}
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
+      <ListOfOrganizations title='' post='' status={true} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
-      <FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>
+      {/*<FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>*/}
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
+      <ListOfOrganizations title='' post='' status={true} onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
-      <FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>
+      {/*<FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>*/}
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
+      <ListOfOrganizations title='' post='' status={true} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton title='Сохранить' handlePress={request}/>

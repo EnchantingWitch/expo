@@ -98,7 +98,7 @@ const EditDataScreen: React.FC = () => {
   const [noteData, setNoteData] = useState<boolean>(true);
   const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
-  
+  const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   const [statusActivityIndicator, setStatusActivityIndicator] = useState(true);
 
@@ -134,6 +134,21 @@ const EditDataScreen: React.FC = () => {
 
  
   const [singlePhoto, setSinglePhoto] = useState<any>('');
+
+  useEffect(() => {
+      if (wayToGetPhoto === 1) {
+        selectCamera();
+      }
+      if (wayToGetPhoto === 2) {
+        selectPhoto();
+      }
+    }, [wayToGetPhoto]);
+  
+      useEffect(() => {
+      if (singlePhoto === '') {
+        setWayToGetPhoto(0);
+      }
+    }, [singlePhoto]);
 
   const getToken = async () => {
     try {
@@ -173,9 +188,47 @@ const EditDataScreen: React.FC = () => {
     }
   };
 
+  const selectCamera = async () => {
+      // Opening Document Picker to select one file
+      try {
+        const res = await ImagePicker.launchCameraAsync({
+        });
+  
+        // Printing the log realted to the file
+        console.log('res : ' + JSON.stringify(res));
+        if (res.assets && res.assets[0].uri) {
+          setSinglePhoto(res.assets[0].uri)
+        }
+        // Setting the state to show single file attributes
+  
+      } catch (err) {
+        setSinglePhoto('');
+        // Handling any exception (If any)
+        if (ImagePicker.Cancel(err)) {
+          // If user canceled the document selection
+          alert('Canceled');
+        } else {
+          // For Unknown Error
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+      }
+  
+  
+    };
+
   const cancelPhoto = async () => {
     setSinglePhoto('');
+    setWayToGetPhoto(0);
   };
+
+   const chooseCameraOrPhoto =  () => {
+         Alert.alert('', 'С помощью чего хотите добавить фотографию?', [
+               //{text: 'Отмена', onPress: () => console.log('OK Pressed')},
+               {text: 'Камера', onPress: () => setWayToGetPhoto(1)}, 
+               {text: 'Альбом', onPress: () => setWayToGetPhoto(2)}
+            ],)
+    };
 
   console.log(statusReqPhoto === false && singlePhoto != '', 'statusReqPhoto === false && singlePhoto != ');
   console.log(statusReqPhoto === true && singlePhoto === '', 'statusReqPhoto === true && singlePhoto === ');
@@ -798,7 +851,7 @@ useEffect(() => {
                 (
                 <View style={{ marginBottom: 8}}>
                   <View style={{width: '100%'}}>
-                    <TouchableOpacity onPress={selectPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+                    <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
                       <Ionicons name='image-outline' size={30}></Ionicons>
                     </TouchableOpacity> 
                     </View>

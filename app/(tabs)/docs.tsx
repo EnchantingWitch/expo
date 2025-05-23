@@ -125,7 +125,13 @@ export default function Docs() {
           setInputHeight(Math.max(42, newHeight));
         }}
       >
-        {capitalCSName}
+              <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500 }}>
+                {capitalCSName}
+              </Text>
+              {"\n"}
+              <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500, paddingTop: 15 }}>
+                Документация
+              </Text>
       </TextInput>
       </View>
 

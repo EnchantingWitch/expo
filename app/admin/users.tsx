@@ -80,7 +80,7 @@ const DirectionLayout = () => {
       const json = await response.json();
       setData(json);
       setFilteredData(json); // Инициализируем отфильтрованные данные
-      
+      console.log(json);
       if(response.ok) {
         setStatusGetUsers(true);
         // Собираем уникальные организации
@@ -153,13 +153,13 @@ const DirectionLayout = () => {
             list={listOrg} 
             nameFilter='Организация' 
             onChange={setChooseOrg}
-            style={{ width: '30%', marginHorizontal: 5 }}
+             width={120}
           />
           <List 
             list={listAccess} 
             nameFilter='Всего' 
             onChange={setChooseAccess}
-            style={{ width: '30%' }}
+            width={120}
           />
         </View>
 

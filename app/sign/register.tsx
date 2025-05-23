@@ -1,4 +1,5 @@
 import CustomButton from '@/components/CustomButton';
+import ListOfOrganizations from '@/components/ListOfOrganizations';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -55,7 +56,8 @@ console.log(JSON.stringify({
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
             return;
         }
-        if (email === ''  || password === '' || name === '' || organization === '' || email === ' '  || password === ' ' || name === ' ' || organization === ' '){
+        //без проверки на организацию
+        if (email === ''  || password === '' || name === '' || email === ' '  || password === ' ' || name === ' ' || organization === ' '){
             Alert.alert('', 'Заполните все поля регистрации.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
             return;
@@ -131,11 +133,9 @@ console.log(JSON.stringify({
                 onChangeText={setEmail}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
-            <TextInput
-                style={[styles.input, {fontSize: ts(14)}]}
-                value={organization}
-                onChangeText={setOrganization}
-            />
+            <View style={{width: '104%', alignItems: 'center'}}>
+            <ListOfOrganizations title='' post='' status={true} onChange={(value) => setOrganization(value)}/>
+           </View>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Пароль</Text>
             <TextInput
                 style={[styles.input, {fontSize: ts(14)}]}

@@ -211,7 +211,7 @@ const LoginModal = () => {
 
         </View>
         <View style={{alignSelf: 'center', width: '60%', paddingBottom: BOTTOM_SAFE_AREA + 20, }}>
-            <Text style={{ fontSize: ts(12), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Версия 1.02 14.05.2025</Text>
+            <Text style={{ fontSize: ts(12), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Версия 1.04 23.05.2025</Text>
             </View>
         </ScrollView>
     );
