@@ -174,5 +174,23 @@ function TabBarIcon(props: {
         },
         }}
       />
+      <Stack.Screen
+        name="change_obj"
+        options={{
+            title: 'Редактирование',
+          //  headerTitleStyle: {fontSize: ts(20)},
+    
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+         
+        headerStyle: { backgroundColor: '#FFFFFF',  },
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
+        }}
+      />
     </Stack>
   )}

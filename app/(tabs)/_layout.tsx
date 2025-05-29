@@ -2,7 +2,7 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs, useGlobalSearchParams } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
 import { useWindowDimensions } from 'react-native';
 
@@ -25,8 +25,8 @@ function TabBarIcon(props: {
 }
 
   const colorScheme = useColorScheme();
-  const {capitalCSName} = useGlobalSearchParams();
-  console.log(capitalCSName, 'tab object capitalCSName');
+ // const {capitalCSName} = useGlobalSearchParams();
+ // console.log(capitalCSName, 'tab object capitalCSName');
   return (
     <Tabs
       screenOptions={{
@@ -90,7 +90,7 @@ function TabBarIcon(props: {
         
         options={{
           headerShown: false,
-          title: capitalCSName,
+          title: 'Структура',
           tabBarLabel: "Структура", 
           headerTitleAlign: 'center',
           tabBarActiveTintColor: '#1E1E1E',

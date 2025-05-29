@@ -158,6 +158,7 @@ export default function CreateNote() {
       console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
         setSinglePhoto(res.assets[0].uri)
+        console.log(res.assets[0].uri)
       }
       // Setting the state to show single file attributes
 

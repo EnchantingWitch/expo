@@ -29,7 +29,7 @@ const CheckboxList = () => {
 
     const getObjects = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll/'+idUser,
           {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -67,8 +67,9 @@ const CheckboxList = () => {
 
     useEffect(() => {
       getToken('accessToken', setAccessToken);
-      if (accessToken){getObjects();}
-      if(idUser){handleSubmit();}
+      getToken('userID', setIdUser);
+      if (accessToken && idUser ){getObjects();}
+      //if(idUser){handleSubmit();}
   }, [accessToken, idUser]);
 
     const fontScale = useWindowDimensions().fontScale;
@@ -160,7 +161,7 @@ const CheckboxList = () => {
 
         </View>
         <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-          <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
+          <CustomButton title='Запросить доступ' handlePress={handleSubmit}/>
         </View>
     </SafeAreaView>
     );

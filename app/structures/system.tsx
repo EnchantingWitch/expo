@@ -1,5 +1,6 @@
 import DateInputWithPicker from '@/components/Calendar+';
 import CustomButton from '@/components/CustomButton';
+import ListOfOrganizations from '@/components/ListOfOrganizations';
 import DropdownComponent from '@/components/ListStatusSystem';
 import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -114,9 +115,10 @@ export default function TabOneScreen() {
       if (response.ok) {
         Alert.alert('', 'Данные по системе обновлены', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
-      } else {
-        throw new Error('Не удалось сохранить данные.');
-      }
+      } 
+      //else {
+      //  throw new Error('Не удалось сохранить данные.');
+      //}
       console.log('ResponseUpdateSystem:', response);
     } catch (error) {
       console.error(error);
@@ -290,20 +292,13 @@ export default function TabOneScreen() {
       
 
        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-                <TextInput
-                  style={[styles.input, {fontSize: ts(14)}]}
-                  placeholderTextColor="#111"
-                  onChangeText={setCiwexecut}
-                  value={ciwexecut}
-                />
+       <ListOfOrganizations title='' post={ciwexecut} status={statusRequest} onChange={(value) => setCiwexecut(value)}/>
+               
+
 
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-                <TextInput
-                  style={[styles.input, {fontSize: ts(14)}]}
-                  placeholderTextColor="#111"
-                  onChangeText={setCwexecut}
-                  value={cwexecut}
-                />
+      <ListOfOrganizations title='' post={cwexecut} status={statusRequest} onChange={(value) => setCwexecut(value)}/>
+               
  <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
       <CustomButton title='Подтвердить'  handlePress={() => putSystem() }/>
       <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
