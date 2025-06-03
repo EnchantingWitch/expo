@@ -2,7 +2,7 @@ import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Object = {
   capitalCSName: string;
@@ -58,10 +58,11 @@ const {token}=useGlobalSearchParams();
           'Content-Type': 'application/json'
         }}
       );
-      console.log('responseGetAllowedObjects',response)
+      console.log('getAll',response)
+      
       const json = await response.json();
       setData(json);
-      
+      console.log('getAll json',json)
     } catch (error) {
       console.error(error);
     } finally {
@@ -80,6 +81,19 @@ const {token}=useGlobalSearchParams();
         data={data}
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
+          <TouchableOpacity onPress={() =>{router.push({pathname: '/admin/change_obj', params: 
+          { capitalCSId: item.capitalCSId, 
+            codeCCS: item.codeCCS, 
+            capitalCSName: item.capitalCSName, 
+            ciwexecutor: item.ciwexecutor, 
+            ciwsupervisor: item.ciwsupervisor, 
+            customer: item.customer,
+            customerSupervisor: item.customerSupervisor,
+            cwexecutor: item.cwexecutor,
+            cwsupervisor: item.cwsupervisor,
+            locationRegion: item.locationRegion,
+            objectType: item.objectType
+          }})}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,  justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', justifyContent: 'center',}}>
@@ -87,7 +101,7 @@ const {token}=useGlobalSearchParams();
                             </View>
                                            
                         </View>
-                        
+          </TouchableOpacity>             
        )}
        /> 
     </View>

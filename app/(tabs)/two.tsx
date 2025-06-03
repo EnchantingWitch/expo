@@ -38,12 +38,17 @@ const [inputHeight, setInputHeight] = useState(40);
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   const [chooseSubobject, setChooseSubobject] = useState('');
   const [chooseSystem, setChooseSystem] = useState('');
-  const [chooseStatus, setChooseStatus] = useState('');
+  const [chooseStatus, setChooseStatus] = useState<string>('Все');
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [status, setStatus] = useState(true);
   const [statusStructure, setStatusStructure] = useState(true);
-
+  const statusList = [
+  { label: 'Все', value: 'Все' },
+  { label: 'Устранено', value: 'Устранено' },
+  { label: 'Не устранено', value: 'Не устранено' },
+ ];
+  
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -160,65 +165,47 @@ const [inputHeight, setInputHeight] = useState(40);
 
   // Добавление сброса выбранного значения в выпадающий список
   useEffect(() => {
-    if (chooseSystem !== '' && chooseSystem !== 'Система' && !listSystem.some(item => item.value === 'Система')) { 
-      const item = {label: 'Система', value: 'Система'};
+    if (chooseSystem !== '' && chooseSystem !== 'Все системы' && !listSystem.some(item => item.value === 'Все системы')) { 
+      const item = {label: 'Все системы', value: 'Все системы'};
       setListSystem(prev => [...prev, item]);
       console.log('new ListSystem', listSystem);
     }
-    if (chooseSubobject !== '' && chooseSubobject !== 'Подобъект' && !listSubObj.some(item => item.value === 'Подобъект')) { 
-      const item = {label: 'Подобъект', value: 'Подобъект'};
+    if (chooseSubobject !== '' && chooseSubobject !== 'Все подобъекты' && !listSubObj.some(item => item.value === 'Все подобъекты')) { 
+      const item = {label: 'Все подобъекты', value: 'Все подобъекты'};
       setListSubObj(prev => [...prev, item]);
       console.log('new ListSystem', listSubObj);
     }
   }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
 
-  // 3.1 Используем useMemo для фильтрации данных по подобъекту
-  const filteredDataSubobj = useMemo(() => {
-    if (chooseSubobject === '' && chooseSystem === '') {
-      return originalData; // если фильтр не выбран, возвращаем все данные
-    }
-    return originalData.filter(item => item.subObject === chooseSubobject);
-  }, [originalData, chooseSubobject, chooseSystem]);
+  const filteredData = useMemo(() => {
+  let result = originalData;
 
-  const filteredDataSubobjAndStatus = useMemo(() => {
-    if ((chooseStatus === '' || chooseStatus==='Все')) {
-      return originalData; // если фильтр не выбран, возвращаем все данные
-    }
-    return originalData.filter(item => item.commentStatus === chooseStatus);
-  }, [originalData, chooseSubobject, chooseSystem, chooseStatus]);
+  // Фильтрация по подобъекту
+  if (chooseSubobject && chooseSubobject !== 'Все подобъекты') {
+    result = result.filter(item => item.subObject === chooseSubobject);
+  }
 
-  // 3.2 Используем useMemo для фильтрации данных по системе
-  const filteredDataSystem = useMemo(() => {
-    if (chooseSubobject === '' && chooseSystem === '') {
-      return originalData; // если фильтр не выбран, возвращаем все данные
-    }
-    return originalData.filter(item => item.systemName === chooseSystem);
-  }, [originalData, chooseSystem, chooseSubobject]);
+  // Фильтрация по системе
+  if (chooseSystem && chooseSystem !== 'Все системы') {
+    result = result.filter(item => item.systemName === chooseSystem);
+  }
 
-  const filteredDataSystemAndSubobj = useMemo(() => {
-    if (chooseSubobject === '' && chooseSystem === '') {
-      return originalData; // если фильтр не выбран, возвращаем все данные
-    }
-    const filteredS = filteredDataSubobj;
-    return filteredS.filter(item => item.systemName === chooseSystem);
+  // Фильтрация по статусу
+  if (chooseStatus && chooseStatus !== 'Все') {
+    result = result.filter(item => item.commentStatus === chooseStatus);
+  }
 
-    
-  }, [originalData, chooseSystem, chooseSubobject]);
+  return result;
+}, [originalData, chooseSubobject, chooseSystem, chooseStatus]);
 
-  // 4. Обновляем data при изменении фильтра
+// Обновление данных при изменении фильтров
   useEffect(() => {
-    
-    if ((chooseSubobject === '' || chooseSubobject === 'Подобъект') && chooseSystem !== '' && chooseSystem !== 'Система'){ setData(filteredDataSystem); console.log('только система');}
-    if ((chooseSystem === '' || chooseSystem === 'Система') && chooseSubobject !== '' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSubobj); console.log('только подобъект'); }
-    if (chooseSystem !== '' && chooseSubobject !== '' && chooseSystem !== 'Система' && chooseSubobject !== 'Подобъект'){ setData(filteredDataSystemAndSubobj); console.log('система и подобъект'); }
+    setData(filteredData);
+  }, [filteredData]);
 
-    //if (chooseSystem === 'Система' && chooseSubobject === 'Подобъект' || chooseSystem === '' && chooseSubobject === 'Подобъект' || chooseSystem === 'Система' && chooseSubobject === ''){setData(filteredDataSubobjAndStatus);}
- 
-}, [filteredDataSubobj, chooseSystem, chooseSubobject, filteredDataSystem, filteredDataSystemAndSubobj, filteredDataSubobjAndStatus]);
-
-  console.log('chooseSystem',chooseSystem);
-  console.log('listSystem',listSystem);
-  console.log('data',data);
+  //console.log('chooseSystem',chooseSystem);
+  //console.log('listSystem',listSystem);
+  //console.log('data',data);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -261,11 +248,10 @@ const [inputHeight, setInputHeight] = useState(40);
     
               </View>
               
-<View style={{flexDirection: 'row', justifyContent: 'space-between', width: '80%'}}>
-        <SystemsForTwo list={listSubObj} nameFilter='Подобъект' onChange={(system) => setChooseSubobject(system)}/>
-        <SystemsForTwo list={listSystem} nameFilter='Система' onChange={(system) => setChooseSystem(system)}/>
-       {/* <SystemsForTwo list={[{"label": "Все", "value": "Все"}, {"label": "Устранено", "value": "Устранено"}, {"label": "Не устранено", "value": "Не устранено"}]} 
-        nameFilter='Все' onChange={(system) => setChooseStatus(system)}/> */}
+<View style={{flexDirection: 'row', justifyContent: 'space-between', width: '98%'}}>
+        <SystemsForTwo list={listSubObj} nameFilter='Все подобъекты' width={135} onChange={(system) => setChooseSubobject(system)}/>
+        <SystemsForTwo list={listSystem} nameFilter='Все системы' width={100} onChange={(system) => setChooseSystem(system)}/>
+        <SystemsForTwo list={statusList} nameFilter='Все' width={100} onChange={(status) => setChooseStatus(status)}/>
           
         </View>
 

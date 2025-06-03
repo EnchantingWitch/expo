@@ -1,10 +1,11 @@
+import CustomButton from '@/components/CustomButton';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { openBrowserAsync } from 'expo-web-browser';
-import React, { useEffect, useState } from 'react';
-import { Alert, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { default as React, useEffect, useState } from 'react';
+import { Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 export default function Docs() {
    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
@@ -18,7 +19,17 @@ export default function Docs() {
   const ID = Id;*/
   console.log(codeCCS, 'codeCCS object');
   const [accessToken, setAccessToken] = useState<any>('');
+  const [nameLink, setNameLink] = useState<any>('');
+  const [urlFetch, setUrlFetch] = useState<any>('');
+  const [modalStatus, setModalStatus] = useState<boolean>(false);
+  const [saveLinkStatus, setSaveLinkStatus] = useState<boolean>(false);
   //router.setParams({ ID: ID });
+  const [urlWork, setUrlWork] = useState<any>('');
+  const [urlOperate, setUrlOperate] = useState<any>('');
+  const [urlExecute, setUrlExecute] = useState<any>('');
+  const [urlPreporate, setUrlPreporate] = useState<any>('');
+  const [urlBuffer, setUrlBuffer] = useState<any>('');
+
 
   const navigation = useNavigation();
   
@@ -54,29 +65,53 @@ export default function Docs() {
   const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<Object[]>([]);
   
- /*   const getCommonInf= async () => {
+    const getLink= async () => {
         try {
-          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/objectCommonInf/'+codeCCS,
+          const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/findByCodeCCS/'+codeCCS,
             {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }}
-          );
+          );console.log('responseFindByCodeCCS', response);
+          
           const json = await response.json();
           setData(json);
-          console.log('responseCommonInfObj', response);
+          console.log('responseFindByCodeCCS', json);
+
+          if(json.capitalCSInfoDTO.workingDocsLink){setUrlWork(json.capitalCSInfoDTO.workingDocsLink)}
+          if(json.capitalCSInfoDTO.executiveDocsLink){setUrlExecute(json.capitalCSInfoDTO.executiveDocsLink)}
+          if(json.capitalCSInfoDTO.operationalDocsLink){setUrlOperate(json.capitalCSInfoDTO.operationalDocsLink)}
+          if(json.capitalCSInfoDTO.preparatoryDocsLink){setUrlPreporate(json.capitalCSInfoDTO.preparatoryDocsLink)}
+          
         } catch (error) {
           console.error(error);
         } finally {
           setLoading(false);
         }
-      };*/
+      };
     
       useEffect(() => {
         getToken();
-        //if (accessToken){getCommonInf();} здесь запрос к бд должен быть
+        if (accessToken){getLink();} 
       }, [accessToken]);
+
+       useEffect(() => {
+        if (urlExecute || urlOperate || urlPreporate || urlWork){
+            // И сразу отправляем на сервер
+          modalLinkSave(urlWork, urlOperate, urlExecute, urlPreporate);
+          // Очищаем буфер
+          setUrlBuffer('');
+        } 
+      }, [urlExecute, urlOperate, urlPreporate, urlWork]);
+
+
+    
+
+      useEffect(() => {
+        if(urlFetch!=='' && nameLink!==''){ setModalStatus(true)}
+      }, [urlFetch, nameLink]);
+      console.log(urlFetch!=='', 'urlFetch')
 
       const fontScale = useWindowDimensions().fontScale;
 
@@ -85,6 +120,7 @@ export default function Docs() {
 
   const handleLink = async (event, link) => {
     try {
+      if(link){
        if (Platform.OS !== 'web') {
                   // Предотвращаем стандартное поведение открытия ссылки в браузере по умолчанию на мобильных устройствах
                   event.preventDefault();
@@ -94,12 +130,91 @@ export default function Docs() {
                   // На вебе открываем ссылку в новой вкладке
                   window.open(link, '_blank');
                 }
+        }
+        else {
+           Alert.alert('', `Добавьте ссылку для перехода в выбранную документацию.`, [
+                                {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        }
     } catch (error) {
       Alert.alert('Ошибка', `${error}`, [
                                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
         console.error('Error retrieving token:', error);
     }
 };
+
+const handleSetLink = () => {
+  const newUrlWork = nameLink === 'рабочей' ? urlBuffer : urlWork;
+  const newUrlOperate = nameLink === 'заводской' ? urlBuffer : urlOperate;
+  const newUrlExecute = nameLink === 'исполнительной' ? urlBuffer : urlExecute; // Исправлено с urlOperate на urlExecute
+  const newUrlPreporate = nameLink === 'подготовительной' ? urlBuffer : urlPreporate; // Исправлено с urlOperate на urlPreporate
+  
+  // Сразу обновляем все состояния
+  setUrlWork(newUrlWork);
+  setUrlOperate(newUrlOperate);
+  setUrlExecute(newUrlExecute);
+  setUrlPreporate(newUrlPreporate);
+  
+
+}
+
+const modalLinkSave = async (workLink, operateLink, executeLink, preporateLink) => {
+  //прописать фетч здесь, в конце фетч прописать setUrlfetch('');
+  //linkFromDB будут прописаны в отдельные переменные из json
+  //
+      try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/updateCapitalCSInfo/'+codeCCS , {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workingDocsLink: workLink,
+        operationalDocsLink: operateLink,
+        executiveDocsLink: executeLink,
+        preparatoryDocsLink: preporateLink
+        /*workingDocsLink: 'https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing', //рабочая документация
+        executiveDocsLink: 'https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing', // исполнительная док-ция
+        operationalDocsLink: 'https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing', // эксплуотационная док -ция
+        preparatoryDocsLink: 'https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing' // подготовительная док-ция
+        */}),
+      });
+      console.log('ResponseUpdateObj:', response);
+      console.log(JSON.stringify({
+        workingDocsLink: urlWork, //рабочая документация
+        executiveDocsLink: urlExecute, // исполнительная док-ция
+        operationalDocsLink: urlOperate, // эксплуотационная док -ция
+        preparatoryDocsLink: urlPreporate // подготовительная док-ция
+        }))
+     /* if (response.status == 200){
+        Alert.alert('', 'Данные по объекту обновлены.', [
+          {text: 'OK', onPress: () => console.log('OK Pressed')}])
+      }
+      if (response.status == 400) {
+        Alert.alert('', 'Данные по объекту не обновлены.', [
+               {text: 'OK', onPress: () => console.log('OK Pressed')}])
+      };*/
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setNameLink('');
+      getLink();
+    }
+};
+
+const openModalWithCurrentLink = (linkType) => {
+  setNameLink(linkType);
+  // Устанавливаем текущее значение ссылки в буфер
+  switch(linkType) {
+    case 'рабочей': setUrlBuffer(urlWork); break;
+    case 'заводской': setUrlBuffer(urlOperate); break;
+    case 'исполнительной': setUrlBuffer(urlExecute); break;
+    case 'подготовительной': setUrlBuffer(urlPreporate); break;
+    default: setUrlBuffer('');
+  }
+  setModalStatus(true);
+}
      
 
   return (
@@ -125,72 +240,163 @@ export default function Docs() {
           setInputHeight(Math.max(42, newHeight));
         }}
       >
-        {capitalCSName}
+              <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500 }}>
+                {capitalCSName}
+              </Text>
+              {"\n"}
+              <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: 500, paddingTop: 15 }}>
+                Документация
+              </Text>
       </TextInput>
       </View>
 
     <ScrollView >
     <View style={styles.container}>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1QPfYxLpGUXH7IjP3QHOR_DDQ7yBZxvsw?usp=sharing")}} 
+
+            <TouchableOpacity onPress={(event) => {handleLink(event, urlWork)}} 
             style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+              <View style={{flexDirection: 'row'}}>
                     <Image 
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, marginLeft: '15%' }}
                     source={require('../../assets/images/WorkDocs.svg')} 
                     />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Рабочая</Text>
+                    <TouchableOpacity style={{ alignItems: 'flex-end', width: 35}} onPress={() => openModalWithCurrentLink('рабочей')}>
+                        <Ionicons name='link-outline' size={24} color='#0072C8' style={{alignSelf: 'center'}}/>
+                      </TouchableOpacity>
+              </View>
+                      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>Рабочая</Text>
+                     
             </TouchableOpacity>
-            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/19GtmZhV7ZBnAJFZMAg2P9TXwjrzzEMwB?usp=sharing")}}
+
+            <TouchableOpacity onPress={(event) => {handleLink(event, urlOperate)}}
              style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+              <View style={{flexDirection: 'row'}}>
                     <Image 
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, marginLeft: '15%' }}
                     source={require('../../assets/images/factoryDocs.svg')} 
                     />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Заводская</Text>
+                    <TouchableOpacity style={{ alignItems: 'flex-end', width: 35}} onPress={() => openModalWithCurrentLink('заводской')}>
+                        <Ionicons name='link-outline' size={24} color='#0072C8' style={{alignSelf: 'center'}}/>
+                      </TouchableOpacity>
+              </View>
+                    
+                      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>Заводская</Text>
+                      
             </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1BFdk1S5iuZl6ySTI48MZYd15jlWuxx_8?usp=sharing")}}
+
+            <TouchableOpacity onPress={(event) => {handleLink(event, urlPreporate)}}
              style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+              <View style={{flexDirection: 'row'}}>
                     <Image 
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, marginLeft: '15%' }}
                     source={require('../../assets/images/preparationDocs.svg')} 
                     />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Подготовительная</Text>
+                    <TouchableOpacity style={{ alignItems: 'flex-end',  width: 35}} onPress={() => openModalWithCurrentLink('подготовительной')}>
+                        <Ionicons name='link-outline' size={24} color='#0072C8' style={{alignSelf: 'center'}}/>
+                      </TouchableOpacity>
+              </View>
+                   
+                      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>Подготовительная</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1VGxUo6iSzaisRgOFenGP0ZvqMZdeFaEG?usp=sharing")}}
+
+            <TouchableOpacity onPress={(event) => {handleLink(event, urlExecute)}}
              style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+              <View style={{flexDirection: 'row'}}>
                     <Image 
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, marginLeft: '15%' }}
                     source={require('../../assets/images/executionDocs.svg')} 
                     />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Исполнительная</Text>
+                    <TouchableOpacity style={{ alignItems: 'flex-end', width: 35}} onPress={() => openModalWithCurrentLink('исполнительной')}>
+                        <Ionicons name='link-outline' size={24} color='#0072C8' style={{alignSelf: 'center'}}/>
+                      </TouchableOpacity>
+              </View>
+                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>Исполнительная</Text>
             </TouchableOpacity>
         </View>
         <View style={{flexDirection: 'row',}}>
-            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/14d62EIGcNx4Qre6TYaJ4nDBad9f7ItZq?usp=sharing")}}
+
+            <TouchableOpacity onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing")}}
              style={{width: '50%', alignItems: 'center', marginBottom: 15}}>
+            
                     <Image 
-                    style={{ width: 100, height: 100 }}
+                    style={{ width: 100, height: 100, marginLeft: -7 }}
                     source={require('../../assets/images/standartDocs.svg')} 
                     />
-                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>Нормативная</Text>
+                    
+                    <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>Нормативная</Text>
             </TouchableOpacity>
+
             <TouchableOpacity 
               style={{width: '50%', alignItems: 'center', marginBottom: 15}}
               onPress={(event) => {handleLink(event, "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing")}}
             >
               <Image 
-                style={{ width: 100, height: 100 }}
+                style={{ width: 100, height: 100 , marginLeft: -7 }}
                 source={require('../../assets/images/monitoring.svg')} 
               />
-              <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center' }}>
+              <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', textAlign: 'center', marginLeft: -7 }}>
                 Мониторинг ПНР
               </Text>
             </TouchableOpacity>
         </View>
     </View>
-    </ScrollView></View>
+    </ScrollView>
+
+    <Modal
+      animationType="fade" // Можно использовать 'slide', 'fade' или 'none'
+      transparent={true} // Установите true, чтобы сделать фон полупрозрачным
+      visible={modalStatus}
+      onRequestClose={() => setModalStatus(false)} // Для Android
+      >
+      <View style={{flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+       }}>
+                        
+        <View style={{
+          width: 300,
+          height: 190,
+          padding: 5,
+          backgroundColor: 'white',
+          borderRadius: 10,
+          justifyContent: 'center',
+         }}>
+          <TouchableOpacity onPress={() => [setModalStatus(false), setUrlFetch(''), setNameLink('')]} style = {{alignSelf: 'flex-end', }}>
+            <Ionicons name='close-outline' size={30} />
+          </TouchableOpacity>
+          <View style={{ justifyContent: 'center'}}      > 
+
+            <View style={{ paddingVertical: 3, width: '92%', alignSelf: 'center'}}>
+              <TextInput 
+              multiline
+              style={{ textAlign: 'center',  includeFontPadding: false,  textAlignVertical: 'center', lineHeight: ts(12), fontSize: ts(14), color: '#1A4072'}} editable={false}>
+                Ссылка для {nameLink} документации </TextInput>
+            </View>   
+
+            <View style={{ paddingVertical: 3, paddingBottom: 20, width: '92%', alignSelf: 'center'}}> 
+              <TextInput  style={{ borderColor: '#E0F2FE', borderWidth: 2, borderRadius: 6, height: 36, paddingBottom: 7, textAlignVertical: 'center', fontSize: ts(14), textAlign: 'center'}}
+              onChangeText={setUrlBuffer}
+              value={urlBuffer}
+              />
+            </View>
+
+            <CustomButton title='Сохранить' handlePress={() => [
+              
+              setModalStatus(false), 
+              handleSetLink()
+              ]}/>  
+
+          </View>  
+        </View>
+      </View>
+
+    </Modal>
+
+    </View>
   ); 
 }
 
