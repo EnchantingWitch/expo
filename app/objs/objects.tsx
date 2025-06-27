@@ -38,55 +38,7 @@ const {token}=useGlobalSearchParams();
 
 
  //const [accessToken, setAccessToken] = useState('');
-    const [refreshToken, setRefreshToken] = useState('');
-
-
-const refreshTok = async () => {
-  //  if (accessToken!=''){
-    try {
-       // console.log(accessToken);
-      //eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHZmRzYWxraiIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJpYXQiOjE3NDQwOTYwODUsImV4cCI6MTc0NDM0ODA4NX0.HO--Vredg_JP4QnefUhShWag9_OhAMsJG8U30q8q76Kb6GNgXDErMRYDanMiFiZj0pwFNzAuJVn4qFqAjgX3QQ
-        //const str = `Bearer ${refreshToken}`;
-        const str = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHZmRzYWxraiIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJpYXQiOjE3NDQwOTc0MjEsImV4cCI6MTc0NDM0OTQyMX0.a7omhC5FT4g4YaOBFZHBNATWyS2_gfSS21SvBpmBjVKxuH4J2paLua7vB2e7LwQgPG2KZyaSB0t8wQyZYoeimQ`;
-        const res = {
-        method: 'POST',
-        headers: {
-          'Authorization': str,
-          'Content-Type': 'application/json'
-        },
-        };
-            
-        console.log(res);
-            //if(str!=''){
-        const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/refresh_token',
-          res
-        );
-        console.log('ResponseRefreshToken:', response2);
-       
-        if (response2.status === 200){ 
-        /*  const token: token = await response2.json()
-             console.log(token.accessToken);
-             console.log(token.refreshToken);
-             setAccessToken(token.accessToken);
-             setRefreshToken(token.refreshToken);
-            // saveToken('accessToken', accessToken);
-             //saveToken('refreshToken', refreshToken);
-         /* const role = parseJwt(accessToken);
-          console.log(role.role);
-          if (role.role === 'ADMIN'){router.replace({pathname:'/admin/menu', params:{token: accessToken}});}
-          if (role.role === 'USER'){router.replace('/objs/objects');}*/
-        }
-        else{
-          console.log('No token refresh');
-            router.push('/sign/sign_in');
-        }
-        } catch (error) {
-            console.error(error);
-        }
-        //    }
-}
-
-    
+   
         const navigation = useNavigation();
     
         useEffect(() => {
@@ -186,6 +138,7 @@ const refreshTok = async () => {
       console.log('responseGetAllowedObjects',response)
       const json = await response.json();
       setData(json);
+      console.log(json);
       
     } catch (error) {
       console.error(error);
@@ -227,7 +180,7 @@ const refreshTok = async () => {
        /> 
     </View>
     <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-    <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
+    <CustomButton title='Добавить объект' handlePress={() =>{router.push({pathname: '/objs/add_obj', params: { accessToken: accessToken}})}}/>
     {/*}  <CustomButton title='Диаграммы' handlePress={() =>{router.push('/objs/diagrams')}}/>
   <CustomButton title='refresh' handlePress={refreshTok}/>*/}
    {/*} <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/>*/}</View>

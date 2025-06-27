@@ -1,27 +1,30 @@
-import FormForObj from '@/components/FormForObj';
+import Barchart from '@/components/Barchart';
+import Linechart from '@/components/Linechart';
+import PiechartBig from '@/components/PiechartBig';
+import PiechartSmall from '@/components/PiechartSmall';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View, } from 'react-native';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Structure } from './structure';
 
 
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
   systemsPNRQuantityAccepted: number; //принятых систем
-  systemsPNRDynamic: number;
+  systemsPNRDynamic: number;//динамика по принятых в пнр
   actsIITotalQuantity: number;//всего ии
   actsIISignedQuantity: number;//подписанные ии
-  actsIIDynamic: number;
-  actsKOTotalQuantity: number;
+  actsIIDynamic: number;// динамика ИИ
+  actsKOTotalQuantity: number; //всего ко
   actsKOSignedQuantity: number;//подписанные ко
-  actsKODynamic: number;
+  actsKODynamic: number; // динамика Ко
   commentsTotalQuantity: number;//всего замечаний
   commentsNotResolvedQuantity: number;//не устранено замечаний
-  defectiveActsTotalQuantity: number;
-  defectiveActsNotResolvedQuantity: number;
-  busyStaff: number;
+  defectiveActsTotalQuantity: number; //всего дефектов
+  defectiveActsNotResolvedQuantity: number; //устраненных дефектов
+  busyStaff: number; //персонал
 };
 
 export default function TabOneScreen() {
@@ -36,6 +39,14 @@ export default function TabOneScreen() {
   const ID = Id;*/
   console.log(codeCCS, 'codeCCS object');
   const [accessToken, setAccessToken] = useState<any>('');
+  const [lagII, setLegII] = useState<number>(0);//отставание по ИИ
+  const [lagKO, setLegKO] = useState<number>(0);//отставание по КО
+  const [submitPNR, setSubmitPNR] = useState<number>(0);//предъвлено в ПНР
+  const [submitII, setSubmitII] = useState<number>(0);//проведено ИИ или акт ИИ на подписи
+  const [submitKO, setSubmitKO] = useState<number>(0);//проведено КО или акт КО на подписи
+
+  const [finishedGetStructure, setFinishedGetStructure] = useState<boolean>(false);
+   const [structure, setStructure] = useState<Structure[]>([]);
   //router.setParams({ ID: ID });
 
   const navigation = useNavigation();
@@ -67,6 +78,28 @@ export default function TabOneScreen() {
         console.error('Error retrieving token:', error);
     }
 };
+
+const getStructure = async () => {
+      try {
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+          {method: 'GET',
+            headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }}
+        );
+        const json = await response.json();
+        setStructure(json);
+        console.log('ResponseSeeStructure:', response);
+        setFinishedGetStructure(true);
+     //   console.log('json:', json);
+        //console.log('ResponseSeeStructure json:', json );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        //setLoading(false);
+      }
+    };
   
 
   const [isLoading, setLoading] = useState(true);
@@ -82,8 +115,10 @@ export default function TabOneScreen() {
           }}
           );
           const json = await response.json();
-          setData(json);
+          
           console.log('responseCommonInfObj', response);
+          console.log('responseCommonInfObj', json);
+          setData(json);
         } catch (error) {
           console.error(error);
         } finally {
@@ -93,14 +128,64 @@ export default function TabOneScreen() {
     
       useEffect(() => {
         getToken();
-        if (accessToken){getCommonInf();}
+        if (accessToken){
+          getCommonInf(); 
+          getStructure();} 
       }, [accessToken]);
+
+     useEffect(() => {
+  if (finishedGetStructure){
+    // Подсчет "Предъявлено в ПНР"
+    setSubmitPNR(countPresentedInPNR('system', structure, "Предъявлено в ПНР"));
+    
+    // Подсчет по ИИ (Проведены ИИ или Акт ИИ на подписи)
+    setSubmitII(countPresentedInPNR('system', structure, "Проведены ИИ", "Акт ИИ на подписи", 'Акт ИИ подписан', "Проведено КО", "Акт КО на подписи", 'Акт КО подписан' ));
+    
+    // Подсчет по КО (Проведено КО или Акт КО на подписи)
+    setSubmitKO(countPresentedInPNR('subobj', structure, "Проведено КО") + 
+               countPresentedInPNR('subobj', structure, "Акт КО на подписи", 'Акт КО подписан'));
+    
+    // Подсчет просроченных ИИ
+   //ы setLegII(countOverdueII(structure));
+  } 
+}, [finishedGetStructure]);
+
 
       const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
-     
+
+const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuses: string[] ) => {
+  //forWhat: 'system' or 'subobj' - считать по системам или по объектам
+  if (!dataArray || !Array.isArray(dataArray)) {
+    console.log('Invalid data array');
+    return 0;
+  }
+
+  let count = 0;
+
+  for (const item of dataArray) {
+    try {
+      if (!item.data || !Array.isArray(item.data)) continue;
+      
+      for (const dataItem of item.data) {
+        if (statuses.includes(dataItem.status)) {
+          if (forWhat==='subobj'){
+          count++;
+          break;
+        } else {count++;}
+        }
+      }
+    } catch (error) {
+      console.error('Error processing item:', item, error);
+    }
+  }
+
+  console.log(`Total count for statuses [${statuses.join(', ')}]:`, count);
+  return count;
+};
+  
 
   return (
    <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -128,18 +213,35 @@ export default function TabOneScreen() {
         {capitalCSName}
       </TextInput>
       </View>
+<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
     <ScrollView >
-    <View style={styles.container}>
-   
-      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8, textAlign: 'right' }}>{codeCCS}</Text>
-      <FormForObj title='Принято в ПНР' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.systemsPNRTotalQuantity} number2={data.systemsPNRQuantityAccepted} number3={data.systemsPNRDynamic}></FormForObj>
-      <FormForObj title='Акты ИИ' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsIITotalQuantity} number2={data.actsIISignedQuantity} number3={data.actsIIDynamic}></FormForObj>
-      <FormForObj title='Акты КО' handlePress={() => router.navigate('./structure')} text1='Всего' text2='Подписано' text3='Динамика' number1={data.actsKOTotalQuantity} number2={data.actsKOSignedQuantity} number3={data.actsKODynamic}></FormForObj>
-      <FormForObj title='Замечания' handlePress={() => router.navigate('./two')} text1='Всего' text2='Не устранено'  number1={data.commentsTotalQuantity} number2={data.commentsNotResolvedQuantity} ></FormForObj>
-      <FormForObj title='Дефекты оборудования' text1='Всего' text2='Не устранено'  number1={data.defectiveActsTotalQuantity} number2={data.defectiveActsNotResolvedQuantity}></FormForObj>
-      <FormForObj title='Персонал' text1='Всего' text2='Динамика' number1={data.busyStaff} number2={0} ></FormForObj>
-    </View>
-    </ScrollView></View>
+      <View style={styles.container}>
+
+        <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
+    
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+
+          <View style={{width: '49.5%'}}>
+            <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
+          </View>
+          
+          <View style={{width: '49.5%'}}>
+            {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
+            */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
+         </View>
+
+        </View>
+
+        <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
+        <View style={{paddingTop: 11}}>
+          <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
+        </View>
+        <View style={{paddingTop: 11}}>
+          <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
+        </View>
+      </View>
+    </ScrollView>
+  </View>
   ); 
 }
 
@@ -149,7 +251,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '98%',
     justifyContent: 'center',
-
+    paddingBottom: 12,
   },
   title: {
     fontSize: 20,

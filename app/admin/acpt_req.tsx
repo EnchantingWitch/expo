@@ -84,14 +84,15 @@ const handleSubmit = async ()  => {
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
   console.log(JSON.stringify({
-    id : data.userId,
+    id : idReq,
     objects : selectedIds,
   }));
   try {
     //const id = await AsyncStorage.getItem('userID');
     const body = new FormData();
       //data.append('name', 'Image Upload');
-      body.append("id", data.userId);
+      body.append("id", idReq);
+      //body.append("id", data.userId);idReq
       body.append("objects", selectedIds);
     const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_objects',
       {method: 'POST',
@@ -165,13 +166,13 @@ const handleSubmit = async ()  => {
       editable={false}
       value={data.organisation}
     />
-    {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
+    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value='{item.date}'
-    />*/}
+      value={data.creationTime}
+    />
      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
      
         <FlatList

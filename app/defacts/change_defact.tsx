@@ -1,7 +1,7 @@
 import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import CustomButton from '@/components/CustomButton';
-import DropdownComponent2 from '@/components/ListOfCategories';
+import ListOfOrganizations from '@/components/ListOfOrganizations';
 import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +23,7 @@ import Animated, {
   withSpring
 } from 'react-native-reanimated';
 import { Structure } from '../(tabs)/structure';
-import { styles } from './create_note';
+import { styles } from '../notes/create_note';
 
 const { width, height } = Dimensions.get('window');
 
@@ -54,11 +54,13 @@ const EditDataScreen: React.FC = () => {
     const {startD} = useLocalSearchParams();
     const {planD} = useLocalSearchParams();
     const {factD} = useLocalSearchParams();
-    const {category} = useLocalSearchParams();
+    const {equipment} = useLocalSearchParams();
     const {explan} = useLocalSearchParams();
     const {id} = useLocalSearchParams();
     const {codeCCS} = useLocalSearchParams();
     const {capitalCSName} = useLocalSearchParams();
+    const {manufacturer} = useLocalSearchParams();
+    const {manufacturerNumber} = useLocalSearchParams();
 
     const [accessToken, setAccessToken] = useState<any>('');
  
@@ -88,7 +90,7 @@ const EditDataScreen: React.FC = () => {
   const [editedSystemName, setEditedSystemName] = useState<string>('');
   const [editedDescription, setEditedDescription] = useState<string>('');
   const [editedCommentStatus, setEditedCommentStatus] = useState<string>('');
-  const [editedCommentCategory, setEditedCommentCategory] = useState<string>('');
+  const [editedEquipment, setEditedEquipment] = useState<string>('');
   const [editedStartDate, setEditedStartDate] = useState<string>('');
   const [editedEndDatePlan, setEditedEndDatePlan] = useState<string>('');
   const [editedEndDateFact, setEditedEndDateFact] = useState<string>('');
@@ -96,6 +98,8 @@ const EditDataScreen: React.FC = () => {
   const [editedUserName, setEditedUserName] = useState<string>('editedUserName');
   const [editedIinumber, setEditedIinumber] = useState<string>('');
   const [editedExecut, setExecut] = useState<string>('');//исполнитель
+  const [editedManufacturer, setManufacturer] = useState<string>('');
+  const [editedManufacturerNumber, setManufacturerNumber] = useState<string>('');
   const [noteData, setNoteData] = useState<boolean>(true);
   const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
@@ -124,8 +128,10 @@ const EditDataScreen: React.FC = () => {
           setEditedStartDate(startD);
           setEditedEndDatePlan(planD);
           setEditedEndDateFact(factD);
-          setEditedCommentCategory(category);
+          setEditedEquipment(equipment);
           setEditedCommentExplanation(explan);
+          setManufacturer(manufacturer);
+          setManufacturerNumber(manufacturerNumber);
           // ... остальные setState
       }
   }, [codeCCS]);
@@ -249,25 +255,27 @@ const EditDataScreen: React.FC = () => {
   }
 
 const json = JSON.stringify({
-        commentId: parseInt(id, 10),
+        id: parseInt(id, 10),
         serialNumber: parseInt(editedSerialNumber, 10),
         subObject: editedSubObject,
         systemName: editedSystemName,
         description: editedDescription,
-        commentStatus: editedCommentStatus,
-        commentCategory: editedCommentCategory,
+        defectiveActStatus: editedCommentStatus,
+        equipment: editedEquipment,
         startDate: editedStartDate,
         endDatePlan: editedEndDatePlan,
         endDateFact: editedEndDateFact,
-        commentExplanation: editedCommentExplanation,
+        defectiveActExplanation: editedCommentExplanation,
         iiNumber: editedIinumber,
         executor: editedExecut,
+        manufacturerNumber: editedManufacturerNumber,
+        manufacturer: editedManufacturer
       });
       console.log(json);
   const updateComment = async () => {
     
     try {
-      let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/`+id, {
+      let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/updateDefAct/`+id, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -276,13 +284,13 @@ const json = JSON.stringify({
         },
         body: json,
       });
-      console.log('updateComment', response);
+      console.log('updateDefAct', response);
       if (response.ok) {
         const jsonData: Data = await response.json();
         setData(jsonData);
         setEditing(false);
         //alert('Данные успешно сохранены!');
-         Alert.alert('', 'Данные по замечанию обновлены', [
+         Alert.alert('', 'Данные по дефекту обновлены', [
                                       {text: 'OK', onPress: () => console.log('OK Pressed')}])
       } else {
         throw new Error('Не удалось сохранить данные.');
@@ -290,7 +298,7 @@ const json = JSON.stringify({
     } catch (error) {
       console.error('Ошибка при сохранении данных:', error);
     } finally{
-      router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
+      router.replace({pathname: '/(tabs)/defacts', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
     }
 
   };
@@ -326,7 +334,7 @@ const json = JSON.stringify({
     }
 
     //getPhoto
-    try {
+    /*try {
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/downloadPhoto/' + id,
         {method: 'GET',
           headers: {
@@ -352,7 +360,7 @@ const json = JSON.stringify({
       //setStatusReq(false);
     } finally {
 
-    }
+    }*/
   };
 
    const deletePhoto = async () => {
@@ -413,21 +421,21 @@ const json = JSON.stringify({
   }
 
   const deleteNote = async () => {
-    try {
-      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/deleteComment/'+id, {
+  try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/deleteDefAct/'+id, {
           method: "DELETE",
           headers: {
             'Authorization': `Bearer ${accessToken}`,
         },
       });
-    console.log('deleteNote', response);
+    console.log('deleteDef', response);
     if (response.status === 200) {
-      Alert.alert('', 'Замечание удалено', [
+      Alert.alert('', 'Дефект удален', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (err) {
   } finally {
-    router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
+    router.replace({pathname: '/(tabs)/defacts', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
   }
   }
 
@@ -442,7 +450,7 @@ const json = JSON.stringify({
           }
       }
     //запрос на структура для получение данных на выпадающие списки и прочее
-    if(codeCCS && req && accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    if(codeCCS && req && accessToken){getStructure(); getOrganisations(); setReq(false); console.log('8'); }//вызов происходит только один раз
     
     
     if (updateCom){
@@ -647,11 +655,43 @@ useEffect(() => {
       }
     }
 
+      const [statusOrg, setStatusOrg] = useState(false);
+       const [listOrganization, setListOrganization] = useState<[]>();
+
+  const getOrganisations = async () => {
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/organisations/getAll',
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }}
+      );
+      console.log('responseGetOrganisations', response);
+      const json = await response.json();
+      const transformedData = json.map(item => ({
+            label: item.organisationName,
+            value: item.organisationName,
+        }));
+        setListOrganization(transformedData);
+      console.log(json);
+    } catch (error) {
+      console.error(error);
+    } finally {
+    }
+  };
+  useEffect(() => {
+      if (listOrganization) {
+        setStatusOrg(true);    
+      }
+    }, [listOrganization]);
+
   return (
      <KeyboardAwareScrollView
       style={styles.container}
       enableOnAndroid={true}
-      extraScrollHeight={100}
+      extraScrollHeight={125}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}
     >
@@ -722,7 +762,14 @@ useEffect(() => {
               post={editedSystemName} 
               onChange={(system) => setEditedSystemName(system)}
           />
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Оборудование</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14)}]}
+            placeholderTextColor="#111"
+            value={editedEquipment}
+            onChangeText={setEditedEquipment}
+          />
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефакт</Text>
           <TextInput
             style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 40
                         
@@ -736,6 +783,14 @@ useEffect(() => {
               setInputHeight(inputH)}}
           />
 
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14)}]}
+            placeholderTextColor="#111"
+            value={editedManufacturerNumber}
+            onChangeText={setManufacturerNumber}
+          />
+
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14)}]}
@@ -744,13 +799,8 @@ useEffect(() => {
             editable={false}
           />
 
-          {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput
-            style={[styles.input, {fontSize: ts(14)}]}
-            placeholderTextColor="#111"
-            value={editedExecut}
-            editable={false}
-          />*/}
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Изготовитель</Text>
+           <ListOfOrganizations data={listOrganization} title = {editedManufacturer? editedManufacturer : 'Не выбрано'} status={statusOrg} post ={editedManufacturer} onChange={(value) => setManufacturer(value)}/>
 
           <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
@@ -868,17 +918,14 @@ useEffect(() => {
             </View>
 
           </View>
-
-                <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
-                <DropdownComponent2 post = {editedCommentCategory} onChange={(category) => setEditedCommentCategory(category)}/>
-
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
-            style={[styles.input, {fontSize: ts(14)}]}
-            placeholderTextColor="#111"
-            value={editedCommentExplanation}
-            onChange={()=>setEditedCommentExplanation}
-          />
+                      style={[styles.input, {fontSize: ts(14)}]}
+                      placeholderTextColor="#111"
+                      value={editedCommentExplanation}
+                      
+                      onChangeText={setEditedCommentExplanation}
+                    />
 
           <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
 

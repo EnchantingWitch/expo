@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, ActivityIndicator, FlatList,  TouchableOpacity, TouchableWithoutFeedback,  useWindowDimensions } from 'react-native';
-import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
  
 type Reqs = {
   id: number;//айди заявки
@@ -12,7 +12,7 @@ type Reqs = {
   description: string;
   organisation: string;
   role: string;
- // date:string; 
+  creationTime:string; 
   objectToAdd:[{
       capitalCSName: string,
       codeCCS: string,
@@ -76,13 +76,13 @@ const DirectionLayout = () => {
       }}>
           
           <View style={{ flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
-            <View style={{width: '45%', justifyContent: 'center'}}>
+            <View style={{width: '43%', justifyContent: 'center'}}>
                                   <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>ФИО пользователя</Text>
                                   </View>
                                   <View style={{width: '35%', justifyContent: 'center'}}>
                                   <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Организация</Text>
                                   </View>
-                                  <View style={{width: '20%', justifyContent: 'center'}}>
+                                  <View style={{width: '22%', justifyContent: 'center'}}>
                                   <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>Дата</Text>
                                   </View>
            {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Дата заявки</Text>*/}
@@ -103,16 +103,16 @@ const DirectionLayout = () => {
                   <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/admin/acpt_req', params: {idReq: item.id }})}  }>
                   <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
-                      <View style={{width: '45%', justifyContent: 'center', paddingLeft: 5}}>
+                      <View style={{width: '43%', justifyContent: 'center', paddingLeft: 5}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.fullName}</Text>
                       </View>
           
-                      <View style={{width: '35%', marginStart: 2, justifyContent: 'center'}}>
+                      <View style={{width: '35%', marginStart: 0, justifyContent: 'center'}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.organisation}</Text>
                       </View>
                       
-                      <View style={{width: '20%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.date}</Text>
+                      <View style={{width: '22%', marginStart: 0, justifyContent: 'center'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.creationTime}</Text>
                       
                       </View>
                   </View>

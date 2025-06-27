@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity, ActivityIndicator, useWindowDimensions,} from "react-native";
-import * as DocumentPicker from "expo-document-picker";
-import CustomButton from "@/components/CustomButton";
-import { router, useGlobalSearchParams, useLocalSearchParams, useNavigation } from "expo-router";
-import FileViewer from "@/components/FileViewer";
-import { isLoading } from "expo-font";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, useWindowDimensions, View } from "react-native";
 
 type token = {
   accessToken: string;
@@ -16,10 +12,14 @@ type token = {
 //const UploadFile =  ()  => {
   export default function UploadFile (){
   const [singleFile, setSingleFile] = useState<any>('');
-  const [load, setLoad]= useState<boolean>(false);
+  const [load, setLoad] = useState<boolean>(false);
   const fontScale = useWindowDimensions().fontScale;
   const [accessToken, setAccessToken] = useState<any>('');
+  const [accessTokenNew, setAccessTokenNew] = useState<any>('');
   const [refreshToken, setRefreshToken] = useState<any>('');
+  const [refreshTokenNew, setRefreshTokenNew] = useState<any>('');
+  const [statusAccess, setStatusAccess] = useState<boolean>(false);
+  const [statusRefresh, setStatusRefresh] = useState<boolean>(false);
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
@@ -150,17 +150,19 @@ type token = {
          
           if (response2.status === 200){ 
             const token: token = await response2.json()
-               console.log(token.accessToken);
-               console.log(token.refreshToken);
-               setAccessToken(token.accessToken);
-               setRefreshToken(token.refreshToken);
-               saveToken('accessToken', accessToken);
-               saveToken('refreshToken', refreshToken);
-            const role = parseJwt(accessToken);
+               console.log('ResponseRefreshToken accessToken',token.accessToken);
+               console.log('ResponseRefreshToken refreshToken', token.refreshToken);
+               setAccessTokenNew(token.accessToken);
+               setRefreshTokenNew(token.refreshToken);
+             //  removeToken('accessToken');
+              // removeToken('refreshToken');
+              // saveToken('accessToken', accessToken);
+               //saveToken('refreshToken', refreshToken);
+          /*  const role = parseJwt(accessToken);
             console.log(role.role);
             if (role.role === 'ADMIN'){router.replace({pathname:'/admin/menu', params:{token: accessToken}});}
             if (role.role === 'USER'){router.replace('/objs/objects');}
-          }
+          */}
           else{
             console.log('No token refresh');
               router.push('/sign/sign_in');
@@ -171,12 +173,39 @@ type token = {
           //    }
   }
 
+  const removeToken = async (tokenKey) => {
+        try {
+            await AsyncStorage.removeItem(tokenKey);
+            console.log('Token - ',tokenKey,'- removed successfully!');
+        } catch (error) {
+            console.error('Error removing token:', error);
+        }
+        finally{
+          if (tokenKey === 'accessToken'){saveToken('accessToken', accessToken);
+          }
+          if (tokenKey === 'refreshToken'){saveToken('refreshToken', refreshToken);
+          }
+        }
+    };
+
+    const toReplace = async (token) => {
+      const role = parseJwt(accessToken);
+            console.log(role.role);
+            if (role.role === 'ADMIN'){router.replace({pathname:'/admin/menu', params:{token: accessToken}});}
+            if (role.role === 'USER'){router.replace('/objs/objects');}
+    }
+
   const saveToken = async (tokenKey, token) => {
     try {
         await AsyncStorage.setItem(tokenKey, token);
         console.log('Token - ', tokenKey, '- saved successfully!');
     } catch (error) {
         console.error('Error saving token:', error);
+    } finally{
+          if (tokenKey === 'accessToken'){setStatusAccess(true);
+          }
+          if (tokenKey === 'refreshToken'){setStatusRefresh(true);
+          }
     }
 };
 
@@ -189,10 +218,13 @@ type token = {
     return JSON.parse(jsonPayload);
 };
 
-console.log(accessToken);
+console.log('accessTokenIndex', accessToken);
 
 useEffect(() => {
   getToken();
+}, []);
+
+useEffect(() => {
   if(accessToken){
     const role = parseJwt(accessToken);
     console.log(role.role);
@@ -202,6 +234,23 @@ useEffect(() => {
   if(refreshToken){refreshTok();}
 }, [accessToken, refreshToken]);
 
+useEffect(() => {
+  if(accessTokenNew){
+     removeToken('accessToken'); }
+  if(refreshTokenNew){
+    removeToken('refreshToken'); }
+}, [accessTokenNew, refreshTokenNew]);
+/*useEffect(() => {
+  if(accessTokenNew){
+    toReplace(accessTokenNew); }
+  if(refreshTokenNew){
+    toReplace(refreshTokenNew);}
+}, [accessTokenNew, refreshTokenNew]);*/
+
+useEffect(() => {
+  if(statusAccess && statusRefresh){
+    toReplace(accessTokenNew); }
+}, [statusAccess, statusRefresh]);
 
 
   return (
