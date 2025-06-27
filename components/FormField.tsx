@@ -1,15 +1,15 @@
-import { StyleSheet, View, Text, TextInput, Keyboard, useWindowDimensions } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Props = {
     title: string;
-    //post?
+    post?: string;
     onChange: (status: string) => void; 
   };
   
 
-const FormField = ({ title, onChange}: Props ) => {
-    const [value, setValue] = useState<string >();
+const FormField = ({ title, post, onChange}: Props ) => {
+    const [value, setValue] = useState<string>();
     const [isFocus, setIsFocus] = useState(false);
 
      const fontScale = useWindowDimensions().fontScale;
@@ -20,6 +20,13 @@ const FormField = ({ title, onChange}: Props ) => {
     if (value){
         onChange(value);
     }
+
+     useEffect(() => {
+        // Устанавливаем значение из props при изменении post
+        if (post !== value) {
+          setValue(post || '');
+        }
+      }, [post]);
     return (
         <View style = {{justifyContent: 'center', width: '96%', }}>
             <View style = {{}}>
@@ -27,7 +34,7 @@ const FormField = ({ title, onChange}: Props ) => {
             </View>
             
             <View style = {{}}>
-                <TextInput  style={{ backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', height: 42, paddingVertical: 'auto', color: '#B3B3B3', textAlign: 'center', marginBottom: 20, }}
+                <TextInput  style={{fontSize: ts(14), backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1, borderColor: '#D9D9D9', height: 42, paddingVertical: 'auto', color: '#B3B3B3', textAlign: 'center', marginBottom: 20}}
                     placeholderTextColor="#111"
                     onChangeText={setValue}
                     value={value}

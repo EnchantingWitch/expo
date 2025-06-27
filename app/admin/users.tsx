@@ -11,6 +11,7 @@ type UserInfo = {
   organisation: string;
   fullName: string;
   phoneNumber: string;
+  registrationDate: string;
 };
 
 type Users = {
@@ -80,7 +81,7 @@ const DirectionLayout = () => {
       const json = await response.json();
       setData(json);
       setFilteredData(json); // Инициализируем отфильтрованные данные
-      
+      console.log(json);
       if(response.ok) {
         setStatusGetUsers(true);
         // Собираем уникальные организации
@@ -153,13 +154,13 @@ const DirectionLayout = () => {
             list={listOrg} 
             nameFilter='Организация' 
             onChange={setChooseOrg}
-            style={{ width: '30%', marginHorizontal: 5 }}
+             width={120}
           />
           <List 
             list={listAccess} 
             nameFilter='Всего' 
             onChange={setChooseAccess}
-            style={{ width: '30%' }}
+            width={120}
           />
         </View>
 
@@ -197,7 +198,8 @@ const DirectionLayout = () => {
                organisation: userInfo.organisation!==''? userInfo.organisation : 'Не указано',  
                fullName: userInfo.fullName!==''? userInfo.fullName : 'Не указано',  
                id: item.id, 
-               role: item.role }})}  }>
+               role: item.role, 
+               registrationDate: userInfo.registrationDate !==''? userInfo.registrationDate : 'Не указано'}})}  }>
          <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row',   height: 37, alignContent: 'center',  marginBottom: '5%', borderRadius: 8}}>
  
              <View style={{width: '40%', justifyContent: 'center'}}>

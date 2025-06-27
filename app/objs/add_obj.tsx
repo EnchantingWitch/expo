@@ -1,8 +1,8 @@
 import CustomButton from '@/components/CustomButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { default as React, useEffect, useState } from 'react';
 import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 
@@ -24,12 +24,12 @@ const CheckboxList = () => {
 
     const [checkedItems, setCheckedItems] = useState({});
     const [data, setData] = useState<Object[]>([]);
-    const [accessToken, setAccessToken] = useState<any>('');
     const [idUser, setIdUser] = useState<any>('');
+      const {accessToken} = useLocalSearchParams();
 
     const getObjects = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll/'+idUser,
           {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -39,6 +39,7 @@ const CheckboxList = () => {
           console.log('responsegetAllObjs',response)
         const json = await response.json();
         setData(json);
+        console.log('json', json)
       
       } catch (error) {
         console.error(error);
@@ -66,9 +67,9 @@ const CheckboxList = () => {
   };
 
     useEffect(() => {
-      getToken('accessToken', setAccessToken);
-      if (accessToken){getObjects();}
-      if(idUser){handleSubmit();}
+      getToken('userID', setIdUser);
+      if (accessToken && idUser ){getObjects();}
+      //if(idUser){handleSubmit();}
   }, [accessToken, idUser]);
 
     const fontScale = useWindowDimensions().fontScale;
@@ -160,7 +161,7 @@ const CheckboxList = () => {
 
         </View>
         <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-          <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
+          <CustomButton title='Запросить доступ' handlePress={handleSubmit}/>
         </View>
     </SafeAreaView>
     );

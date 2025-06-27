@@ -19,6 +19,7 @@ export default function TabOneScreen() {
    const {username} = useLocalSearchParams();
    const {organisation} = useLocalSearchParams();
   const {numberPhone} = useLocalSearchParams();
+  const {registrationDate} = useLocalSearchParams();
   const {fullName} = useLocalSearchParams();
   const {role} = useLocalSearchParams();
   const {id} = useLocalSearchParams();
@@ -159,12 +160,12 @@ const logout = async () => {
   try {
     const body = new FormData();
     console.log('body for GetUser', body);
-  let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/getUser/'+id, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-     'Content-Type': 'multipart/form-data'
-    }
+    let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/getUser/'+id, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'multipart/form-data'
+      }
   });
   
   
@@ -241,7 +242,7 @@ console.log(userId, 'userId');
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value='Дата заявки'
+      value={registrationDate}
     />
 
     {userId === id && userId !== '1'? 

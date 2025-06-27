@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { default as React, useEffect, useRef, useState } from 'react';
+import { Dimensions, findNodeHandle, StyleSheet, UIManager, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 const data = [
@@ -14,7 +14,7 @@ const data = [
     { label: 'Не влияет', value: 'Не влияет' },
 ];
 
-type Props = {
+type Props = { 
     post?: string;
     onChange: (category: string) => void; // Функция для обновления категории
 };
@@ -22,6 +22,7 @@ type Props = {
 const ListOfCategories = ({ post, onChange }: Props) => {
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
+    const [direction, setDirection] = useState<'top' | 'bottom' | 'auto'>('auto');
 
      const fontScale = useWindowDimensions().fontScale;
 
@@ -31,10 +32,39 @@ const ListOfCategories = ({ post, onChange }: Props) => {
     if (value){
         onChange(value);
     }
+
+    useEffect(() => {
+        if(isFocus){handleOpen();console.log(1)}
+    }, [value, isFocus]);
+
+const dropdownRef = useRef<View>(null);;
+
+    const handleOpen = () => {
+    const handle = findNodeHandle(dropdownRef.current);
+    console.log('handle', handle);
+    if (handle) {
+      UIManager.measure(handle, (x, y, width, height, pageX, pageY) => {
+        // Вычисляем доступное пространство снизу
+        const windowHeight = Dimensions.get('window').height;
+        const spaceBelow = windowHeight - pageY - height;
+        const spaceAbove = pageY;
+        console.log('spaceBelow', spaceBelow);
+        console.log('spaceAbove', spaceAbove);
+        // Если места снизу меньше, чем высота списка, открываем вверх
+        if (spaceBelow > 340 ) { // 200 - примерная высота списка
+          setDirection('bottom');
+          console.log('directionTOP', direction);
+        } else {
+          setDirection('top');
+        }
+      });
+    }
+  };
  
     return (
        
         <View style={styles.container}>
+            <View ref={dropdownRef} style={{width: '100%'}}> {/* Обертка для измерения позиции */}
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue',   }]}
                 placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
@@ -44,6 +74,7 @@ const ListOfCategories = ({ post, onChange }: Props) => {
                 data={data}
                 search
                 maxHeight={300}
+                dropdownPosition={direction}
                 itemTextStyle={{fontSize: ts(14)}}
                 labelField="label"
                 valueField="value"
@@ -57,6 +88,7 @@ const ListOfCategories = ({ post, onChange }: Props) => {
                     setIsFocus(false);
                 }}
             />
+            </View>
         </View>
             
     );

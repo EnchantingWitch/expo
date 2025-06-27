@@ -19,8 +19,6 @@ import Animated, {
   withSpring
 } from 'react-native-reanimated';
 
-
-
 export type SystemGET = {
   serialNumber: number;
   iiNumber: string;
@@ -37,12 +35,13 @@ export type SystemGET = {
   executor: string;//исполнитель 
 }
 const { width, height } = Dimensions.get('window');
-const DetailsScreen = () => {
+
+const SeeDefact = () => {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useLocalSearchParams();//получение наименование ОКС 
-  const {post} = useLocalSearchParams();//получение Id замечания
+  const {post} = useLocalSearchParams();//получение Id оборудования
   console.log(post, 'commentId post');
   const [inputHeight, setInputHeight] = useState(42);
 
@@ -58,12 +57,14 @@ const DetailsScreen = () => {
   const [subObj, setSubObj] = useState<string>('');//подобъект
   const [systemN, setSystemN] = useState<string>('');//система
   const [comment, setComment] = useState<string>('');//содержание замечания
-  const [commentStat, setCommentStat] = useState<string>('');//статус замечания
-  const bufCommentStat = commentStat;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
+  const [defectiveActStatus, setDefectiveActStatus] = useState<string>('');//статус замечания
+  const bufCommentStat = defectiveActStatus;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
   const [startD, setStartD] = useState<string>('');//дата выдачи замечания
   const [planD, setPlanD] = useState<string>('');//плановая дата устранения
   const [factD, setFactD] = useState<string>('');//фактическая дата устранения
-  const [category, setCategory] = useState<string>('');
+  const [equipment, setEquipment] = useState<string>('');
+  const [manufacturerNumber, setManufacturerNumber] = useState<string>('');
+  const [manufacturer, setManufacturer] = useState<string>('');
   const [explanation, setExplanation] = useState<string>('');//комментарий
   const [code, setCode] = useState<string>('');
   const [execut, setExecut] = useState<string>('');//исполнитель
@@ -111,9 +112,9 @@ console.log('statusReqPhoto',statusReqPhoto);
     //смена статуса при изменении даты
       if (factD) {
         if(factD != ' '){
-          setCommentStat('Устранено');   
+          setDefectiveActStatus('Устранено');   
         } else {
-          setCommentStat('Не устранено');
+          setDefectiveActStatus('Не устранено');
         }
     }
     if(statusReqPhoto ){
@@ -135,11 +136,10 @@ console.log('statusReqPhoto',statusReqPhoto);
       reader.readAsDataURL(blob);
       return await dataPromise;
     }
-
   
     const getComment = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getCommentById/'+post,
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/getDefActById/'+post,
           {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -152,17 +152,19 @@ console.log('statusReqPhoto',statusReqPhoto);
         setSubObj(json.subObject);
         setSystemN(json.systemName);
         setComment(json.description);
-        setCommentStat(json.commentStatus);
+        setDefectiveActStatus(json.defectiveActStatus);
         setStartD(json.startDate); console.log('json.startDate',json.startDate);
         setPlanD(json.endDatePlan); console.log('json.endDatePlan',json.endDatePlan);
         setFactD(json.endDateFact); console.log('json.endDateFact',json.endDateFact);
-        setCategory(json.commentCategory);
-        setExplanation(json.commentExplanation);
+        setEquipment(json.equipment);
+        setManufacturerNumber(json.manufacturerNumber);
+        setManufacturer(json.manufacturer);
+        setExplanation(json.defectiveActExplanation);
         setCode(json.codeCCS);
         setExecut(json.executor);
         //console.log(json.systemName, 'json.systemName');
-        console.log('ResponseGetComment:', response);
-        console.log('ResponseGetComment json:', json);
+        console.log('ResponseGetDefect:', response);
+        console.log('ResponseGetDefect json:', json);
         setStatusReq(true);
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
@@ -173,16 +175,18 @@ console.log('statusReqPhoto',statusReqPhoto);
 
       //getPhoto
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getPhoto/' + post,
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/getPhoto/' + post,
           {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           }}
         );
+       
         console.log('ResponseGetPhoto:', response);
+        //console.log('ResponseGetPhoto json:', json);
 
-        // 1️⃣ Получаем MIME-тип (например, "image/jpeg")
+         // 1️⃣ Получаем MIME-тип (например, "image/jpeg")
         const contentType = response.headers.get('content-type');
         console.log('Content-Type:', contentType);
 
@@ -192,12 +196,13 @@ console.log('statusReqPhoto',statusReqPhoto);
         /*  const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));*/
         //console.log(base64);
 
-        // 4️⃣ Можно сохранить в состоянии (если нужно)
+
+
         setBytes(base64Data);
         setContentType(contentType);
         setStatusReqPhoto(true);
-        setStatusActivityIndicator(false); // Останавливаем индикатор загрузки
-
+        setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
+        //setStatusReq(true);
       } catch (error) {
         console.error('Ошибка при получении фото:', error);
         setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
@@ -212,7 +217,7 @@ console.log('statusReqPhoto',statusReqPhoto);
 
     const putComment = async () => {
       try {
-        let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/'+post, {
+        let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/updateDefAct/'+post, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -220,34 +225,37 @@ console.log('statusReqPhoto',statusReqPhoto);
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            commentId: 1,
+            id: post,
             serialNumber: serNumber,
             subObject: subObj,
             systemName: systemN,
             description: comment,
-            commentStatus: commentStat,
-            commentCategory: category,
+            defectiveActStatus: defectiveActStatus,
+            
             startDate: startD,
             endDatePlan: planD,
             endDateFact: factD,
-            commentExplanation: explanation,
-            iiNumber: numberII
+            defectiveActExplanation: explanation,
+            iiNumber: numberII,
+            codeCCS: codeCCS
+          
           }),
         });
-        console.log('ResponsePutComment:', response);
-        console.log('ResponsePutComment json:', JSON.stringify({
-          commentId: 1,
-          serialNumber: parseInt(serNumber, 10),
-          subObject: subObj,
-          systemName: systemN,
-          description: comment,
-          commentStatus: commentStat,
-          commentCategory: category,
-          startDate: startD,
-          endDatePlan: planD,
-          endDateFact: factD,
-          commentExplanation: explanation,
-          iinumber: numberII
+        console.log('ResponsePutDefect:', response);
+        console.log('ResponsePutDefect json:', JSON.stringify({
+          id: post,
+            serialNumber: serNumber,
+            subObject: subObj,
+            systemName: systemN,
+            description: comment,
+            defectiveActStatus: defectiveActStatus,
+            
+            startDate: startD,
+            endDatePlan: planD,
+            endDateFact: factD,
+            defectiveActExplanation: explanation,
+            iiNumber: numberII,
+            codeCCS: codeCCS
           //iinumber: parseInt(numberII, 10)
         }));
         if (response.ok) {
@@ -259,7 +267,7 @@ console.log('statusReqPhoto',statusReqPhoto);
       } catch (error) {
         console.error('Ошибка при сохранении данных:', error);
       }  finally{
-        router.replace({pathname: '/(tabs)/two', params: { codeCCS: code, capitalCSName: capitalCSName}});
+        router.replace({pathname: '/(tabs)/defacts', params: { codeCCS: code, capitalCSName: capitalCSName}});
       }
     };
 
@@ -329,32 +337,6 @@ console.log('statusReqPhoto',statusReqPhoto);
     if (signature.startsWith('R0lGOD')) return 'image/gif';
     return 'image/jpeg'; // default
   }
-
-// Функция показа уведомления об успешном скачивании
-{/*async function showDownloadNotification(filename: string) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'Скачивание завершено',
-      body: `Файл ${filename} сохранен в галерею`,
-      sound: true, // Звуковое сопровождение
-      data: { type: 'download-complete' }, // Дополнительные данные
-    },
-    trigger: null, // Отправить немедленно
-  });
-}
-
-// Функция показа уведомления об ошибке
-async function showErrorNotification(error: Error) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'Ошибка скачивания',
-      body: error.message || 'Не удалось сохранить файл',
-      sound: true,
-    },
-    trigger: null,
-  });
-}
-  */}
 
   //скачивание фото
   async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
@@ -505,56 +487,64 @@ async function showErrorNotification(error: Error) {
             value={systemN}
             multiline
             editable={false}
+          />   
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Оборудование</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14), lineHeight: 19 }]}
+            placeholderTextColor="#111"
+            value={equipment}
+            multiline
+            editable={false}
           />     
           
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефакт</Text>
           <TextInput
-           // style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 42
-           /*style={[
-            styles.input, 
-            {
-              height: Math.max(42, inputHeight),
-              minHeight: 42, // Минимальная высота
-              maxHeight: 100, // Максимальная высота
-              fontSize: ts(14)
-            }
-          ]} */
-                  style={[
-            styles.input, 
-            {
-              height: 'auto',
-              minHeight: 42,
-              maxHeight: 100,
-              fontSize: ts(14),
-             // textAlignVertical: 'top'
-            }
-          ]}
-           placeholderTextColor="#111"
+            /*style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 42
+            placeholderTextColor="#111"
             multiline
            // onChangeText={setComment}
-          /*  onContentSizeChange={e=>{
+            onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
               if(inputH>120) inputH =100
               setInputHeight(inputH)}}*/
+              
+                                style={[
+                          styles.input, 
+                          {
+                            height: 'auto',
+                            minHeight: 42,
+                            maxHeight: 100,
+                            fontSize: ts(14),
+                           // textAlignVertical: 'top'
+                          }
+                        ]}
+                         placeholderTextColor="#111"
+                          multiline
             value={comment}
             //editable={false}
           />
 
-          
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14) }]}
+            placeholderTextColor="#111"
+            value={manufacturerNumber}
+            editable={false}
+          />
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14) }]}
             placeholderTextColor="#111"
-            value={commentStat}
+            value={defectiveActStatus}
             editable={false}
           />
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Изготовитель</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14) }]}
             placeholderTextColor="#111"
-            value={execut}
+            value={manufacturer}
             editable={false}
           />
 
@@ -675,14 +665,6 @@ async function showErrorNotification(error: Error) {
               
           </View>
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
-          <TextInput
-             style={[styles.input, {fontSize: ts(14) }]}
-            placeholderTextColor="#111"
-            value={category}
-            editable={false}
-          />
-
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Комментарий</Text>
           <TextInput
              style={[styles.input, {fontSize: ts(14) }]}
@@ -693,23 +675,25 @@ async function showErrorNotification(error: Error) {
 
           <View style={{justifyContent: 'center', alignContent: 'center', paddingBottom: BOTTOM_SAFE_AREA + 20}}>
            <CustomButton title='Сохранить' handlePress ={ putComment } />
-           <CustomButton title='Редактировать' handlePress ={() => router.replace({pathname: '/notes/change_note', 
+           <CustomButton title='Редактировать' handlePress ={() => router.replace({pathname: '/defacts/change_defact', 
            params: {
             serialNumb: serNumber,
             numberii: numberII,
             subobj: subObj,
             system: systemN,
             comment: comment,
-            status: commentStat,
+            status: defectiveActStatus,
             executor: execut,
             startD: startD,
             planD: planD,
             factD: factD,
-            category: category,
+            manufacturer: manufacturer,
+            manufacturerNumber: manufacturerNumber,
             explan: explanation,
             id: post,
             codeCCS: code, 
-            capitalCSName: capitalCSName
+            capitalCSName: capitalCSName,
+            equipment: equipment
            }})} />
           </View>
 
@@ -768,4 +752,4 @@ export const styles = StyleSheet.create({
   },
 });
 
-export default DetailsScreen;
+export default SeeDefact;
