@@ -78,6 +78,7 @@ const Struct = () => {
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
+        console.log('json:', json);
         //console.log('ResponseSeeStructure json:', json );
       } catch (error) {
         console.error(error);
@@ -264,13 +265,13 @@ const Struct = () => {
       </View>
       <View style={styles.container}>
 
-        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 32,}}>
+        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 40,}}>
             <View style={{width: '10%', }}>
-            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№ акта</Text>
             </View>
 
             <View style={{width: '55%', }}>
-            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Подобъект</Text>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Подобъект/Система</Text>
             </View>
 
             <View style={{width: '21%', }}>
@@ -294,7 +295,7 @@ const Struct = () => {
        
 
          <Modal
-                    animationType="slide" // Можно использовать 'slide', 'fade' или 'none'
+                    animationType="fade" // Можно использовать 'slide', 'fade' или 'none'
                     transparent={true} // Установите true, чтобы сделать фон полупрозрачным
                     visible={visible}
                     onRequestClose={() => setVisible(false)} // Для Android

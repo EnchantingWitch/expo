@@ -2,9 +2,9 @@ import CustomButton from '@/components/CustomButton';
 import { } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { useNavigation, useRouter } from 'expo-router';
+import { default as React, useEffect, useState } from 'react';
+import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 
 type Object = {
   capitalCSName: string;
@@ -27,70 +27,24 @@ const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
 
 const router = useRouter();
+const [filteredData, setFilteredData] = useState([]);
+const [searchQuery, setSearchQuery] = useState('');
 //const {roleReq} = useLocalSearchParams();//получение роли
 //console.log(roleReq, 'role objects');
 const [isLoading, setLoading] = useState(true);
 const [accessToken, setAccessToken] = useState('');
 const [data, setData] = useState<Object[]>([]);
-const {token}=useGlobalSearchParams();
+//const {token}=useGlobalSearchParams();
 
 //const [isGetTok, setIsGetTok] = useState(true);
 
 
  //const [accessToken, setAccessToken] = useState('');
-    const [refreshToken, setRefreshToken] = useState('');
-
-
-const refreshTok = async () => {
-  //  if (accessToken!=''){
-    try {
-       // console.log(accessToken);
-      //eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHZmRzYWxraiIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJpYXQiOjE3NDQwOTYwODUsImV4cCI6MTc0NDM0ODA4NX0.HO--Vredg_JP4QnefUhShWag9_OhAMsJG8U30q8q76Kb6GNgXDErMRYDanMiFiZj0pwFNzAuJVn4qFqAjgX3QQ
-        //const str = `Bearer ${refreshToken}`;
-        const str = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJHZmRzYWxraiIsInJvbGUiOiJVU0VSIiwidXNlcklkIjoyLCJpYXQiOjE3NDQwOTc0MjEsImV4cCI6MTc0NDM0OTQyMX0.a7omhC5FT4g4YaOBFZHBNATWyS2_gfSS21SvBpmBjVKxuH4J2paLua7vB2e7LwQgPG2KZyaSB0t8wQyZYoeimQ`;
-        const res = {
-        method: 'POST',
-        headers: {
-          'Authorization': str,
-          'Content-Type': 'application/json'
-        },
-        };
-            
-        console.log(res);
-            //if(str!=''){
-        const response2 = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/refresh_token',
-          res
-        );
-        console.log('ResponseRefreshToken:', response2);
-       
-        if (response2.status === 200){ 
-        /*  const token: token = await response2.json()
-             console.log(token.accessToken);
-             console.log(token.refreshToken);
-             setAccessToken(token.accessToken);
-             setRefreshToken(token.refreshToken);
-            // saveToken('accessToken', accessToken);
-             //saveToken('refreshToken', refreshToken);
-         /* const role = parseJwt(accessToken);
-          console.log(role.role);
-          if (role.role === 'ADMIN'){router.replace({pathname:'/admin/menu', params:{token: accessToken}});}
-          if (role.role === 'USER'){router.replace('/objs/objects');}*/
-        }
-        else{
-          console.log('No token refresh');
-            router.push('/sign/sign_in');
-        }
-        } catch (error) {
-            console.error(error);
-        }
-        //    }
-}
-
-    
+   
         const navigation = useNavigation();
     
         useEffect(() => {
-          if (token){setAccessToken(token);}
+          //if (token){setAccessToken(token);}
           if(accessToken === ''){getToken();}
           if (accessToken){getObjects();}
               navigation.setOptions({
@@ -107,10 +61,10 @@ const refreshTok = async () => {
                 
               });
              // if(accessToken){handleLogout()}
-        }, [navigation, accessToken, token]);
-        useEffect(() => {
+        }, [navigation, accessToken,/* token*/]);
+       /* useEffect(() => {
                   if (token){setAccessToken(token);}
-                }, [token]);
+                }, [token]);*/
         
                 useEffect(() => {
                     if(accessToken === ''){getToken();}
@@ -123,7 +77,7 @@ const refreshTok = async () => {
               const token = await AsyncStorage.getItem('accessToken');
               if (token !== null) {
                 setAccessToken(token);
-                  console.log('Retrieved token:', token);
+                  console.log('Retrieved token from objects.tsx:', token);
               } else {
                   console.log('No token found');
               }
@@ -172,8 +126,25 @@ const refreshTok = async () => {
               }
   
       };
+
+       const saveToken = async () => {
+        try {
+            await AsyncStorage.removeItem('accessToken');
+            console.log('Token - accessToken - removed successfully!');
+        } catch (error) {
+            console.error('Error removing token:', error);
+        }
+    try {
+        await AsyncStorage.setItem('accessToken', 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2xpc2hldmExM3ZlcmFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJ1c2VySWQiOjQsImZ1bGxOYW1lIjoi0JPQvtC70LjRiNC10LLQsCDQktC10YDQsCDQodC10YDQs9C10LXQstC90LAiLCJvcmdhbmlzYXRpb24iOiLQntCe0J4gXCLQk9CQ0JfQn9Cg0J7QnCDQptCf0KFcIiIsImlhdCI6MTc1MTI4MDQ3MSwiZXhwIjoxNzUxMzE2NDcxfQ.TaZy7jYrPeeFtBlZtcngNMhFKL0oYb6uTBWdMcDgFb8KIsxGEOEx69Llvp5AOk3V9CaFGpvQKhq-ey78LT4brQ');
+        console.log('Token - accessToken - saved successfully! 1234');
+    } catch (error) {
+        console.error('Error saving token:', error);
+    } 
+};
   
   const getObjects = async () => {
+   // const str = `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2xpc2hldmExM3ZlcmFAZ21haWwuY29tIiwicm9sZSI6IlVTRVIiLCJ1c2VySWQiOjQsImZ1bGxOYW1lIjoi0JPQvtC70LjRiNC10LLQsCDQktC10YDQsCDQodC10YDQs9C10LXQstC90LAiLCJvcmdhbmlzYXRpb24iOiLQntCe0J4gXCLQk9CQ0JfQn9Cg0J7QnCDQptCf0KFcIiIsImlhdCI6MTc1MTI4MDIyOCwiZXhwIjoxNzUxMzE2MjI4fQ.65Ir5uv5ddI70jW2WbC2hDlrXo5ExJuz7ZRAv-7zzmeT5CAmMRq2Jf6n8RFKzPbWuwA8J-f-y01noQoCjZYXLg`;
+              console.log(`getObjects object.tsx ${accessToken}`);
     try {
       const userID = await AsyncStorage.getItem('userID');
       const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/user/getAllowedObjects/' + userID,
@@ -186,6 +157,8 @@ const refreshTok = async () => {
       console.log('responseGetAllowedObjects',response)
       const json = await response.json();
       setData(json);
+      setFilteredData(json); // Инициализируем отфильтрованные данные
+      console.log(json);
       
     } catch (error) {
       console.error(error);
@@ -193,6 +166,20 @@ const refreshTok = async () => {
       setLoading(false);
     }
   };
+
+  // Фильтрация данных при изменении выбранных фильтров
+    useEffect(() => {
+      let result = [...data];
+     
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        result = result.filter(item => 
+          item.capitalCSName?.toLowerCase().includes(query)
+        );
+      }
+      
+      setFilteredData(result);
+    }, [ searchQuery, data]);
 
  
   return (
@@ -209,9 +196,15 @@ const refreshTok = async () => {
                         </View>
                         </TouchableWithoutFeedback>*/}
    
+          <TextInput 
+            style={{ marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8,   }}
+            placeholder="Поиск по объекту строительства"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
     <FlatList
         style={{width: '100%'}}
-        data={data}
+        data={filteredData}
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
                         <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS, capitalCSName: item.capitalCSName}})}}>
@@ -227,17 +220,22 @@ const refreshTok = async () => {
        /> 
     </View>
     <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-    <CustomButton title='Добавить объект' handlePress={() =>{router.push('/objs/add_obj')}}/>
+    <CustomButton title='Добавить объект' handlePress={() =>{router.push({pathname: '/objs/add_obj', params: { accessToken: accessToken}})}}/>
     {/*}  <CustomButton title='Диаграммы' handlePress={() =>{router.push('/objs/diagrams')}}/>
   <CustomButton title='refresh' handlePress={refreshTok}/>*/}
-   {/*} <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/>*/}</View>
+   {/*} <CustomButton title='admin' handlePress={() =>{router.push('/admin/menu')}}/>
+   <CustomButton
+             title="Испортить accessToken"
+             handlePress={saveToken}
+           />*/}
+   </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: '10%',
+    paddingTop: 6,
     flex: 1,
     alignSelf: 'center',
     width: '96%',

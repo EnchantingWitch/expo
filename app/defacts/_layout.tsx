@@ -33,7 +33,7 @@ export default function TabLayout() {
       }}>
       
       <Stack.Screen
-        name="see_note"
+        name="see_defact"
         options={{
             title: 'Просмотр',
           //  headerTitleStyle: {fontSize: ts(20)},
@@ -51,7 +51,7 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
-        name="change_note"
+        name="change_defact"
         options={{
             title: 'Редактирование',
           //  headerTitleStyle: {fontSize: ts(20)},
@@ -69,9 +69,9 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
-        name="create_note"
+        name="create_defact"
         options={{
-          title: 'Создание замечания',
+          title: 'Добавить дефект',
           //headerTitleStyle: {fontSize: ts(20)},
           
           headerTitleAlign: 'center',
@@ -88,5 +88,6 @@ export default function TabLayout() {
         },
         }}
       />
+      
     </Stack>
   )}
