@@ -1,6 +1,7 @@
 import { } from '@/components/Themed';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
@@ -22,6 +23,17 @@ const [data, setData] = useState<Object[]>([]);
 const {token}=useGlobalSearchParams();
 
 //const [isGetTok, setIsGetTok] = useState(true);
+const navigation = useNavigation();
+    
+  useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.replace('/admin/menu')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+          ),
+        });
+  }, [navigation]);
       
         useEffect(() => {
           if (token){setAccessToken(token);}

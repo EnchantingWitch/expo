@@ -106,6 +106,7 @@ const EditDataScreen: React.FC = () => {
   const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   const [statusActivityIndicator, setStatusActivityIndicator] = useState(true);
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -275,7 +276,7 @@ const json = JSON.stringify({
       });
       console.log(json);
   const updateComment = async () => {
-    
+    setDisabled(true);
     try {
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/updateDefAct/`+id, {
         method: 'PUT',
@@ -298,8 +299,10 @@ const json = JSON.stringify({
         throw new Error('Не удалось сохранить данные.');
       }
     } catch (error) {
+      setDisabled(false);
       console.error('Ошибка при сохранении данных:', error);
     } finally{
+      setDisabled(false);
       router.replace({pathname: '/(tabs)/defacts', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
     }
 
@@ -384,6 +387,7 @@ if (contentType != null){
   console.log('singlePhoto', singlePhoto)
 
    const deletePhoto = async () => {
+    setDisabled(true);
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/removePhoto/'+id, {
           method: "DELETE",
@@ -398,13 +402,15 @@ if (contentType != null){
       });
     console.log('deletePhoto', response);
     if (response.status === 200) {setStatusDel(true);}
-  } catch (err) {
+  } catch (err) { setDisabled(false);
   }finally {
+    setDisabled(false);
     if (changePhoto===true) {postPhoto();}
   }
 }
 
   const postPhoto = async () => {
+    setDisabled(true);
     try{
     const photoToUpload = singlePhoto;
     const body = new FormData();
@@ -437,12 +443,15 @@ if (contentType != null){
                  {text: 'OK', onPress: () => console.log('OK Pressed')},
               ])
           }*/
-    } catch (error) {
+    } catch (error) { setDisabled(false);
       console.error('Error:', error);
-    }
+    }finally {
+    setDisabled(false);
   }
+  } 
 
   const deleteNote = async () => {
+    setDisabled(true);
   try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/deleteDefAct/'+id, {
           method: "DELETE",
@@ -455,8 +464,8 @@ if (contentType != null){
       Alert.alert('', 'Дефект удален', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
-  } catch (err) {
-  } finally {
+  } catch (err) {setDisabled(false);
+  } finally {setDisabled(false);
     router.replace({pathname: '/(tabs)/defacts', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
   }
   }
@@ -791,7 +800,7 @@ useEffect(() => {
             value={editedEquipment}
             onChangeText={setEditedEquipment}
           />
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефакт</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
           <TextInput
             style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 40
                         
@@ -799,11 +808,20 @@ useEffect(() => {
             value={editedDescription}
             onChangeText={setEditedDescription}
             multiline
+            maxLength={250}
             onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
               if(inputH>120) inputH =100
               setInputHeight(inputH)}}
           />
+          {editedDescription.length >=200? 
+                                            <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}> {/**, marginBottom: 16 */}
+                                              Можете ввести еще {250-editedDescription.length}{' '}
+                                              {(250-editedDescription.length) % 10 === 1? <Text>символ</Text>
+                                              : (250-editedDescription.length) % 10 === 2 || (250-editedDescription.length) % 10 === 3 || (250-editedDescription.length) % 10 === 4? <Text>символа</Text>
+                                              : <Text>символов</Text>}
+                                            </Text>
+                                          : '' }
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
           <TextInput
@@ -952,9 +970,11 @@ useEffect(() => {
           <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
 
                 <CustomButton
+                  disabled={disabled}
                   title="Сохранить изменения"
                   handlePress={handleSaveClick} />
                   <CustomButton
+                  disabled={disabled}
                   title="Удалить дефект"
                   handlePress={deleteNote} />
                 </View>

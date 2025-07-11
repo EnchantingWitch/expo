@@ -3,8 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, StatusBar, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
- 
+import { ActivityIndicator, Dimensions, FlatList, Platform, StatusBar, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+
 type Reqs = {
   id: number;//айди заявки
   userId: number;
@@ -91,7 +91,7 @@ const DirectionLayout = () => {
     <View style={{ flex: 1, backgroundColor: 'white' }}>
 
 
-          <View style={{ justifyContent: 'center', alignItems: 'center'}}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', minHeight: Dimensions.get('window').height-BOTTOM_SAFE_AREA-54}}>
           <TextInput 
             style={{ borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8,  width: '96%' }}
             placeholder="Поиск по организации"
@@ -114,21 +114,21 @@ const DirectionLayout = () => {
                       <View style={{width: '100%', justifyContent: 'center', paddingLeft: 5}}>
                       <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.organisationName}</Text>
                       </View>
-          
+                      
                   </View>
                   </TouchableWithoutFeedback>
               )}
               />
        
             )}
-        
-          </View>
-           <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+         <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 150 }}>
           <CustomButton
                       title="Добавить организацию"
                       handlePress={()=>{router.push('./create_organization')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
+          </View>
+          
         </View>
       </View >
 

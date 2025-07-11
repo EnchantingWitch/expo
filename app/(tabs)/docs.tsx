@@ -1,15 +1,17 @@
 import CustomButton from "@/components/CustomButton";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as FileSystem from 'expo-file-system';
+//import * as FileSystem from 'expo-file-system';
 import { Image } from "expo-image";
-import * as MediaLibrary from "expo-media-library";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
+//import * as Sharing from 'expo-sharing';
+import * as FileSystem from "expo-file-system";
 import * as Sharing from 'expo-sharing';
 import { openBrowserAsync } from "expo-web-browser";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  //Linking, 
   Modal,
   Platform,
   ScrollView,
@@ -20,9 +22,12 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   View
-} from "react-native";
+} from 'react-native';
+import RNFetchBlob from 'react-native-blob-util';
+
 
 export default function Docs() {
+  const { StorageAccessFramework } = FileSystem
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
@@ -287,65 +292,115 @@ const blobToBase64 = (blob) => {
   });
 };
 
-  const getExcelFile = async () => {
+const saveF = async () => {
+  try {
+    // 1. Запрашиваем разрешение на доступ к директории
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+    if (!permissions.granted) {
+      Alert.alert('',"Вы должны предоставить разрешение для сохранения файла.",
+      [
+        { text: 'OK' }
+      ]
+       );
+      return;
+    }
+
+    const directoryUri = permissions.directoryUri;
+    console.log('const directoryUri ',directoryUri)
+
+    // Проверяем возможность записи тестовым файлом
     try {
-      const response = await fetch(
-        "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/excelForms/getMonitoring/" + codeCCS,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            "Accept": "application/octet-stream",
-          },
-          
-        }
+      const testFileUri = await StorageAccessFramework.createFileAsync(
+        directoryUri,
+        "test_write_check",
+        "text/plain"
       );
-      console.log("getMonitoring", response);
+      
+      await FileSystem.writeAsStringAsync(testFileUri, "test", {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      await FileSystem.deleteAsync(testFileUri);
+    } catch (testError) {
+       Alert.alert('',"Выбранная директория недоступна для записи. Пожалуйста, выберите другую.",
+      [
+        { text: 'OK' }
+      ]
+       );
+      return;
+    }
+   
+    // 2. Получаем данные с сервера
+    const response = await fetch(
+      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443/excelForms/getMonitoring/${codeCCS}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
+        },
+      }
+    );
 
-      const blob = await response.blob();
-      console.log("getMonitoring", blob);
-      const base64data = await blobToBase64(blob);
+    if (!response.ok) {
+      throw new Error(`Ошибка сервера: ${response.status}`);
+    }
+    
+    // 3. Получаем бинарные данные
+    const blob = await response.blob();
+    const base64data = await blobToBase64(blob);
 
-      const fileUri = `${FileSystem.documentDirectory}Мониторинг ПНР по объекту ${capitalCSName}.xlsx`; // .pdf, .jpg и т.д.
-      //const fileUri = `${FileSystem.documentDirectory}Мониторинг ПНР по объекту ${capitalCSName}.xlsx`; // .pdf, .jpg и т.д.
-      await FileSystem.writeAsStringAsync(fileUri, base64data, {
+    // 4. Создаем файл с правильным расширением
+    const fileUri = await StorageAccessFramework.createFileAsync(
+      directoryUri,
+      `Мониторинг ПНР по объекту ${capitalCSName}.xlsx`, // имя файла с расширением
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // MIME тип для Excel
+    );
+
+    
+
+    // 5. Записываем бинарные данные в файл
+    await FileSystem.writeAsStringAsync(fileUri, base64data, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      console.log("Файл сохранен:", fileUri);
-
-    // Открываем файл (например, через expo-sharing)
-      await Sharing.shareAsync(fileUri);
-
-      
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setStatusPressGetExcel(false);
-    }
-  };
-
-
-
-  const saveFile = async () => {
-    try{
-    if (Platform.OS === 'ios') {
-          await MediaLibrary.saveToLibraryAsync("../../assets/files/DOC.xlsx");
+    console.log("Файл успешно сохранен:", fileUri);
+    if (Platform.OS === 'android') {
+          await RNFetchBlob.android.actionViewIntent( fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         } else {
-          const asset = await MediaLibrary.createAssetAsync("../../assets/files/DOC.xlsx");
-          await MediaLibrary.createAlbumAsync('Download', asset, false);
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            dialogTitle: 'Открыть файл',
+            UTI: 'org.openxmlformats.spreadsheetml.sheet' // или 'com.microsoft.excel.xlsx'
+          });
         }
-  
-        //await showDownloadNotification(filename);
-        Alert.alert('Успех', 'Файл сохранен');
-      }
-      catch (error) {
-              console.error('Ошибка сохранения:', error);
-              //await showErrorNotification(error);
-              Alert.alert('Ошибка', 'Не удалось сохранить файл');
-            }
+  /*  Alert.alert(
+      '','Файл сохранен',
+      
+     // `Файл сохранен по пути: ${response.path()}`, //можно прописать, если предусмотреть возврат пути из saveFileWithSAF
+      [
+        {
+          text: 'Открыть', //по-хорошему наверное здесь также поменять путь файла на открытие 
+          onPress: () => RNFetchBlob.android.actionViewIntent(fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        },
+        { text: 'OK' }
+      ]
+    );*/
+  } catch (err) {
+    console.error("Ошибка при сохранении файла:", err);
+    Alert.alert(
+      '','"Произошла ошибка:' + err,
+      [
+        { text: 'OK' }
+      ]
+    );
+  } finally {
+    setStatusPressGetExcel(false);
   }
+};
+
+ 
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -572,7 +627,9 @@ const blobToBase64 = (blob) => {
           {statusPressGetExcel===false? 
             <TouchableOpacity
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[getExcelFile(), setStatusPressGetExcel(true)]}
+              onPress={()=>[saveF()
+              //  getExcelFile(), setStatusPressGetExcel(true)
+              ]}
              /* onPress={(event) => {
                 handleLink(
                   event,

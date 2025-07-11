@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import CustomButton from '@/components/CustomButton';
-import {router} from 'expo-router';
-import { parse, format } from 'date-fns';
+import { format } from 'date-fns';
+import React, { useState } from 'react';
+import { Image, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Props = {
     theme?: 'min';
@@ -52,7 +50,7 @@ const CalendarOnWrite = ({theme, onChange }: Props) => {
             />
       
             
-            <TouchableOpacity style={{width: '24%', height: '100%', backgroundColor: 'whiye', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
+            <TouchableOpacity style={{width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
              <Image style={{ width: 40, height: 40 }}
                                     source={require('../assets/images/calendar1.png')} /> 
             {showPicker && (
@@ -77,8 +75,8 @@ const CalendarOnWrite = ({theme, onChange }: Props) => {
             />
       
             
-            <TouchableOpacity style={{width: '12%', height: '100%', backgroundColor: '#0072C8', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-             <Image style={{ width: 50, height: 50 }}
+            <TouchableOpacity style={{alignSelf: 'flex-end', borderRadius: 4,  }} onPress={showDatePicker}>
+             <Image style={{ width: 40, height: 40 }}
                                     source={require('../assets/images/calendar1.png')} /> 
             {showPicker && (
                 <DateTimePicker

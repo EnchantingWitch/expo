@@ -25,6 +25,7 @@ export default function TabOneScreen() {
   const {id} = useLocalSearchParams();
   const [accessToken, setAccessToken] = useState<any>('');
   const [userId, setUserId] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   console.log(Role, 'Role');
 
@@ -44,6 +45,7 @@ export default function TabOneScreen() {
 };
 
   const deleteUser = async () => {
+    setDisabled(true);
     try {
       console.log('json',JSON.stringify({
         username : username,
@@ -67,11 +69,17 @@ export default function TabOneScreen() {
     } 
   } catch (error) {
     console.error('Error:', error);
+     Alert.alert('', 'Произошла ошибка при удалении: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
+    setDisabled(false);
   } finally {
     router.push('/admin/users');
+    setDisabled(false);
   }};
 
   const setAdmin = async () => {
+    setDisabled(true);
     try {
       const body = new FormData();
       body.append("id", id);
@@ -102,12 +110,19 @@ export default function TabOneScreen() {
   
     }
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error('Error:', error);
+    setDisabled(false);
   } finally {
     if (userId === id){
       logout();
+      setDisabled(false);
     }
-    else{router.push('/admin/users');}
+    else{router.push('/admin/users');
+      setDisabled(false);
+    }
     
   }
 
@@ -253,8 +268,8 @@ console.log(userId, 'userId');
     </View>
     {id !== '1'? 
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Удалить пользователя' handlePress={deleteUser}/>
-        <CustomButton title='Сохранить' handlePress={setAdmin}/>
+        <CustomButton disabled={disabled} title='Удалить пользователя' handlePress={deleteUser}/>
+        <CustomButton disabled={disabled} title='Сохранить' handlePress={setAdmin}/>
       </View>
       : 
       <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>

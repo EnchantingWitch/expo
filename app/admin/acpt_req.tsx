@@ -31,6 +31,7 @@ export default function TabOneScreen() {
    const [checkedItems, setCheckedItems] = useState({});
    const [accessToken, setAccessToken] = useState<any>('');
   const fontScale = useWindowDimensions().fontScale;
+  const [disabled, setDisabled] = useState(false); //для кнопки
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
@@ -81,6 +82,7 @@ export default function TabOneScreen() {
 };
 
 const handleSubmit = async ()  => {
+  setDisabled(true);
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
   console.log(JSON.stringify({
@@ -110,9 +112,14 @@ const handleSubmit = async ()  => {
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка при акцептовании: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error(error);
+    setDisabled(false);
   } finally {
     router.push('/admin/requests');
+    setDisabled(false);
     //setLoading(false);
 
   }
@@ -183,7 +190,7 @@ const handleSubmit = async ()  => {
         />
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-      <CustomButton title='Акцептовать заявку' handlePress={handleSubmit}/>
+      <CustomButton disabled={disabled} title='Акцептовать заявку' handlePress={handleSubmit}/>
       </View>
     </SafeAreaView>
   );

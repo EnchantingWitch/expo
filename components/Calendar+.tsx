@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Alert, Text, TextInput, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Link, router, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { parse, format } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format, parse } from 'date-fns';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Props = {
     theme?: 'min';
@@ -155,14 +155,14 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: 
                  
                  {chooseD? 
                  (
-                    <TouchableOpacity onPress={() => [setChooseD(false), setSwith(true)]} style = {{ width: '24%',}}>
-                        <Ionicons name='close-outline' size={30} style={{alignSelf: 'center', width: 22}}/>
+                    <TouchableOpacity onPress={() => [setChooseD(false), setSwith(true)]} style = {{ width: 40}} disabled={diseditable}>
+                        <Ionicons name='close-outline' size={30} style={{alignSelf: 'center',}}/>
                     </TouchableOpacity>)
                  :(
-                    <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker} disabled={diseditable}>
+                    <TouchableOpacity style={{  borderRadius: 4 }} onPress={showDatePicker} disabled={diseditable}>
                     
                         
-                        <Image style={{ width: 40, height: 40 }}
+                        <Image style={{ width: 40, height: 40, }}
                             source={require('../assets/images/calendar1.png')} />
 
                         {showPicker && (
@@ -192,8 +192,8 @@ const DateInputWithPicker = ({ theme, post, statusreq, onChange, diseditable }: 
             />
 
 
-            <TouchableOpacity style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} onPress={showDatePicker}>
-                <Image style={{ width: 50, height: 50 }}
+            <TouchableOpacity disabled={diseditable} style={{ justifyContent: 'center', borderRadius: 4 }} onPress={showDatePicker}>
+                <Image style={{ width: 40, height: 40,  }}
                     source={require('../assets/images/calendar1.png')} />
                 {showPicker && (
                     <DateTimePicker
@@ -222,12 +222,12 @@ const styles = StyleSheet.create({
     containerrow: {
         flex: 1,
         justifyContent: 'center',
-        paddingTop: 11,
-        paddingBottom: 12,
+        //paddingTop: 11,
+        //paddingBottom: 12,
         backgroundColor: '#fff',
-        //width: '100%',
+        width: '100%',
         flexDirection: 'row',
-        marginBottom: 8,
+        marginBottom: 13,
         alignItems: 'center',
     },
     containerrowMin: {
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
         paddingTop: 11,
         paddingBottom: 12,
         backgroundColor: '#fff',
-        width: '0%',
+      //  width: '0%',
         flexDirection: 'row',
         marginBottom: 8,
     },

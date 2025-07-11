@@ -16,6 +16,7 @@ export default function TabOneScreen() {
   const {organisation} = useLocalSearchParams();
   const {id} = useLocalSearchParams();
   const [accessToken, setAccessToken] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 console.log('id', id)
   useEffect(() => {
     if(organisation){setOrg(organisation);}
@@ -37,6 +38,7 @@ console.log('id', id)
 };
 
   const deleteOrg = async () => {
+    setDisabled(true);
     try {
      /* const body = new FormData();
       //data.append('name', 'Image Upload');
@@ -55,9 +57,14 @@ console.log('id', id)
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     } 
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка при удалении: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error('Error:', error);
+    setDisabled(false);
   } finally {
     router.push('/admin/organizations');
+    setDisabled(false);
   }};
 
   console.log(JSON.stringify({
@@ -66,6 +73,7 @@ console.log('id', id)
       }))
 
   const updateOrg = async () => {
+    setDisabled(true);
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/organisations/update', {
       method: 'PUT',
@@ -84,9 +92,14 @@ console.log('id', id)
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (error) {
+       Alert.alert('', 'Произошла ошибка при обновлении: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error('Error:', error);
+    setDisabled(false);
   } finally {
     router.push('/admin/organizations');
+    setDisabled(false);
     
   }
 
@@ -110,8 +123,8 @@ console.log('id', id)
     
     </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Сохранить' handlePress={updateOrg}/>
-        <CustomButton title='Удалить' handlePress={deleteOrg}/>
+        <CustomButton disabled={disabled} title='Сохранить' handlePress={updateOrg}/>
+        <CustomButton disabled={disabled} title='Удалить' handlePress={deleteOrg}/>
       </View>
     </SafeAreaView>
   ); 

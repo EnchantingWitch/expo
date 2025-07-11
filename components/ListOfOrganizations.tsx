@@ -11,7 +11,7 @@ type Props = {
     onChange: (status: string) => void;
 };
 
-const ListOfOrganizations = ({ post, status, title, data, onChange }: Props) => {
+const ListOfOrganizations = ({ post, status, title, data, onChange }: Props, ref) => {
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
     const [direction, setDirection] = useState<'top' | 'bottom' | 'auto'>('auto');
@@ -64,13 +64,15 @@ const ListOfOrganizations = ({ post, status, title, data, onChange }: Props) => 
                     iconStyle={styles.iconStyle}
                     data={data}
                     search
+                     keyboardAvoiding={false} // Добавляем избегание клавиатуры
+                    autoScroll={false}
                     maxHeight={300}
                     mode='default'
                     dropdownPosition={direction}
                     itemTextStyle={{ fontSize: ts(14) }}
                     labelField="label"
                     valueField="value"
-                    placeholder={!isFocus ? title : 'Не выбрано'}
+                    placeholder={!isFocus ? title : title}
                     searchPlaceholder="Search..."
                     value={value}
                     onFocus={() => setIsFocus(true)}
@@ -82,6 +84,7 @@ const ListOfOrganizations = ({ post, status, title, data, onChange }: Props) => 
                             onChange(item.value);
                         }
                     }}
+                    
                 />
             </View>
         </View>

@@ -47,6 +47,7 @@ export default function TabOneScreen() {
   const [cuCmr, setCuCmr] = useState<string>();//куратор смр
   const [accessToken, setAccessToken] = useState<any>('');
   const [status, setStatus] = useState<boolean>(false);
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   useEffect(() => {
     if(codeCCS){setOks(capitalCSName);
@@ -84,6 +85,7 @@ export default function TabOneScreen() {
     }
 };
   const request = async () => {
+    setDisabled(true);
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/updateCapitalCS/' + capitalCSId, {
       method: 'PUT',
@@ -127,14 +129,17 @@ export default function TabOneScreen() {
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
     };
   } catch (error) {
+    setDisabled(false);
     console.error('Error:', error);
   } finally {
+    setDisabled(false);
     router.replace('./objs');
   }
 
 };
 
 const deleteObject = async () => {
+  setDisabled(true);
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/deleteCapitalCS/'+capitalCSId, {
           method: "DELETE",
@@ -152,7 +157,9 @@ const deleteObject = async () => {
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (err) {
+    setDisabled(false);
   } finally {
+    setDisabled(false);
     router.replace({pathname: './objs'});
   }
   }
@@ -297,22 +304,22 @@ useEffect(() => {
             value={key}
             // editable={false}
         />
-     <ListOfOrganizations data={listRegion} title='Регион' post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
-       <ListOfOrganizations data={listTypeObj} title='Тип объекта' post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
+     <ListOfOrganizations data={listRegion} title={region!=''? region:'Регион'} post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
+       <ListOfOrganizations data={listTypeObj} title={typeObj!=''? typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
-      <ListOfOrganizations data={listOrganization} title='' post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
+      <ListOfOrganizations data={listOrganization} title={charterer!=''? charterer:''} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' post={cuCharterer} onChange={(value) => setCuCharterer(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations data={listOrganization} title='' post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
+      <ListOfOrganizations data={listOrganization} title={executorPnr!=''? executorPnr:''} post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' post={dirPnr} onChange={(value) => setDirPnr(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-      <ListOfOrganizations data={listOrganization} title='' post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
+      <ListOfOrganizations data={listOrganization} title={executorCmr!=''? executorCmr:''} post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' post={cuCmr} onChange={(value) => setCuCmr(value)}/>
     </View>
     
-    <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Сохранить' handlePress={request}/>
-        <CustomButton title='Удалить объект' handlePress={deleteObject}/>
+    <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20, backgroundColor: 'white', width: '100%' }}>
+        <CustomButton disabled={disabled} title='Сохранить' handlePress={request}/>
+        <CustomButton disabled={disabled} title='Удалить объект' handlePress={deleteObject}/>
     </View>
     </KeyboardAwareScrollView>
   ); 

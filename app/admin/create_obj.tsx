@@ -13,6 +13,7 @@ type Object = {
 };
 
 export default function TabOneScreen() {
+  
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const fontScale = useWindowDimensions().fontScale;
@@ -34,6 +35,7 @@ export default function TabOneScreen() {
   const [executorCmr, setExecutorCmr] = useState<string>();//исполнитель смр
   const [cuCmr, setCuCmr] = useState<string>();//куратор смр
   const [accessToken, setAccessToken] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
   
   const getToken = async () => {
     try {
@@ -53,6 +55,7 @@ export default function TabOneScreen() {
     }
 };
   const request = async () => {
+    setDisabled(true);
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/createObject', {
       method: 'POST',
@@ -79,13 +82,18 @@ export default function TabOneScreen() {
       Alert.alert('', 'Объект добавлен.', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
-    if (response.status == 400) {
+  /*  if (response.status == 400) {
       Alert.alert('', 'Объект не добавлен (возможно ОКС с введенным кодом уже существует).', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
-    };
+    };*/
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка при создании объекта: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
+    setDisabled(false);
     console.error('Error:', error);
   } finally {
+    setDisabled(false);
     router.replace('./menu');
   }
 
@@ -201,17 +209,30 @@ export default function TabOneScreen() {
   };
 
   return (
-     <KeyboardAwareScrollView
+    <KeyboardAwareScrollView
          style={{ flex: 1 }}
       enableOnAndroid={true}
       extraScrollHeight={100}
       keyboardShouldPersistTaps="handled"
+       //enableAutomaticScroll={false}
       contentContainerStyle={{ 
         flexGrow: 1,
         alignItems: 'center',  // ← Перенесено сюда
         justifyContent: 'center',  // ← Перенесено сюда
       }}
             >
+{/*</KeyboardAwareScrollView>    <KeyboardAwareScrollView
+  style={{ flex: 1 }}
+  enableOnAndroid={true}
+  extraScrollHeight={100}
+  keyboardShouldPersistTaps="handled"
+  contentContainerStyle={{ 
+    flexGrow: 1,
+    //paddingBottom: 100, // Добавляем отступ снизу
+  }}
+  enableResetScrollToCoords={false} // Отключаем автоматический скролл
+  //extraHeight={200} // Дополнительное пространство для клавиатуры
+>*/}
     <View style={styles.container}>
       <FormField title='Объект капитального строительства' onChange={(value) => setOks(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
       <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
@@ -230,7 +251,7 @@ export default function TabOneScreen() {
       <ListOfOrganizations data={listOrganization} title='' post='' status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Сохранить' handlePress={request}/>
+        <CustomButton title='Сохранить' disabled={disabled} handlePress={request}/>
     </View>
     </View>
     </KeyboardAwareScrollView>

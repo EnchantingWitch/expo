@@ -9,7 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import CustomButton from "./CustomButton";

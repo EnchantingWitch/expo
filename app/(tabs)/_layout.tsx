@@ -1,14 +1,35 @@
 import { useColorScheme } from '@/components/useColorScheme';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { Tabs, useRouter, useSegments } from 'expo-router';
 import React from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+// Типы для иконок
+type IconProps = {
+  name: string;
   color: string;
-}) {
-  return <FontAwesome size={25} style={{ marginBottom: -3 }} {...props} />;
+  size?: number;
+  library?: 'FontAwesome' | 'Ionicons' | 'SimpleLineIcons' | 'AntDesign';
+};
+
+// Компонент иконки с поддержкой разных библиотек
+function TabBarIcon({ name, color, size = 25, library = 'FontAwesome' }: IconProps) {
+  const iconProps = { name, color, size, style: { marginBottom: -3 } };
+  
+  switch (library) {
+    case 'Ionicons':
+      return <Ionicons {...iconProps} />;
+    case 'SimpleLineIcons':
+      return <SimpleLineIcons {...iconProps} />;
+    case 'AntDesign':
+      return <AntDesign {...iconProps} />;
+    case 'FontAwesome':
+    default:
+      return <FontAwesome {...iconProps} />;
+  }
 }
 
 export default function TabLayout() {
@@ -25,44 +46,57 @@ export default function TabLayout() {
       name: 'object',
       label: 'Объект',
       icon: 'building-o',
+      library: 'FontAwesome'
+    },
+    {
+      name: 'jour',
+      label: 'Журнал ПНР',
+      icon: 'notebook',
+      library: 'SimpleLineIcons'
+      /* icon: 'journal-outline',
+      library: 'Ionicons'*/
     },
     {
       name: 'docs',
       label: 'Документы',
       icon: 'folder-open-o',
+      library: 'FontAwesome'
     },
     {
       name: 'structure',
       label: 'Структура',
-      icon: 'sticky-note-o',
+      icon: 'layers-outline',
+      library: 'Ionicons'
     },
     {
       name: 'two',
       label: 'Замечания',
-      icon: 'pencil-square-o',
+      icon: 'warning',
+      library: 'AntDesign'
     },
     {
       name: 'defacts',
       label: 'Дефекты',
-      icon: 'pencil-square-o',
+      icon: 'build-outline',
+      library: 'Ionicons'
     },
   ];
 
   const activeTab = segments[segments.length - 1] || 'object';
 
   return (
-      <View style={{ flex: 1, paddingBottom: BOTTOM_SAFE_AREA + 65 }}>
+    <View style={{ flex: 1, paddingBottom: BOTTOM_SAFE_AREA + 65 }}>
       {/* Основной контент (экраны вкладок) */}
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarStyle: { display: 'none' }, // Скрываем стандартный TabBar
+          tabBarStyle: { display: 'none' },
         }}
       >
         {/* Ваши Tabs.Screen */}
       </Tabs>
 
-      {/* Кастомный TabBar внизу экрана */}
+      {/* Кастомный TabBar */}
       <View style={[styles.tabBarWrapper, { paddingBottom: BOTTOM_SAFE_AREA + 5 }]}>
         <ScrollView
           horizontal
@@ -79,11 +113,16 @@ export default function TabLayout() {
               ]}
             >
               <TabBarIcon
-                name={tab.icon as any}
+                name={tab.icon}
                 color={activeTab === tab.name ? '#1E1E1E' : '#888'}
+                library={tab.library}
               />
-              <Text style={[styles.tabLabel, {fontSize: ts(11)}, activeTab === tab.name && styles.activeLabel]}>
-                {[tab.label, ]}
+              <Text style={[
+                styles.tabLabel, 
+                { fontSize: ts(11) },
+                activeTab === tab.name && styles.activeLabel
+              ]}>
+                {tab.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -93,27 +132,28 @@ export default function TabLayout() {
   );
 }
 
+// Стили остаются без изменений
 const styles = StyleSheet.create({
   tabBarWrapper: {
-    position: 'absolute', // Абсолютное позиционирование
-    bottom: 0,            // Прижимаем к нижнему краю
+    position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,    // Граница сверху (как у стандартного TabBar)
+    borderTopWidth: 1,
     borderTopColor: '#EEE',
   },
   tabBarContainer: {
     flexDirection: 'row',
-    height: 60,           // Высота TabBar
-    alignItems: 'center', // Центрируем элементы по вертикали
+    height: 60,
+    alignItems: 'center',
     paddingHorizontal: 10,
   },
   tabButton: {
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    height: '100%',       // Занимает всю высоту контейнера
+    height: '100%',
   },
   tabLabel: {
     marginTop: 4,
