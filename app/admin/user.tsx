@@ -19,11 +19,13 @@ export default function TabOneScreen() {
    const {username} = useLocalSearchParams();
    const {organisation} = useLocalSearchParams();
   const {numberPhone} = useLocalSearchParams();
+  const {registrationDate} = useLocalSearchParams();
   const {fullName} = useLocalSearchParams();
   const {role} = useLocalSearchParams();
   const {id} = useLocalSearchParams();
   const [accessToken, setAccessToken] = useState<any>('');
   const [userId, setUserId] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   console.log(Role, 'Role');
 
@@ -43,6 +45,7 @@ export default function TabOneScreen() {
 };
 
   const deleteUser = async () => {
+    setDisabled(true);
     try {
       console.log('json',JSON.stringify({
         username : username,
@@ -66,11 +69,17 @@ export default function TabOneScreen() {
     } 
   } catch (error) {
     console.error('Error:', error);
+     Alert.alert('', 'Произошла ошибка при удалении: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
+    setDisabled(false);
   } finally {
     router.push('/admin/users');
+    setDisabled(false);
   }};
 
   const setAdmin = async () => {
+    setDisabled(true);
     try {
       const body = new FormData();
       body.append("id", id);
@@ -101,12 +110,19 @@ export default function TabOneScreen() {
   
     }
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error('Error:', error);
+    setDisabled(false);
   } finally {
     if (userId === id){
       logout();
+      setDisabled(false);
     }
-    else{router.push('/admin/users');}
+    else{router.push('/admin/users');
+      setDisabled(false);
+    }
     
   }
 
@@ -159,12 +175,12 @@ const logout = async () => {
   try {
     const body = new FormData();
     console.log('body for GetUser', body);
-  let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/getUser/'+id, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-     'Content-Type': 'multipart/form-data'
-    }
+    let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/getUser/'+id, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'multipart/form-data'
+      }
   });
   
   
@@ -241,7 +257,7 @@ console.log(userId, 'userId');
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value='Дата заявки'
+      value={registrationDate}
     />
 
     {userId === id && userId !== '1'? 
@@ -252,8 +268,8 @@ console.log(userId, 'userId');
     </View>
     {id !== '1'? 
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Удалить пользователя' handlePress={deleteUser}/>
-        <CustomButton title='Сохранить' handlePress={setAdmin}/>
+        <CustomButton disabled={disabled} title='Удалить пользователя' handlePress={deleteUser}/>
+        <CustomButton disabled={disabled} title='Сохранить' handlePress={setAdmin}/>
       </View>
       : 
       <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>

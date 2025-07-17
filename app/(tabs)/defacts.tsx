@@ -1,0 +1,450 @@
+import CustomButton from '@/components/CustomButton';
+import Note from '@/components/Note';
+import SystemsForTwo from '@/components/SystemsForTwo';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import type { PropsWithChildren } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import type { Structure } from './structure';
+
+ 
+type Note = {
+  id: number; //Идентификатор
+  serialNumber: number;//Серийный номер
+  subObject: string;
+  systemName: string;
+  equipment: string; //Оборудование
+  description: string; // Описание
+  defectiveActStatus: string; // Статус дефектного акта
+  executor: string; // Исполнитель
+  userName: string; // Имя пользователя
+  startDate: string;// Дата начала
+  endDatePlan: string; // Плановая дата завершения
+  endDateFact: string;// Фактическая дата 
+  defectiveActExplanation: string;//комментарий к дефектному акту
+  //userName: string;//не увидела в бд у Сергея
+  iiNumber: string;//номер акта ИИ
+};
+
+
+const Defacts = () => {
+  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+    
+  const router = useRouter();
+  const currentDate = new Date; //console.log(currentDate);
+  const [accessToken, setAccessToken] = useState<any>('');
+const [inputHeight, setInputHeight] = useState(40);
+  const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
+  const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
+  const [chooseSubobject, setChooseSubobject] = useState('');
+  const [chooseSystem, setChooseSystem] = useState('');
+  const [chooseStatus, setChooseStatus] = useState<string>('Все');
+  const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
+  const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
+  const [status, setStatus] = useState(true);
+  const [statusStructure, setStatusStructure] = useState(true);
+  const statusList = [
+  { label: 'Все', value: 'Все' },
+  { label: 'Устранено', value: 'Устранено' },
+  { label: 'Не устранено', value: 'Не устранено' },
+ ];
+  
+  const fontScale = useWindowDimensions().fontScale;
+
+  const ts = (fontSize: number) => {
+    return (fontSize / fontScale)};
+
+  const navigation = useNavigation();
+    
+  useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+          ),
+        });
+  }, [navigation]);
+ 
+  const [direction, setDirection] = useState('Объект');
+
+  const getToken = async () => {
+    try {
+        const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
+        if (token !== null) {
+            console.log('Retrieved token:', token);
+            setAccessToken(token);
+            //вызов getAuth для проверки актуальности токена
+            //authUserAfterLogin();
+        } else {
+            console.log('No token found');
+            router.push('/sign/sign_in');
+        }
+    } catch (error) {
+        console.error('Error retrieving token:', error);
+    }
+};
+
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<Note[]>([]);
+  const [originalData, setOriginalData] = useState<Note[]>([]);
+  const [structure, setStructure] = useState<Structure[]>([]);
+
+  const getNotes = async () => {
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/getAllDefActs/'+codeCCS,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
+      const json = await response.json();
+      setData(json);
+      setOriginalData(json);
+      console.log('ResponseGetDefacts:', response);
+      console.log('ResponseGetDefacts:', json);
+      
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStructure = async () => {
+    try {
+      const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
+        {method: 'GET',
+          headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }}
+      );
+      const json = await response.json();
+      setStructure(json);
+      console.log('ResponseSeeStructure:', response);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    getToken();
+  }, []);
+
+  useEffect(() => {
+    if(codeCCS && accessToken && status){
+     getNotes();
+      //getStructure();
+      setStatus(false);
+    }
+    if(data.length > 0 && statusStructure){
+      //getNotes();
+      getStructure();
+      setStatusStructure(false);
+    }
+    //формирование выпадающего списка для подобъекта
+    if (structure.length > 0) {
+      const buf = structure.map(item => ({label: item.subObjectName, value: item.subObjectName}));
+      setListSubObj(buf);
+      
+      const allSystemNames = structure.flatMap(structure => 
+        structure.data.map(item => item.systemName)
+      );
+      const uniqueSystemNames = [...new Set(allSystemNames)];
+      const systemList = uniqueSystemNames.map(system => ({
+        label: system,
+        value: system
+      }));     
+      setListSystem(systemList);
+    }
+    
+  }, [codeCCS, accessToken, structure, data, status]);
+
+  // Добавление сброса выбранного значения в выпадающий список
+  useEffect(() => {
+    if (chooseSystem !== '' && chooseSystem !== 'Все системы' && !listSystem.some(item => item.value === 'Все системы')) { 
+      const item = {label: 'Все системы', value: 'Все системы'};
+      setListSystem(prev => [...prev, item]);
+      console.log('new ListSystem', listSystem);
+    }
+    if (chooseSubobject !== '' && chooseSubobject !== 'Все подобъекты' && !listSubObj.some(item => item.value === 'Все подобъекты')) { 
+      const item = {label: 'Все подобъекты', value: 'Все подобъекты'};
+      setListSubObj(prev => [...prev, item]);
+      console.log('new ListSystem', listSubObj);
+    }
+  }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
+
+  const filteredData = useMemo(() => {
+  let result = originalData;
+
+  // Фильтрация по подобъекту
+  if (chooseSubobject && chooseSubobject !== 'Все подобъекты') {
+    result = result.filter(item => item.subObject === chooseSubobject);
+  }
+
+  // Фильтрация по системе
+  if (chooseSystem && chooseSystem !== 'Все системы') {
+    result = result.filter(item => item.systemName === chooseSystem);
+  }
+
+  // Фильтрация по статусу
+  if (chooseStatus && chooseStatus !== 'Все') {
+    result = result.filter(item => item.defectiveActStatus === chooseStatus);
+  }
+
+  return result;
+}, [originalData, chooseSubobject, chooseSystem, chooseStatus]);
+
+// Обновление данных при изменении фильтров
+  useEffect(() => {
+    setData(filteredData);
+  }, [filteredData]);
+
+  //console.log('chooseSystem',chooseSystem);
+  //console.log('listSystem',listSystem);
+  //console.log('data',data);
+    const str = `${capitalCSName}\nДефекты`
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+
+      <View style={{
+        flex: 1, alignItems: 'center'
+        // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
+      }}>
+         <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15, width: '100%'}}>
+            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+                      <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+                    </TouchableOpacity>
+
+            <TextInput
+                style={{
+                  flex: 1,
+                  paddingTop:  0,
+                  paddingBottom: 8,
+                  fontWeight: 500,
+                  height: Math.max(42,inputHeight), // min: 42, max: 100
+                  fontSize: ts(20),
+                  textAlign: 'center',          // Горизонтальное выравнивание.
+                  textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+                }}
+                multiline
+                editable={false}
+                onContentSizeChange={e => {
+                  const newHeight = e.nativeEvent.contentSize.height;
+                  setInputHeight(Math.max(42, newHeight));
+                }}
+              >
+                {str}
+              
+              </TextInput>
+              
+    
+              </View>
+              
+<View style={{flexDirection: 'row', justifyContent: 'space-between', width: '98%'}}>
+        <SystemsForTwo list={listSubObj} nameFilter='Все подобъекты' width={130} onChange={(system) => setChooseSubobject(system)}/>
+        <SystemsForTwo list={listSystem} nameFilter='Все системы' width={130} onChange={(system) => setChooseSystem(system)}/>
+        <SystemsForTwo list={statusList} nameFilter='Все' width={130} onChange={(status) => setChooseStatus(status)}/>
+          
+        </View>
+
+          <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6,}}>
+            <View style={{width: '15%', justifyContent: 'center'}}>
+              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
+            </View>
+            <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
+              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>Содержание</Text>
+            </View>
+            <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
+              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
+            </View>
+          </View>
+
+          <View style={{ flex: 15, marginTop: 12, width: '98%'}}>
+
+               { isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <FlatList
+                style={{width: '100%'}}
+                data={data}
+                keyExtractor={({id}) => id}
+                renderItem={({item}) => (
+                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/defacts/see_defact', params: { capitalCSName: capitalCSName, post: item.id, codeCCS: codeCCS }})}  }>
+                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: 15, borderRadius: 8}}>
+          
+                      <View style={{width: '15%', justifyContent: 'center'}}>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', marginRight: '20%' }}>{item.serialNumber}</Text>
+                      </View>
+          
+                      <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
+                      <Text numberOfLines={2} style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.description}</Text>
+                      </View>
+                      
+                      <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
+                      
+                       {(item.defectiveActStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
+                        
+                       {(item.defectiveActStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
+                       
+                      
+                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
+                     {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
+                      </View>
+                  </View>
+                  </TouchableWithoutFeedback>
+
+          )}
+              />
+            )}
+
+          </View>
+
+          
+            <CustomButton
+              title="Добавить дефект"
+              handlePress={() =>router.push({pathname: '/defacts/create_defact', params: { codeCCS: codeCCS, capitalCSName: capitalCSName }})} />
+         
+        
+      </View >
+    </View >
+
+  );
+};
+
+
+type PreviewLayoutProps = PropsWithChildren<{
+  // label: string;
+ // values: string[];
+  selectedValue: string;
+  setSelectedValue: (value: string) => void;
+}>;
+
+type PreviewNameProps = PropsWithChildren<{
+  values: string[];
+}>;
+
+const PreviewName = (
+  {
+    //childern,
+    values,
+  }: PreviewNameProps) => (
+
+  <View style={styles.row}>
+    {values.map(value => (
+      <Text key={value} style={styles.title}>
+        {value}
+      </Text>
+
+    ))}
+  </View>
+);
+
+const PreviewLayout = ({
+  //  label,
+  children,
+  values,
+  selectedValue,
+  setSelectedValue,
+}: PreviewLayoutProps) => (
+  <View style={{ padding: 6, flex: 1 }}>
+
+    <View style={styles.row}>
+      {values.map(value => (
+        <TouchableOpacity
+          key={value}
+          onPress={() => setSelectedValue(value)}
+          style={[styles.button, selectedValue === value && styles.selected]}>
+          <Text
+            style={[
+              styles.buttonLabel , 
+              selectedValue === value && styles.selectedLabel,
+            ]}>
+            {value}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+    <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+    <View style={[styles.container,]}>{children}</View>
+  </View>
+);
+
+
+const styles = StyleSheet.create(
+  
+  
+  {
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: 'normal',
+    textAlign: 'center',
+    letterSpacing: 0.2,
+  },
+  separator: {
+    marginVertical: 5,
+
+    height: 1,
+    width: '100%',
+  },
+  box: {
+    width: 50,
+    height: 50,
+  },
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    //alignItems: 'center',
+  },
+  button: {
+   /* paddingVertical: 6,
+    paddingBottom: 6,
+    paddingRight: 8,
+    paddingLeft: 8,*/
+    backgroundColor: '#E0F2FE',
+    marginHorizontal: '10%',
+    marginBottom: 16,
+    width: 103,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+
+  },
+  //background: #F8FAFC;
+
+  selected: {
+    backgroundColor: '#E0F2FE',
+   // justifyContent: 'center',
+    borderWidth: 0,
+  },
+  buttonLabel: {
+    fontFamily: 'Inter',
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#334155',
+    textAlign: 'center',
+  },
+  selectedLabel: {
+    color: '#334155',
+    //textAlign: 'center',
+  },
+  label: {
+    textAlign: 'center',
+    marginBottom: 10,
+    fontSize: 24,
+  },
+});
+
+export default Defacts;
+

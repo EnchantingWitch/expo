@@ -31,6 +31,7 @@ export default function TabOneScreen() {
    const [checkedItems, setCheckedItems] = useState({});
    const [accessToken, setAccessToken] = useState<any>('');
   const fontScale = useWindowDimensions().fontScale;
+  const [disabled, setDisabled] = useState(false); //для кнопки
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
@@ -81,17 +82,19 @@ export default function TabOneScreen() {
 };
 
 const handleSubmit = async ()  => {
+  setDisabled(true);
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
   console.log(JSON.stringify({
-    id : data.userId,
+    id : idReq,
     objects : selectedIds,
   }));
   try {
     //const id = await AsyncStorage.getItem('userID');
     const body = new FormData();
       //data.append('name', 'Image Upload');
-      body.append("id", data.userId);
+      body.append("id", idReq);
+      //body.append("id", data.userId);idReq
       body.append("objects", selectedIds);
     const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_objects',
       {method: 'POST',
@@ -109,9 +112,14 @@ const handleSubmit = async ()  => {
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка при акцептовании: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error(error);
+    setDisabled(false);
   } finally {
     router.push('/admin/requests');
+    setDisabled(false);
     //setLoading(false);
 
   }
@@ -165,13 +173,13 @@ const handleSubmit = async ()  => {
       editable={false}
       value={data.organisation}
     />
-    {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
+    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value='{item.date}'
-    />*/}
+      value={data.creationTime}
+    />
      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
      
         <FlatList
@@ -182,7 +190,7 @@ const handleSubmit = async ()  => {
         />
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-      <CustomButton title='Акцептовать заявку' handlePress={handleSubmit}/>
+      <CustomButton disabled={disabled} title='Акцептовать заявку' handlePress={handleSubmit}/>
       </View>
     </SafeAreaView>
   );

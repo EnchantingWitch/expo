@@ -1,12 +1,11 @@
-//import SmartKeyboardView from '@/components/SmartKeyboardView';
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
 import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, Platform, StatusBar, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { default as React, useEffect, useState } from 'react';
+import { Alert, Platform, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 type Object = {
@@ -14,7 +13,6 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-  
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const fontScale = useWindowDimensions().fontScale;
@@ -24,6 +22,18 @@ export default function TabOneScreen() {
 
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Object[]>([]);
+
+  const {capitalCSId} = useLocalSearchParams(); 
+  const {codeCCS} = useLocalSearchParams(); 
+  const {capitalCSName} = useLocalSearchParams(); 
+  const {ciwexecutor} = useLocalSearchParams(); 
+  const {ciwsupervisor} = useLocalSearchParams(); 
+  const {customer} = useLocalSearchParams(); 
+  const {customerSupervisor} = useLocalSearchParams(); 
+  const {cwexecutor} = useLocalSearchParams(); 
+  const {cwsupervisor} = useLocalSearchParams();  
+  const {locationRegion} = useLocalSearchParams();  
+  const {objectType} = useLocalSearchParams();  
 
   const [oks, setOks] = useState<string>('');//наименование окс
   const [key, setKey] = useState<string>('');//код ОКС
@@ -36,8 +46,27 @@ export default function TabOneScreen() {
   const [executorCmr, setExecutorCmr] = useState<string>();//исполнитель смр
   const [cuCmr, setCuCmr] = useState<string>();//куратор смр
   const [accessToken, setAccessToken] = useState<any>('');
+  const [status, setStatus] = useState<boolean>(false);
   const [disabled, setDisabled] = useState(false); //для кнопки
+
+  useEffect(() => {
+    if(codeCCS){setOks(capitalCSName);
+    setKey(codeCCS);}
+    if(ciwexecutor){
+    setRegion(locationRegion);
+    setTypeObj(objectType);
+    setCharterer(customer);
+    setCuCharterer(customerSupervisor);
+    setExecutorPnr(ciwexecutor);
+    setDirPnr(ciwsupervisor);
+    setExecutorCmr(cwexecutor);
+    setCuCmr(cwsupervisor);
+    setStatus(true);
+    }
+    
+  }, [codeCCS, ciwexecutor]);
   
+    
   const getToken = async () => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -55,23 +84,17 @@ export default function TabOneScreen() {
         console.error('Error retrieving token:', error);
     }
 };
-
-console.log (oks, 'oks');
-console.log (key, 'key');
-
-console.log('oks === || key===', oks ==='' || key==='')
-
-const request = async () => {
+  const request = async () => {
     setDisabled(true);
     if(oks ==='' || key===''){
-          Alert.alert('', 'Заполните поля наименования объекта и кода ОКС.', [
-                                  {text: 'OK', onPress: () => console.log('OK Pressed')}])
-                     setDisabled(false);
-                     return;
-                   }
+              Alert.alert('', 'Заполните поля наименования объекта и кода ОКС.', [
+                                      {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                         setDisabled(false);
+                         return;
+                       }
     try {
-    let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/createObject', {
-      method: 'POST',
+    let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/updateCapitalCS/' + capitalCSId, {
+      method: 'PUT',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         Accept: 'application/json',
@@ -90,33 +113,68 @@ const request = async () => {
         ciwsupervisor: cuCmr, // куратор СМР 
       }),
     });
-    console.log('Response:', response);
+    console.log(JSON.stringify({
+        capitalCSName: oks,
+        codeCCS: key,
+        locationRegion: region,
+        objectType: typeObj,
+        customer: charterer,//заказчик
+        ciwexecutor: executorPnr,//исполнитель СМР
+        cwexecutor: executorCmr,//исполнитель ПНР
+        customerSupervisor: cuCharterer,// Куратор заказчика
+        cwsupervisor: dirPnr, // Куратор ПНР
+        ciwsupervisor: cuCmr, // куратор СМР 
+      }));
+    console.log('ResponseUpdateObj:', response);
     if (response.status == 200){
-      Alert.alert('', 'Объект добавлен.', [
+      Alert.alert('', 'Данные по объекту обновлены.', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
-  /*  if (response.status == 400) {
-      Alert.alert('', 'Объект не добавлен (возможно ОКС с введенным кодом уже существует).', [
+    else{
+      Alert.alert('', 'Данные по объекту не обновлены.', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
-    };*/
+    };
   } catch (error) {
-    Alert.alert('', 'Произошла ошибка при создании объекта: ' + error, [
-                 {text: 'OK', onPress: () => console.log('OK Pressed')},
-              ])
     setDisabled(false);
     console.error('Error:', error);
   } finally {
     setDisabled(false);
-    router.replace('./menu');
+    router.replace('./objs');
   }
 
 };
 
-  useEffect(() => {
+const deleteObject = async () => {
+  setDisabled(true);
+    try {
+      let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/deleteCapitalCS/'+capitalCSId, {
+          method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+    console.log('deleteObject', response);
+    if (response.status === 200) {
+      Alert.alert('', 'Объект удален.', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    }
+    else {
+      Alert.alert('', 'Произошла ошибка при удалении.', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')}])
+    }
+  } catch (err) {
+    setDisabled(false);
+  } finally {
+    setDisabled(false);
+    router.replace({pathname: './objs'});
+  }
+  }
+
+useEffect(() => {
     getToken();  
   }, []);
   
-  const [statusOrg, setStatusOrg] = useState(false);
+   const [statusOrg, setStatusOrg] = useState(false);
   const [statusTypeObj, setStatusTypeObj] = useState(false);
   const [statusRegion, setStatusRegion] = useState(false);
 
@@ -223,57 +281,51 @@ const request = async () => {
 
   return (
     <KeyboardAwareScrollView
-         style={{ flex: 1 }}
-      enableOnAndroid={true}
-      extraScrollHeight={100}
-      keyboardShouldPersistTaps="handled"
-       //enableAutomaticScroll={false}
-      contentContainerStyle={{ 
-        flexGrow: 1,
-        alignItems: 'center',  // ← Перенесено сюда
-        justifyContent: 'center',  // ← Перенесено сюда
-      }}
-            >
-{/*</KeyboardAwareScrollView>    <KeyboardAwareScrollView
-  style={{ flex: 1 }}
+     style={{ flex: 1 }}
   enableOnAndroid={true}
   extraScrollHeight={100}
   keyboardShouldPersistTaps="handled"
   contentContainerStyle={{ 
     flexGrow: 1,
-    //paddingBottom: 100, // Добавляем отступ снизу
+    alignItems: 'center',  // ← Перенесено сюда
+    justifyContent: 'center',  // ← Перенесено сюда
   }}
-  enableResetScrollToCoords={false} // Отключаем автоматический скролл
-  //extraHeight={200} // Дополнительное пространство для клавиатуры
->*/}
+        >
     <View style={styles.container}>
-      <FormField title='Объект капитального строительства' onChange={(value) => setOks(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
-      <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
-{/*         <AdaptiveDropdown
-          data={countries}
-          value={selectedCountry}
-          onChange={setSelectedCountry}
-          placeholder="Выберите страну"
-          style={styles.input}
-        />*/}
+      {/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
+       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Объект капитального строительства</Text>
+        <TextInput
+            style={[ {fontSize: ts(14),  backgroundColor: '#FFFFFF', borderRadius: 8,borderWidth: 1, borderColor: '#D9D9D9', width: '96%', height: 42, paddingVertical: 'auto', color: '#B3B3B3', textAlign: 'center', marginBottom: 20,}]}
+            placeholderTextColor="#111"
+            onChangeText={setOks}
+            value={oks}
+            // editable={false}
+        />
         
-      <ListOfOrganizations data={listRegion} title='Регион' label={`Регион`} post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
-       <ListOfOrganizations data={listTypeObj} title='Тип объекта' label={`Тип объекта`} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
-      {/*<FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>*/}
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Код ОКС</Text>
+        <TextInput
+            style={[ {fontSize: ts(14),  backgroundColor: '#FFFFFF', borderRadius: 8,borderWidth: 1, borderColor: '#D9D9D9', width: '96%', height: 42, paddingVertical: 'auto', color: '#B3B3B3', textAlign: 'center', marginBottom: 20,}]}
+            placeholderTextColor="#111"
+            onChangeText={setKey}
+            value={key}
+            // editable={false}
+        />
+     <ListOfOrganizations data={listRegion} title={region!=''? region:'Регион'} post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
+       <ListOfOrganizations data={listTypeObj} title={typeObj!=''? typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
-      <ListOfOrganizations data={listOrganization} title='' label={`Заказчик`} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
-      <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
-      {/*<FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>*/}
+      <ListOfOrganizations data={listOrganization} title={charterer!=''? charterer:''} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
+      <FormField title='Куратор от заказчика' post={cuCharterer} onChange={(value) => setCuCharterer(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations data={listOrganization} label={`Исполнитель ПНР`} title='' post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
-      <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
-      {/*<FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>*/}
+      <ListOfOrganizations data={listOrganization} title={executorPnr!=''? executorPnr:''} post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
+      <FormField title='Руководитель ПНР' post={dirPnr} onChange={(value) => setDirPnr(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-      <ListOfOrganizations data={listOrganization} label={`Исполнитель СМР`} title='' post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
-      <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
-      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-        <CustomButton title='Сохранить' disabled={disabled} handlePress={request}/>
+      <ListOfOrganizations data={listOrganization} title={executorCmr!=''? executorCmr:''} post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
+      <FormField title='Куратор СМР' post={cuCmr} onChange={(value) => setCuCmr(value)}/>
     </View>
+    
+    <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20, backgroundColor: 'white', width: '100%' }}>
+        <CustomButton disabled={disabled} title='Сохранить' handlePress={request}/>
+        <CustomButton disabled={disabled} title='Удалить объект' handlePress={deleteObject}/>
     </View>
     </KeyboardAwareScrollView>
   ); 
@@ -281,12 +333,10 @@ const request = async () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',//alignItems: 'center',
     width: '100%',
-    justifyContent: 'center',
+    zIndex: 1000,
+    alignItems: 'center',
     backgroundColor: 'white',
-
   },
   title: {
     fontSize: 20,

@@ -4,7 +4,7 @@ import SystemsForTwo from "@/components/SystemsForTwo";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
-import type { PropsWithChildren } from "react";
+//import type { PropsWithChildren } from "react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -20,6 +20,22 @@ import {
   View,
 } from "react-native";
 import type { Structure } from "./structure";
+
+type UserInfo = {
+  id: number;
+  organisation: string;
+  fullName: string;
+  phoneNumber: string;
+  registrationDate: string;
+};
+
+type Users = {
+  username: string;
+  id: string;
+  isEnabled: boolean;
+  role: string;
+  userInfo: UserInfo; // Теперь это объект, а не массив
+}; 
 
 type Note = {
   commentId: number; //id замечания , генерируется на сервере
@@ -49,16 +65,12 @@ const DirectionLayout = () => {
   const { capitalCSName } = useGlobalSearchParams(); //получение наименование ОКС
   const [chooseSubobject, setChooseSubobject] = useState("");
   const [chooseSystem, setChooseSystem] = useState("");
-  const [chooseStatus, setChooseStatus] = useState<string>("Все");
+  const [chooseUser, setChooseUser] = useState<string>("");
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
+  const [listUsers, setListUsers] = useState<ListToDrop[]>([]);
   const [status, setStatus] = useState(true);
   const [statusStructure, setStatusStructure] = useState(true);
-  const statusList = [
-    { label: "Все", value: "Все" },
-    { label: "Устранено", value: "Устранено" },
-    { label: "Не устранено", value: "Не устранено" },
-  ];
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -82,19 +94,12 @@ const DirectionLayout = () => {
     });
   }, [navigation]);
 
-  const [direction, setDirection] = useState("Объект");
-
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem("accessToken");
-      //setAccessToken(token);
       if (token !== null) {
-        console.log("Retrieved token:", token);
         setAccessToken(token);
-        //вызов getAuth для проверки актуальности токена
-        //authUserAfterLogin();
       } else {
-        console.log("No token found");
         router.push("/sign/sign_in");
       }
     } catch (error) {
@@ -106,11 +111,12 @@ const DirectionLayout = () => {
   const [data, setData] = useState<Note[]>([]);
   const [originalData, setOriginalData] = useState<Note[]>([]);
   const [structure, setStructure] = useState<Structure[]>([]);
+  const [users, setUsers] = useState<Users[]>([]);
 
   const getNotes = async () => {
     try {
       const response = await fetch(
-        "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/getAllComments/" +
+        "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/journal/getEntryList/" +
           codeCCS,
         {
           method: "GET",
@@ -123,8 +129,8 @@ const DirectionLayout = () => {
       const json = await response.json();
       setData(json);
       setOriginalData(json);
-      console.log("ResponseGetNotes:", response);
-      console.log("ResponseGetNotes:", json);
+      console.log("ResponsegetEntryList:", response);
+      console.log("ResponsegetEntryList:", json);
     } catch (error) {
       console.error(error);
     } finally {
@@ -152,6 +158,27 @@ const DirectionLayout = () => {
       console.error(error);
     }
   };
+  const getUsers = async () => {
+    try {
+      const response = await fetch(
+        "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/user/getUsers",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("ResponseGetUsers:", response);
+      const json = await response.json();
+      setUsers(json);
+      console.log(json)
+      
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     getToken();
@@ -160,15 +187,13 @@ const DirectionLayout = () => {
   useEffect(() => {
     if (codeCCS && accessToken && status) {
       getNotes();
-      //getStructure();
+      getUsers();
+      getStructure();
       setStatus(false);
     }
-    if (data.length > 0 && statusStructure) {
-      //getNotes();
-      getStructure();
-      setStatusStructure(false);
-    }
-    //формирование выпадающего списка для подобъекта
+  }, [codeCCS, accessToken, status]); 
+
+  useEffect(() => {
     if (structure.length > 0) {
       const buf = structure.map((item) => ({
         label: item.subObjectName,
@@ -186,29 +211,36 @@ const DirectionLayout = () => {
       }));
       setListSystem(systemList);
     }
-  }, [codeCCS, accessToken, structure, data, status]);
+  }, [structure]); // Только structure как зависимость
 
-  // Добавление сброса выбранного значения в выпадающий список
   useEffect(() => {
-    if (
-      chooseSystem !== "" &&
-      chooseSystem !== "Все системы" &&
-      !listSystem.some((item) => item.value === "Все системы")
-    ) {
-      const item = { label: "Все системы", value: "Все системы" };
-      setListSystem((prev) => [...prev, item]);
-      console.log("new ListSystem", listSystem);
+    if (users.length > 0) {
+      const buf = users.map(user => ({
+        label: user.userInfo.fullName,
+        value: String(user.id)
+      }));
+      setListUsers(buf);
     }
-    if (
-      chooseSubobject !== "" &&
-      chooseSubobject !== "Все подобъекты" &&
-      !listSubObj.some((item) => item.value === "Все подобъекты")
-    ) {
-      const item = { label: "Все подобъекты", value: "Все подобъекты" };
-      setListSubObj((prev) => [...prev, item]);
-      console.log("new ListSystem", listSubObj);
+  }, [users]); // Только users как зависимость
+
+  // Отдельный эффект для добавления "Все варианты" в списки
+  useEffect(() => {
+    if (chooseSystem !== "" && chooseSystem !== "Все системы" && !listSystem.some((item) => item.value === "Все системы")) {
+      setListSystem(prev => [...prev, { label: "Все системы", value: "Все системы" }]);
     }
-  }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
+  }, [chooseSystem, listSystem]);
+
+  useEffect(() => {
+    if (chooseSubobject !== "" && chooseSubobject !== "Все подобъекты" && !listSubObj.some((item) => item.value === "Все подобъекты")) {
+      setListSubObj(prev => [...prev, { label: "Все подобъекты", value: "Все подобъекты" }]);
+    }
+  }, [chooseSubobject, listSubObj]);
+
+  useEffect(() => {
+    if (chooseUser !== "" && chooseUser !== "Все специалисты" && !listUsers.some((item) => item.value === "Все специалисты")) {
+      setListUsers(prev => [...prev, { label: "Все специалисты", value: "Все специалисты" }]);
+    }
+  }, [chooseUser, listUsers]);
 
   const filteredData = useMemo(() => {
     let result = originalData;
@@ -220,28 +252,24 @@ const DirectionLayout = () => {
 
     // Фильтрация по системе
     if (chooseSystem && chooseSystem !== "Все системы") {
-      result = result.filter((item) => item.systemName === chooseSystem);
+      result = result.filter((item) => item.system === chooseSystem);
     }
 
     // Фильтрация по статусу
-    if (chooseStatus && chooseStatus !== "Все") {
-      result = result.filter((item) => item.commentStatus === chooseStatus);
+    if (chooseUser && chooseUser !== "Все специалисты") {
+      result = result.filter((item) => item.user === chooseUser); {/**изменить поле по которому сравниваю */}
     }
 
     return result;
-  }, [originalData, chooseSubobject, chooseSystem, chooseStatus]);
+  }, [originalData, chooseSubobject, chooseSystem, chooseUser]);
+
+  const str = `${capitalCSName}\nЖурнал ПНР`
 
   // Обновление данных при изменении фильтров
   useEffect(() => {
     setData(filteredData);
   }, [filteredData]);
-
-  //console.log('chooseSystem',chooseSystem);
-  //console.log('listSystem',listSystem);
-  //console.log('data',data);
-
-  const str = `${capitalCSName}\nЗамечания`
-
+console.log(chooseUser);
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View
@@ -262,38 +290,41 @@ const DirectionLayout = () => {
             />
           </TouchableOpacity>
 
-          <TextInput
-            style={{
-              flex: 1,
-              paddingTop: 0,
-              fontWeight: 500,
-              paddingBottom: 8,
-              height: Math.max(42, inputHeight), // min: 42, max: 100
-              fontSize: ts(20),
-              textAlign: "center", // Горизонтальное выравнивание.
-              textAlignVertical: "center", // Вертикальное выравнивание (Android/iOS).
-            }}
-            multiline
-            editable={false}
-            onContentSizeChange={(e) => {
-              const newHeight = e.nativeEvent.contentSize.height;
-              setInputHeight(Math.max(42, newHeight));
-            }}
-          >
-              {str}
-          </TextInput>
+            <TextInput
+            
+                  style={{
+                    flex: 1,
+                    width: '100%',
+                    paddingTop:  0,
+                    paddingBottom: 8,
+                    fontWeight: 500,
+                    height: Math.max(42,inputHeight), // min: 42, max: 100
+                    fontSize: ts(20),
+                    textAlign: 'center',          // Горизонтальное выравнивание.
+                    textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+                  }}
+                  multiline
+                  editable={false}
+                  onContentSizeChange={e => {
+                    const newHeight = e.nativeEvent.contentSize.height;
+                    setInputHeight(Math.max(42, newHeight));
+                  }}
+                >
+                  {str}
+                </TextInput>
         </View>
-
+        
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
             width: "98%",
+           // position: 'absolute'
           }}
         >
           <SystemsForTwo
             list={listSubObj}
-            nameFilter="Все подобъекты"
+            nameFilter={`Все ${'\n'}подобъекты`}
             width={130}
             onChange={(system) => setChooseSubobject(system)}
           />
@@ -304,28 +335,42 @@ const DirectionLayout = () => {
             onChange={(system) => setChooseSystem(system)}
           />
           <SystemsForTwo
-            list={statusList}
-            nameFilter="Все"
+            list={listUsers}
+            nameFilter={`Все ${'\n'}специалисты`}
             width={130}
-            onChange={(status) => setChooseStatus(status)}
+            onChange={(status) => setChooseUser(status)}
           />
         </View>
 
         <View
           style={{
             flexDirection: "row",
-            width: "98%",
+            width: "100%",
             height: 32,
-            paddingTop: 6,
-            justifyContent: "space-between",
+            paddingTop: 15,
+            //justifyContent: "space-between",
           }}
         >
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>№</Text>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Содержание</Text>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Статус</Text>
+            <View style = {{width: '15%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Дата</Text>
+          </View>
+          
+          <View style = {{width: '45%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Краткое описание работ</Text>
         </View>
 
-        <View style={{ flex: 15, marginTop: 12, width: '98%' }}>
+        <View style = {{width: '20%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Подобъект</Text>
+        </View>
+
+        <View style = {{width: '20%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Система</Text>
+        </View>
+        </View>
+
+        
+
+        <View style={{ flex: 15, marginTop: 12,  width: "100%"  }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -337,10 +382,10 @@ const DirectionLayout = () => {
                 <TouchableWithoutFeedback
                   onPress={() => {
                     router.push({
-                      pathname: "/notes/see_note",
+                      pathname: "/jour/see_jour",
                       params: {
                         capitalCSName: capitalCSName,
-                        post: item.commentId,
+                        post: item.id,
                         codeCCS: codeCCS,
                       },
                     });
@@ -350,8 +395,9 @@ const DirectionLayout = () => {
                     style={{
                       backgroundColor: "#E0F2FE",
                       flexDirection: "row",
-                      width: "100%",
-                      height: 37,
+                      width: "98%",
+                      height: 42,
+                      alignSelf: 'center',
                       justifyContent: "center",
                       marginBottom: 15,
                       borderRadius: 8,
@@ -361,17 +407,17 @@ const DirectionLayout = () => {
                       <Text
                         style={{
                           fontSize: ts(14),
-                          color: "#334155",
-                          textAlign: "left",
+                          color: "#334155", textAlign: 'center' 
                         }}
                       >
-                        {item.serialNumber}
+                        
+                        {item.date}{/**это должна быть дата */}
                       </Text>
                     </View>
 
                     <View
                       style={{
-                        width: "75%",
+                        width: '45%',
                         marginStart: 2,
                         justifyContent: "center",
                       }}
@@ -387,37 +433,41 @@ const DirectionLayout = () => {
                         {item.description}
                       </Text>
                     </View>
-
                     <View
                       style={{
-                        width: "7%",
+                        width: '20%',
                         marginStart: 2,
                         justifyContent: "center",
                       }}
                     >
-                      {item.commentStatus == "Устранено" ? (
-                        <Ionicons name="checkbox" size={25} color="#0072C8" />
-                      ) : (
-                        ""
-                      )}
-                      {item.commentStatus == "Устранено с просрочкой" ? (
-                        <Ionicons name="checkbox" size={25} color="#0072C8" />
-                      ) : (
-                        ""
-                      )}
-                      {item.commentStatus == "Не устранено" ? (
-                        <Ionicons name="square" size={25} color="#F0F9FF" />
-                      ) : (
-                        ""
-                      )}
-                      {item.commentStatus == "Не устранено с просрочкой" ? (
-                        <Ionicons name="square" size={25} color="#F59E0B" />
-                      ) : (
-                        ""
-                      )}
-
-                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
-                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
+                      <Text
+                      numberOfLines={2}
+                        style={{
+                          fontSize: ts(14),
+                          color: "#334155",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.subObject}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '20%',
+                        marginStart: 2,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text
+                      numberOfLines={2}
+                        style={{
+                          fontSize: ts(14),
+                          color: "#334155",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.system}
+                      </Text>
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -427,10 +477,10 @@ const DirectionLayout = () => {
         </View>
 
         <CustomButton
-          title="Добавить замечание"
+          title="Добавить краткое описание работ"
           handlePress={() =>
             router.push({
-              pathname: "/notes/create_note",
+              pathname: "/jour/create_jour",
               params: { codeCCS: codeCCS, capitalCSName: capitalCSName },
             })
           }
@@ -439,65 +489,6 @@ const DirectionLayout = () => {
     </View>
   );
 };
-
-type PreviewLayoutProps = PropsWithChildren<{
-  // label: string;
-  // values: string[];
-  selectedValue: string;
-  setSelectedValue: (value: string) => void;
-}>;
-
-type PreviewNameProps = PropsWithChildren<{
-  values: string[];
-}>;
-
-const PreviewName = ({
-  //childern,
-  values,
-}: PreviewNameProps) => (
-  <View style={styles.row}>
-    {values.map((value) => (
-      <Text key={value} style={styles.title}>
-        {value}
-      </Text>
-    ))}
-  </View>
-);
-
-const PreviewLayout = ({
-  //  label,
-  children,
-  values,
-  selectedValue,
-  setSelectedValue,
-}: PreviewLayoutProps) => (
-  <View style={{ padding: 6, flex: 1 }}>
-    <View style={styles.row}>
-      {values.map((value) => (
-        <TouchableOpacity
-          key={value}
-          onPress={() => setSelectedValue(value)}
-          style={[styles.button, selectedValue === value && styles.selected]}
-        >
-          <Text
-            style={[
-              styles.buttonLabel,
-              selectedValue === value && styles.selectedLabel,
-            ]}
-          >
-            {value}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-    <View
-      style={styles.separator}
-      lightColor="#eee"
-      darkColor="rgba(255,255,255,0.1)"
-    />
-    <View style={[styles.container]}>{children}</View>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
