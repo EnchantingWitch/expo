@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Modal, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 
@@ -59,6 +59,10 @@ const CalendarOnWrite = ({ theme, onChange }: Props) => {
   const ts = (fontSize: number) => {
     return fontSize / fontScale;
   };
+useEffect(() => {
+    const formattedDate = format(date, 'dd.MM.yyyy');
+    onChange(formattedDate);
+}, []);
 
   const handleDayPress = (day) => {
     const selectedDate = new Date(day.dateString);
@@ -102,6 +106,7 @@ const CalendarOnWrite = ({ theme, onChange }: Props) => {
             source={require('../assets/images/calendar1.png')} 
           />
         </TouchableOpacity>
+        <TouchableOpacity onPress={()=> setShowCalendar(false)}>
           <Modal
         style={{
             width: 200,
@@ -138,6 +143,7 @@ const CalendarOnWrite = ({ theme, onChange }: Props) => {
             </View>
           </View>
         </Modal>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -232,11 +238,11 @@ const styles = StyleSheet.create({
   containerrowMin: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+     alignContent: 'center',
     paddingTop: 11,
     paddingBottom: 12,
     backgroundColor: '#fff',
-    width: '0%',
+    width: '100%',
     flexDirection: 'row',
     marginBottom: 8,
   },
@@ -245,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#D9D9D9',
-   // width: '70%',
+    width: '70%',
     height: 42,
     color: '#B3B3B3',
     textAlign: 'center',
@@ -254,8 +260,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d9d9d938',
-    //width: '66%',
+    borderColor: '#D9D9D9',
+    width: '70%',
     height: 42,
     color: '#B3B3B3',
     textAlign: 'center',

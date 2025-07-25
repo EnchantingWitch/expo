@@ -17,6 +17,7 @@ import { default as React, useEffect, useState } from 'react';
 import { Alert, Dimensions, Platform, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 //import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 //import DateInputWithPicker from '@/components/Calendar+';
+import useDevice from '@/hooks/useDevice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Structure } from '../(tabs)/structure';
 import { styles } from '../notes/create_note';
@@ -40,6 +41,8 @@ interface Data {
 }
 
 const EditDataScreen: React.FC = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+  
     const {serialNumb} = useLocalSearchParams();
     const {subobj} = useLocalSearchParams();
     const {system} = useLocalSearchParams();
@@ -122,10 +125,6 @@ const EditDataScreen: React.FC = () => {
     }
 };
 
-  const handleSubObjectChange = (selectedSubObject: string) => {
-    setEditedSubObject(selectedSubObject);
-    setEditedSystemName(' '); // Явный сброс системы
-  }
 /*
 console.log(JSON.stringify({
           subObject: editedSubObject,
@@ -251,36 +250,17 @@ console.log(JSON.stringify({
     }
   }, [editedSystemName]);
  
-  useEffect(() => {
-    if(editedSystemName!= ' ' && editedSubObject!= '' ){
-      
-      if(editedSystemName != bufsystem){
-        setBufsystem(editedSystemName);
-      console.log(editedSystemName, 'systemName: use if(systemName )');
-      if (editedSystemName != ' ' ){
-        const filtered = array.filter(item => item.subObjectName === editedSubObject);
-        //console.log(filtered[0].data);
-        if(filtered.length != 0){
-          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
-        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-          console.log(filteredS.length, 'filteredS.length');
-          console.log(filteredS, 'filteredS');
-          if(filteredS.length != 0){
-            console.log('1');
-            setEditedIinumber(filteredS[0].numberII);
-          }
-          else{
-            setEditedIinumber('');
-            setEditedSystemName(' ');
-            setEditedSubObject('');
-          }
-          setNoteListSystem(false);
-      }
-      }
-      }  
-     
-    }
-      }, [editedSubObject, editedSystemName, array]);
+ useEffect(() => {
+   if (editedSubObject && array.length > 0) {
+     const filtered = array.find(item => item.subObjectName === editedSubObject);
+     setListSystem(filtered?.data.map(system => ({
+       label: system.systemName,
+       value: system.systemName
+     })) || []);
+   } else {
+     setListSystem([]);
+   }
+ }, [editedSubObject, array]);
 
    // Для подобъектов
 useEffect(() => {
@@ -305,6 +285,23 @@ useEffect(() => {
   }
 }, [editedSubObject, array]);
 
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setEditedSubObject(selectedSubObject);
+    setEditedSystemName(' '); // Явный сброс системы
+  }
+
+  const handleSystemChange = (selectedSystem: string) => {
+  setEditedSystemName(selectedSystem);
+  // Обновляем номер ИИ сразу при выборе системы
+  if (selectedSystem && editedSubObject) {
+    const filtered = array.find(item => item.subObjectName === editedSubObject);
+    if (filtered) {
+      const systemData = filtered.data.find(item => item.systemName === selectedSystem);
+      setEditedIinumber(systemData?.numberII || '');
+    }
+  }
+};
+
   return (
      <KeyboardAwareScrollView
       style={styles.container}
@@ -320,7 +317,7 @@ useEffect(() => {
           }]}>
               <View style={{ flex: 1, alignItems: 'center',
                 //height: 1,
-               width: '130%',
+               width: isDesktopWeb? '188%' :'100%'
                }}>
 
           <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
@@ -396,7 +393,7 @@ useEffect(() => {
               status={statusReq} */
               buf={bufsystem}
               post={editedSystemName} 
-              onChange={(system) => setEditedSystemName(system)}
+              onChange={(system) => handleSystemChange(system)}
           />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Краткое описание и условия выполнения работ</Text>
           {/*}  <TextInput

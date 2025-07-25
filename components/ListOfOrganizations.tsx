@@ -70,8 +70,8 @@ const AdaptiveDropdown = forwardRef(({ post, status, title, label, data, onChang
                         <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
                             {post!=='' && post!==' '? post : selectedLabel? selectedLabel : 'Не выбрано'}
                         </Text></View>
-                        <View style={{width: '5%'}}>
-                        <Ionicons name='chevron-down' color={ '#B3B3B3'}/></View>
+                        <View style={{width: '5%', alignItems: 'flex-end',}}>
+                        <Ionicons name='chevron-down' color={ '#B3B3B3'} size={16} /></View>
                     </View>
                 </TouchableOpacity>
             </View>
@@ -100,9 +100,12 @@ const AdaptiveDropdown = forwardRef(({ post, status, title, label, data, onChang
                                             }
                                         ]}
                                     >
-                                        <Text style={styles.modalHeaderText}>Статус объекта</Text>
+                                        <Text style={styles.modalHeaderText}>{label}</Text>
                                         <Text style={styles.selectedValueText}>
-                                            {value && value !== ' ' ? selectedLabel : 'Не выбрано'}
+                                            {value!=='' && value!==' ' && value!==undefined ? selectedLabel : 
+                                                                                                        <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
+                                                                                                            Не выбрано
+                                                                                                        </Text>}
                                         </Text>
                                         
                                                                                 

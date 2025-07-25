@@ -4,6 +4,7 @@ import SystemsForTwo from "@/components/SystemsForTwo";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
+import useDevice from '../../hooks/useDevice';
 //import type { PropsWithChildren } from "react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -54,6 +55,8 @@ type Note = {
 };
 
 const DirectionLayout = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+    
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
@@ -299,7 +302,7 @@ console.log(chooseUser);
                     paddingBottom: 8,
                     fontWeight: 500,
                     height: Math.max(42,inputHeight), // min: 42, max: 100
-                    fontSize: ts(20),
+                    fontSize:  ts(20),
                     textAlign: 'center',          // Горизонтальное выравнивание.
                     textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
                   }}
@@ -318,26 +321,26 @@ console.log(chooseUser);
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: "98%",
+            width: isDesktopWeb && screenWidth>900? 900 :'98%',
            // position: 'absolute'
           }}
         >
           <SystemsForTwo
             list={listSubObj}
             nameFilter={`Все ${'\n'}подобъекты`}
-            width={130}
+            width={ isDesktopWeb ? 130 : 80}
             onChange={(system) => setChooseSubobject(system)}
           />
           <SystemsForTwo
             list={listSystem}
             nameFilter="Все системы"
-            width={130}
+            width={isDesktopWeb? 130 : 80}
             onChange={(system) => setChooseSystem(system)}
           />
           <SystemsForTwo
             list={listUsers}
             nameFilter={`Все ${'\n'}специалисты`}
-            width={130}
+            width={isDesktopWeb? 130 : 80}
             onChange={(status) => setChooseUser(status)}
           />
         </View>
@@ -345,37 +348,37 @@ console.log(chooseUser);
         <View
           style={{
             flexDirection: "row",
-            width: "100%",
+            width: isDesktopWeb && screenWidth>900? 900 :'98%',
             height: 32,
             paddingTop: 15,
             //justifyContent: "space-between",
           }}
         >
-            <View style = {{width: '15%'}}>
+            <View style = {{width: '20%'}}>
           <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Дата</Text>
           </View>
           
-          <View style = {{width: '45%'}}>
+          <View style = {{width: '80%'}}>
           <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Краткое описание работ</Text>
         </View>
 
-        <View style = {{width: '20%'}}>
+       {/*} <View style = {{width: '20%'}}>
           <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Подобъект</Text>
         </View>
 
         <View style = {{width: '20%'}}>
           <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Система</Text>
-        </View>
+        </View>*/}
         </View>
 
         
 
-        <View style={{ flex: 15, marginTop: 12,  width: "100%"  }}>
+        <View style={{ flex: 15, marginTop: 12,  width: isDesktopWeb && screenWidth>900? 900 :'98%', }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
             <FlatList
-              style={{ width: "100%" }}
+              style={{  width: '100%', }}
               data={data}
               keyExtractor={({ commentId }) => commentId}
               renderItem={({ item }) => (
@@ -403,7 +406,7 @@ console.log(chooseUser);
                       borderRadius: 8,
                     }}
                   >
-                    <View style={{ width: "15%", justifyContent: "center" }}>
+                    <View style={{ width: "20%", justifyContent: "center" }}>
                       <Text
                         style={{
                           fontSize: ts(14),
@@ -417,7 +420,7 @@ console.log(chooseUser);
 
                     <View
                       style={{
-                        width: '45%',
+                        width: '80%',
                         marginStart: 2,
                         justifyContent: "center",
                       }}
@@ -433,7 +436,7 @@ console.log(chooseUser);
                         {item.description}
                       </Text>
                     </View>
-                    <View
+                {/*}    <View
                       style={{
                         width: '20%',
                         marginStart: 2,
@@ -468,7 +471,7 @@ console.log(chooseUser);
                       >
                         {item.system}
                       </Text>
-                    </View>
+                    </View>*/}
                   </View>
                 </TouchableWithoutFeedback>
               )}

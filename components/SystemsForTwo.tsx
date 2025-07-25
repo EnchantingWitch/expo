@@ -10,11 +10,12 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[]; // список
     nameFilter: string;
+    width?: number;
    // statusreq: boolean; // для обновления значения даты при получении даты с запроса
     onChange: (subobj: string) => void; // Функция для обновления значения
 };
 
-const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
+const ListOfSubobj = ({ list, nameFilter, width, onChange }: Props) => {
     const [value, setValue] = useState<string>('');
     const [isFocus, setIsFocus] = useState(false);
     const [List, setList] = useState<ListToDrop[]>([]);
@@ -43,28 +44,37 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
       }, [list]);
       
     return (
-        <View style={styles.container}>
+        <View style={[styles.container,]} >
             <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue'}]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)}]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
+                style={[styles.dropdown,  isFocus && { borderColor: 'blue', width: width+30, maxWidth: width+30}]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), includeFontPadding: false, width: width, lineHeight: 17,  textAlignVertical: 'center', overflow: 'hidden', textOverflow: 'ellipsis', maxHeight: 37}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), includeFontPadding: false, width: width, lineHeight: 17,  textAlignVertical: 'center', maxHeight: 37,   overflow: 'hidden',
+  textOverflow: 'ellipsis'}]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), includeFontPadding: false, justifyContent: 'center', alignSelf: 'center', width: width+20, marginLeft: -9, paddingLeft: 15}]}
                 iconStyle={styles.iconStyle}
+               // searchField={}
                 containerStyle={{
-                    //width: '37%', // Ширина списка может отличаться от инпута
+                   // position: 'static',
+                  // zIndex: 1,
+                  alignItems: 'center',
+                  
+                    width: width+30, // Ширина списка может отличаться от инпута
                     borderColor: '#E0F2FE',
                     borderWidth: 1,
                     borderRadius: 8,
+                  //   overflow: 'hidden', 
         //alignSelf: 'flex-start',
                   }}
+                  dropdownPosition="auto"
                 data={list}
                 search
-                maxHeight={300}
-                itemTextStyle={{ fontSize: ts(12) }}
+              //  dropdownPosition='auto'
+                maxHeight={250}
+                itemTextStyle={{ fontSize: ts(12), maxWidth: width,  }}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? nameFilter : nameFilter}
-                searchPlaceholder="Search..."
+                searchPlaceholder="Поиск..."
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
@@ -78,18 +88,18 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
 };
 
 // ... остальной код стилей остается без изменений
-
-export default ListOfSubobj;
-
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         //paddingBottom: 16,
-        width: 120,
+       // width: 110,
         borderRadius: 8,
+      // position: 'absolute', // Важно для позиционирования выпадающего списка
+       // zIndex: 999, // Убедитесь, что контейнер выше других элементов
     },
     dropdown: {
         height: 37,
+      
         borderColor: '#E0F2FE',
         borderWidth: 2,
         borderRadius: 8,
@@ -125,10 +135,17 @@ const styles = StyleSheet.create({
     iconStyle: {
         width: 10,
         height: 10,
+      //  alignContent: 'flex-end',
     },
     inputSearchStyle: {
         height: 37,
         borderRadius: 8,
+        color: 'rgba(178, 179, 179, 1)',
+        borderColor: 'rgba(0, 0, 179, 0)',
+        //,
        // fontSize: 16,
     },
 });
+
+export default ListOfSubobj;
+

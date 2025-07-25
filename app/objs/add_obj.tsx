@@ -1,9 +1,11 @@
 import CustomButton from '@/components/CustomButton';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
-import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { default as React, useEffect, useState } from 'react';
+import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+
 
 
 type Object = {
@@ -20,16 +22,21 @@ type Object = {
 };
 
 const CheckboxList = () => {
+  
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     const [checkedItems, setCheckedItems] = useState({});
     const [data, setData] = useState<Object[]>([]);
-    const [accessToken, setAccessToken] = useState<any>('');
     const [idUser, setIdUser] = useState<any>('');
+    const [filteredData, setFilteredData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const {accessToken} = useLocalSearchParams();
+    const [disabled, setDisabled] = useState(false); //для кнопки
 
     const getObjects = async () => {
       try {
-        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll',
+        const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/getAll/'+idUser,
           {method: 'GET',
             headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -39,6 +46,8 @@ const CheckboxList = () => {
           console.log('responsegetAllObjs',response)
         const json = await response.json();
         setData(json);
+        setFilteredData(json); // Инициализируем отфильтрованные данные
+        console.log('json', json)
       
       } catch (error) {
         console.error(error);
@@ -46,6 +55,19 @@ const CheckboxList = () => {
         //setLoading(false);
       }
     };
+ // Фильтрация данных при изменении выбранных фильтров
+    useEffect(() => {
+      let result = [...data];
+     
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        result = result.filter(item => 
+          item.capitalCSName?.toLowerCase().includes(query)
+        );
+      }
+      
+      setFilteredData(result);
+    }, [ searchQuery, data]);
 
     const getToken = async (key, setF) => {
       try {
@@ -66,9 +88,9 @@ const CheckboxList = () => {
   };
 
     useEffect(() => {
-      getToken('accessToken', setAccessToken);
-      if (accessToken){getObjects();}
-      if(idUser){handleSubmit();}
+      getToken('userID', setIdUser);
+      if (accessToken && idUser ){getObjects();}
+      //if(idUser){handleSubmit();}
   }, [accessToken, idUser]);
 
     const fontScale = useWindowDimensions().fontScale;
@@ -86,11 +108,12 @@ const CheckboxList = () => {
 
     //выбранные объекты
     const handleSubmit = async ()  => {
-      
+      setDisabled(true);
       const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
       if(selectedIds.length === 0){
         Alert.alert('', 'Выберите хотя бы один объект', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
+        setDisabled(false);
         return;
       }
       console.log('Selected IDs:', selectedIds);
@@ -125,42 +148,90 @@ const CheckboxList = () => {
             {text: 'OK', onPress: () => console.log('OK Pressed')}])
         }
       } catch (error) {
+        Alert.alert('', 'Произошла ошибка при отправке запроса: ' + error, [
+                     {text: 'OK', onPress: () => console.log('OK Pressed')},
+                  ])
         console.error(error);
+        setDisabled(false);
         
       } finally {
+        
         router.push('./objects')
         //setLoading(false);
-
+        setDisabled(false);
       }
 
       // Здесь вы можете отправить запрос с выбранными ID
     };
 
     const renderItem = ({ item }) => (
-        <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,   marginBottom: '5%',}}>
-            <Checkbox
-                value={!!checkedItems[item.codeCCS]}
-                onValueChange={() => toggleCheckbox(item.codeCCS)}
-                color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
-                style={{alignSelf: 'center'}}
-            />
-            <View style={{justifyContent: 'center'}}>
-            <Text style={[styles.label, {fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text></View>
+      <View style={{ 
+       
+        
+        flexDirection: 'row', 
+        width: '100%', 
+         // Заменяем height на minHeight
+        marginBottom: 15,
+        alignItems: 'center', // Центрируем элементы по вертикали
+      }}>
+        <Checkbox
+        style={{ marginRight: 8, }}// Добавляем отступы
+          value={!!checkedItems[item.codeCCS]}
+          onValueChange={() => toggleCheckbox(item.codeCCS)}
+          color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
+        />
+        <View style={{ 
+          flex: 1, // Занимает всё доступное пространство
+          justifyContent: 'center', 
+          paddingHorizontal: 8, // Добавляем отступы
+          backgroundColor: '#E0F2FE', minHeight: 42, borderRadius: 5, 
+        }}>
+          <Text 
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            style={{
+              fontSize: ts(14),
+              // textAlign: 'left', // Выравнивание текста (по умолчанию 'left')
+              flexShrink: 1, // Позволяет тексту сжиматься и переноситься
+            }}
+          >
+            {item.capitalCSName}
+          </Text>
         </View>
+      </View>
     );
 
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-        <View style={styles.container}>
+        <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
+           <TextInput 
+        style={{ 
+          height: 42,
+          minHeight: 42, // Фиксируем минимальную высоту
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: '#D9D9D9',
+          borderRadius: 8,
+          paddingHorizontal: 12, // Горизонтальные отступы
+          paddingVertical: 0, // Убираем вертикальные отступы
+          backgroundColor: 'white', // Явно задаём фон
+          includeFontPadding: false, // Убираем лишние отступы для текста (Android)
+          textAlignVertical: 'center', // Центрируем текст вертикально
+        }}
+        placeholder="Поиск по объекту строительства"                    
+        placeholderTextColor={'#B2B3B3'}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
             <FlatList
-                data={data}
+                data={filteredData}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.codeCCS}
             />
 
         </View>
         <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-          <CustomButton title='Запросить доступ' handlePress={() =>{[getToken('userID', setIdUser)]}}/>
+          <CustomButton disabled={disabled} title='Запросить доступ' handlePress={handleSubmit}/>
         </View>
     </SafeAreaView>
     );
@@ -168,9 +239,11 @@ const CheckboxList = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        //justifyContent: 'center',
-        padding: '2%',
+    paddingTop: 6,
+    flex: 1,
+    alignSelf: 'center',
+    width: '96%',
+    //height: '100%',
     },
     checkboxContainer: {
         flexDirection: 'row',

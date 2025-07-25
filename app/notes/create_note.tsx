@@ -1,7 +1,8 @@
 import DateInputWithPicker2 from '@/components/Calendar+';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
-import DropdownComponent2 from '@/components/ListOfCategories';
+//import DropdownComponent2 from '@/components/ListOfCategories';
+import * as DocumentPicker from "expo-document-picker";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -13,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Structure } from '../(tabs)/structure';
 //import { setSeconds } from 'date-fns';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
@@ -27,6 +29,18 @@ import Animated, {
 } from 'react-native-reanimated';
 
 
+const listCategories = [
+    { label: 'Влияет на ИИ', value: 'Влияет на ИИ' },
+    { label: 'Влияет на АИИ', value: 'Влияет на АИИ' },
+    { label: 'Влияет на КО', value: 'Влияет на КО' },
+    { label: 'Влияет на АКО', value: 'Влияет на АКО' },
+    { label: 'Влияет на под. ЭЭ', value: 'Влияет на под. ЭЭ' },
+    { label: 'Влияет на под. газа', value: 'Влияет на под. газа' },
+    { label: 'Влияет', value: 'Влияет' },
+    { label: 'Не влияет на ПНР', value: 'Не влияет на ПНР' },
+    { label: 'Не влияет', value: 'Не влияет' },
+];
+
 export type ListToDrop = {
   label: string;
   value: string; 
@@ -34,6 +48,8 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
@@ -102,8 +118,8 @@ export default function CreateNote() {
   const handleSubObjectChange = (selectedSubObject: string) => {
     setSubObject(selectedSubObject);
     setSystemName(' '); // Явный сброс системы
-    setNumber('');
-    setExecut('');
+   // setNumber('');
+   // setExecut('');
 };
 
 
@@ -230,7 +246,40 @@ console.log(JSON.stringify({
         }*/}
         }
       };
-     
+
+ const selectFile = async () => {
+      // Opening Document Picker to select one file
+      try {
+        const res = await DocumentPicker.getDocumentAsync({
+          // Provide which type of file you want user to pick
+          //type: "*/*",
+          //Ограничение загружаемых типов файлов (mime type)
+          type: [
+            //'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' 
+            'image/*',// 'image/jpeg'
+          ],
+          copyToCacheDirectory: true, 
+          
+        });
+        // Printing the log realted to the file
+        console.log('res of DocumentPicker : ' + JSON.stringify(res));
+        // Setting the state to show single file attributes
+        if (!res.canceled) {
+        setSinglePhoto(res.assets[0].uri); }
+        console.log('RES PHOTO', res);
+      } catch (err) {
+        setSinglePhoto('');
+        // Handling any exception (If any)
+       if (DocumentPicker.Cancel(err)) {
+          // If user canceled the document selection
+          alert('Canceled');
+        } else {
+          // For Unknown Error
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+      }
+    };
   //console.log('noteListSubobj', noteListSubobj);
 
   useEffect(() => {
@@ -378,7 +427,7 @@ console.log(JSON.stringify({
           description: description,
           commentStatus: "Не устранено",
           executor: execut,
-          userName: user,
+          userName: fullNameFrAsync,
           startDate: startDate,
           commentCategory: category,
           commentExplanation: comExp,
@@ -405,21 +454,32 @@ console.log(JSON.stringify({
       console.log('ResponseCreateNote:', response);
       
       //Тут добавила
-      const photoToUpload = singlePhoto;
+    if(singlePhoto!=''){
       const body = new FormData();
       //data.append('name', 'Image Upload');
-      body.append("photo", {
-        uri: photoToUpload,
-        type: 'image/*',
-        name: 'photoToUpload'
-      })
-      console.log(body);
-      for (let [key, value] of body) {
+      // 1. Преобразуем base64 в Blob
+  const base64Data = singlePhoto.split(',')[1];
+  const byteCharacters = atob(base64Data);
+  const byteArrays = new Uint8Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArrays[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const blob = new Blob([byteArrays], { type: 'image/jpeg' });
+  console.log('byteArrays', byteArrays)
+
+  // 2. Создаем File (если нужно имя файла)
+  const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
+
+  // 3. Добавляем в FormData
+  body.append('photo', file); // Ключевое отличие: передаем File, а не URL
+    /*  for (let [key, value] of body) {
         console.log(key);
         console.log(value);
-    }
-    console.log(singlePhoto.uri, 'singlePhoto');
-    console.log(photoToUpload.uri, 'photoToUpload');
+    }*/
+  //  console.log(singlePhoto.uri, 'singlePhoto');
+  //  console.log(photoToUpload.uri, 'photoToUpload');
       //body.append("photo", photoToUpload);
       // Please change file upload URL
       //alert(id);
@@ -434,11 +494,12 @@ console.log(JSON.stringify({
           body: body,
           headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
+            
           }
         }
       );
       console.log('ResponsePhoto:', res);
+      }
       
       //до сюда
       if(response.status === 200){
@@ -554,7 +615,25 @@ console.log(JSON.stringify({
         }
       }
     }
-
+    
+  async function shareContent(title, text, url) {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: text,
+          url: url,
+        });
+        console.log('Content shared successfully');
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Альтернативный способ, например, копирование в буфер обмена или отображение ссылки на шаринг в социальных сетях
+      console.log('Web Share API not supported, providing alternative.');
+      // TODO: Реализовать альтернативный способ шаринга
+    }
+  }
 
   return (
     <KeyboardAwareScrollView
@@ -564,8 +643,13 @@ console.log(JSON.stringify({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1 }}
         >
-      <View style={styles.container}>
-        <View style={{ flex: 1, alignItems: 'center' }}>
+      <View style={[styles.container, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center'
+      }]}>
+        <View style={{ flex: 1,  alignItems: 'center',
+        width: isDesktopWeb? '148%' :'98%'}}>
 
            {/*}   <View style={{flexDirection: 'row', width: '96%', alignSelf: 'center' }}>
         
@@ -623,9 +707,12 @@ console.log(JSON.stringify({
               styles.input, 
               {
                 height: Math.max(42, inputHeight),
-                minHeight: 42, // Минимальная высота
-                maxHeight: 100, // Максимальная высота
-                fontSize: ts(14)
+               // minHeight: 42, // Минимальная высота
+               // maxHeight: 100, // Максимальная высота
+                fontSize: ts(14),
+                lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center',
               }
             ]}
             //placeholder="Содержание замечания"
@@ -642,30 +729,6 @@ console.log(JSON.stringify({
                         : <Text>символов</Text>}
                       </Text>
                     : '' }
-          {/* <Link href='/notes/add_photo' asChild>
-            <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
-          </Link>
-          <TouchableOpacity>
-            {form.video ? (
-              <Video source={{ uri: form.video.uri }} />
-            ) : null}
-          </TouchableOpacity>
-          <TouchableOpacity>
-            {form.image ? (
-              <Image source={{ uri: form.image.uri }} />
-            ) : null}
-          </TouchableOpacity>*/}
-
-         {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput
-            style={styles.input}
-            //placeholder="Исполнитель"
-            placeholderTextColor="#111"
-            onChangeText={setExecut}
-            value={execut}
-            editable={false}
-          />*}
-
           
           {/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
                 <View style={{flexDirection: 'row',width: '100%',}}>
@@ -678,98 +741,100 @@ console.log(JSON.stringify({
                 </View>
           </View>
 
-          <View style={{flexDirection: 'row',}}>
-          <DateInputWithPicker theme = 'min' onChange={(dateString) => setStartDate(dateString)}/>{/* Дата выдачи*/}
-          <DateInputWithPicker2 statusreq={true} post={planDate} theme = 'min' onChange={(dateString) => setPlanDate(dateString)}/>{/* Дата плановая устранения*/}
+           <View style={{flexDirection: 'row', width: '96%'}}>
+            <View style={{width: '50%',  alignItems: 'center'}}>
+              <DateInputWithPicker theme='min' onChange={(dateString) => setStartDate(dateString)}/>
+            </View>
+            <View style={{width: '50%', }}>
+              <DateInputWithPicker2 statusreq={true} post={planDate} theme='min' onChange={(dateString) => setPlanDate(dateString)}/>
+            </View>
           </View>
 
           
  
-            <View style={{width: '100%', }}>
-              {singlePhoto ? (
-                <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center'}}> 
-                  <View style={{width: '48%', alignSelf: 'center'}}>
-                    <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
-                  </View>
-                  <View style={{width: '33%'}}>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}> 
-                      <Image
-                      source={{ uri: singlePhoto }}
-                      style={styles.image}
-                      />
-                    </TouchableOpacity>
-
-                    <Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={modalVisible}
-                      onRequestClose={() => setModalVisible(false)}
-                    >
-                      <GestureHandlerRootView style={{ flex: 1 }}>
-                        <View style={styles.modalContainer}>
-                          <View style={styles.modalContent}>
-
-                            <View style={{flexDirection: 'row', }}>
-
-
-                              <TouchableOpacity 
-                                onPress={() => shareImage(singlePhoto)}
-                                style={{alignItems: 'center', width: '50%' }}
-                              >
-                                 <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
-                              </TouchableOpacity>
-
-                              <TouchableOpacity 
-                                onPress={() => setModalVisible(false)} 
-                                style={{alignItems: 'center', width: '50%' }}
-                              >
-                                <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
-                              </TouchableOpacity>
+            <View style={{width: '100%'}}>
+                  {singlePhoto ? (
+                    <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center', width: '100%'}}> 
+                      <View style={{width: '50%', alignSelf: 'center'}}>
+                        <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
+                      </View>
+                      <View style={{width: '42%',justifyContent: 'flex-end',  flexDirection: 'row'}}>
+                      <View style={{ width: '78%', backgroundColor: 'red', alignContent: 'center'}}>
+                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                          <Image
+                            source={{ uri: singlePhoto }}
+                            style={styles.image}
+                          />
+                        </TouchableOpacity>
+                        
+                        <Modal
+                          animationType="slide"
+                          transparent={true}
+                          visible={modalVisible}
+                          onRequestClose={() => setModalVisible(false)}
+                        >
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                            <View style={styles.modalContainer}>
+                              <View style={styles.modalContent}>
+                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
+                         {/*}         <TouchableOpacity 
+                                    onPress={() => shareImage(singlePhoto)}
+                                    style={{alignItems: 'center', width: '50%' }}
+                                  >
+                                    <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
+                                  </TouchableOpacity>*/}
+                                  <TouchableOpacity 
+                                    onPress={() => setModalVisible(false)} 
+                                    style={{alignItems: 'center', width: '50%' }}
+                                  >
+                                    <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
+                                  </TouchableOpacity>
+                                </View>
+                                
+                                <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
+                                  <Animated.View style={animatedStyle}>
+                                    <Image
+                                      source={{uri: singlePhoto}}
+                                      style={styles.imageModal}
+                                      contentFit="contain"
+                                      transition={200}
+                                    />
+                                  </Animated.View>
+                                </GestureDetector>
+                              </View>
                             </View>
-                            
-                            <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
-                              <Animated.View style={animatedStyle}>
-                                <Image
-                                  source={{uri: singlePhoto}}
-                                  style={styles.imageModal}
-                                  contentFit="contain"
-                                  transition={200}
-                                />
-                              </Animated.View>
-                            </GestureDetector>
-                          </View>
-                        </View>
-                      </GestureHandlerRootView>
-                    </Modal>
-
-                  </View>
-                  <View style={{width: '10%', alignSelf: 'center' }}>
-                    <TouchableOpacity onPress={cancelPhoto}  style = {{alignSelf: 'flex-end', width: '70%', }}>
-                      <Ionicons name='close-outline' size={30} />
-                    </TouchableOpacity>
-                  </View>
-                  
-              </View>
-              ) : (
-              <View style={{ marginBottom: 8,  flexDirection: 'row'}}>
-                <View style={{width: '50%'}}>
-                  <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
+                          </GestureHandlerRootView>
+                        </Modal>
+                      </View>
+                      <View style={{ alignSelf: 'center' }}>
+                        <TouchableOpacity onPress={cancelPhoto} style={{}}>
+                          <Ionicons name='close-outline' size={30} />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    </View>
+                  ) : (
+                    <View style={{ marginBottom: 8, flexDirection: 'row'}}>
+                      <View style={{width: '50%'}}>
+                        <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
+                      </View>
+                      <View style={{width: '48%'}}>
+                        <TouchableOpacity onPress={selectFile} style={{alignSelf: 'flex-end', width: '20%'}}>
+                          <Ionicons name='image-outline' size={30}></Ionicons>
+                        </TouchableOpacity> 
+                      </View>
+                    </View>
+                  )}
                 </View>
-                <View style={{width: '46%'}}>
-                  <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
-                    <Ionicons name='image-outline' size={30}></Ionicons>
-                  </TouchableOpacity> 
-                  </View>
-              </View>
-              )
-              }
-            </View>
 
-           
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
-          <DropdownComponent2 onChange ={(category) => setCategory(category)}/>
-
+           <ListOfSystem 
+            list={listCategories}
+            title='Категория замечания'
+            post={category} 
+            onChange={(category) => setCategory(category)}/>
+         
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput

@@ -1,5 +1,6 @@
 import CustomButton from '@/components/CustomButton';
 import MonoSizeText from '@/components/FontSize';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -34,6 +35,7 @@ export type Structure = {
 
 
 const Struct = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
     
   const [isSelected, setSelected] = useState(true);
@@ -147,32 +149,32 @@ const Struct = () => {
         <View style={{width: '14%', alignItems: 'center', justifyContent: 'center'}}>
         {/*<Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{status}</Text>*/}
 
-        {(section.status =='Ведутся СМР') ? ( <TouchableWithoutFeedback><View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(section.status =='Ведутся СМР') ? ( <TouchableWithoutFeedback><View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View></TouchableWithoutFeedback>): ''} 
-          {(section.status =='Завершены СМР') ? ( <View style={{width: 60, height: 25,justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+          {(section.status =='Завершены СМР') ? ( <View style={{width: 40, height: 25,justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>): ''} 
 
-          {(section.status =='Предъявлено в ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+          {(section.status =='Предъявлено в ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-          {(section.status =='Принято в ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+          {(section.status =='Принято в ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-          {(section.status =='Ведутся ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+          {(section.status =='Ведутся ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
 
-          {(section.status =='Проведены ИИ') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+          {(section.status =='Проведены ИИ') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-          {(section.status =='Акт ИИ на подписи') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+          {(section.status =='Акт ИИ на подписи') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-          {(section.status =='Акт ИИ подписан') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+          {(section.status =='Акт ИИ подписан') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
 
-          {(section.status =='Проводится КО') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+          {(section.status =='Проводится КО') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>): ''}
-          {(section.status =='Проведено КО') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+          {(section.status =='Проведено КО') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
-          {(section.status =='Акт КО на подписи') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+          {(section.status =='Акт КО на подписи') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>КО</Text></View>): ''}
-          {(section.status =='Акт КО подписан') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+          {(section.status =='Акт КО подписан') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
           <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
 
         </View>
@@ -203,32 +205,32 @@ const Struct = () => {
 
         <View style={{width: '14%',  justifyContent: 'center', alignItems: 'center',}}>
        {/*<Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>{item.status}</Text>*/}
-        {(item.status =='Ведутся СМР') ? ( <TouchableWithoutFeedback><View style={{width: 60, height: 25, justifyContent: 'center', alignContent: 'center',backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Ведутся СМР') ? ( <TouchableWithoutFeedback><View style={{width: 40, height: 25, justifyContent: 'center', alignContent: 'center',backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>СМР</Text></View></TouchableWithoutFeedback>): ''} 
-        {(item.status =='Завершены СМР') ? ( <View style={{width: 60, height: 25,justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+        {(item.status =='Завершены СМР') ? ( <View style={{width: 40, height: 25,justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>СМР</Text></View>): ''} 
 
-        {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Предъявлено в ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-        {(item.status =='Принято в ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Принято в ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
-        {(item.status =='Ведутся ПНР') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+        {(item.status =='Ведутся ПНР') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ПНР</Text></View>): ''} 
 
-        {(item.status =='Проведены ИИ') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+        {(item.status =='Проведены ИИ') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-        {(item.status =='Акт ИИ на подписи') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Акт ИИ на подписи') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
-        {(item.status =='Акт ИИ подписан') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+        {(item.status =='Акт ИИ подписан') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>ИИ</Text></View>): ''} 
 
-        {(item.status =='Проводится КО') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Проводится КО') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#0072C8', textAlign: 'center'  }}>КО</Text></View>): ''}
-        {(item.status =='Проведено КО') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
+        {(item.status =='Проведено КО') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#0072C8', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
-        {(item.status =='Акт КО на подписи') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
+        {(item.status =='Акт КО на подписи') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: 'white', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: '#16a34a', textAlign: 'center'  }}>КО</Text></View>): ''}
-        {(item.status =='Акт КО подписан') ? ( <View style={{width: 60, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
+        {(item.status =='Акт КО подписан') ? ( <View style={{width: 40, height: 25, justifyContent: 'center', backgroundColor: '#16a34a', borderRadius: 8}}>
         <Text style={{ fontSize: ts(14), color: 'white', textAlign: 'center'  }}>КО</Text></View>): ''}
         </View>
 </View>
@@ -263,9 +265,9 @@ const str = `${capitalCSName}\nСтруктура`
         {str}
       </TextInput>
       </View>
-      <View style={styles.container}>
+      <View style={[styles.container, {width: isDesktopWeb&& screenWidth>900? 900 : '98%', alignSelf: 'center'}]}>
 
-        <View style={{width: '98%', alignSelf: 'center',  flexDirection: 'row', height: 40,}}>
+        <View style={{width:  '98%', alignSelf: 'center',  flexDirection: 'row', height: 40,}}>
             <View style={{width: '10%', }}>
             <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>№ акта</Text>
             </View>
@@ -275,7 +277,7 @@ const str = `${capitalCSName}\nСтруктура`
             </View>
 
             <View style={{width: '21%', }}>
-            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>Замечания</Text>
+            <Text style={{ fontSize: MonoSizeText(14), color: '#1E1E1E', textAlign: 'center' }}>{isDesktopWeb? 'Замечания' : 'Замеч'}</Text>
             </View>
 
             <View style={{width: '14%', flexDirection: 'column'}}>

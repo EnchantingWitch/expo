@@ -2,8 +2,10 @@ import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import CustomButton from '@/components/CustomButton';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import * as DocumentPicker from "expo-document-picker";
 //import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
@@ -44,6 +46,8 @@ interface Data {
 }
 
 const EditDataScreen: React.FC = () => {
+    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+  
     const {serialNumb} = useLocalSearchParams();
     const {numberii} = useLocalSearchParams();
     const {subobj} = useLocalSearchParams();
@@ -240,6 +244,48 @@ const EditDataScreen: React.FC = () => {
             ],)
     };
 
+  const selectFile = async () => {
+      // Opening Document Picker to select one file
+      try {
+        const res = await DocumentPicker.getDocumentAsync({
+          // Provide which type of file you want user to pick
+          //type: "*/*",
+          //Ограничение загружаемых типов файлов (mime type)
+          type: [
+            //'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' 
+            'image/*',// 'image/jpeg'
+          ],
+          // There can me more options as well
+          // DocumentPicker.types.allFiles
+          // DocumentPicker.types.images
+          // DocumentPicker.types.plainText
+          // DocumentPicker.types.audio
+          // DocumentPicker.types.pdf
+          copyToCacheDirectory: true, 
+          
+        });
+        // Printing the log realted to the file
+        console.log('res of DocumentPicker : ' + JSON.stringify(res));
+        // Setting the state to show single file attributes
+        if (!res.canceled) {
+        setSinglePhoto(res.assets[0].uri); }
+        setChangePhoto(true);
+        console.log('RES PHOTO', res);
+      } catch (err) {
+        setSinglePhoto('');
+        setChangePhoto(false);
+        // Handling any exception (If any)
+       if (DocumentPicker.Cancel(err)) {
+          // If user canceled the document selection
+          alert('Canceled');
+        } else {
+          // For Unknown Error
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+      }
+    };
+
   console.log(statusReqPhoto === false && singlePhoto != '', 'statusReqPhoto === false && singlePhoto != ');
   console.log(statusReqPhoto === true && singlePhoto === '', 'statusReqPhoto === true && singlePhoto === ');
   console.log(changePhoto === true && statusReqPhoto === true, 'changePhoto === true && statusReqPhoto === true');
@@ -313,6 +359,18 @@ const json = JSON.stringify({
     setEditedSystemName(' '); // Явный сброс системы
     setEditedIinumber('');
     setExecut('');
+};
+
+const handleSystemChange = (selectedSystem: string) => {
+  setEditedSystemName(selectedSystem);
+  // Обновляем номер ИИ сразу при выборе системы
+  if (selectedSystem && editedSubObject) {
+    const filtered = array.find(item => item.subObjectName === editedSubObject);
+    if (filtered) {
+      const systemData = filtered.data.find(item => item.systemName === selectedSystem);
+      setEditedIinumber(systemData?.numberII || '');
+    }
+  }
 };
 
   /*if (loading) {
@@ -419,26 +477,39 @@ if (contentType != null){
   const postPhoto = async () => {
     setDisabled(true);
     try{
-    const photoToUpload = singlePhoto;
-    const body = new FormData();
-          //data.append('name', 'Image Upload');
-    body.append("photo", {
-      uri: photoToUpload,
-      type: 'image/*',
-      name: 'photoToUpload'
-    })
+          const body = new FormData();
 
+  // 1. Преобразуем base64 в Blob
+  const base64Data = singlePhoto.split(',')[1];
+  const byteCharacters = atob(base64Data);
+  const byteArrays = new Uint8Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArrays[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const blob = new Blob([byteArrays], { type: 'image/jpeg' });
+  console.log('byteArrays', byteArrays)
+
+  // 2. Создаем File (если нужно имя файла)
+  const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
+
+
+  // 3. Добавляем в FormData
+  body.append('photo', file); // Ключевое отличие: передаем File, а не URL
+    
+    
     let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/addPhoto/' + id);
     console.log(str);
     
     let res = await fetch(
       str,
       {
-        method: 'post',
+        method: 'POST',
         body: body,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data'
+         
         }
       }
     );
@@ -479,6 +550,10 @@ if (contentType != null){
 
   useEffect(() => {
     getToken();
+  }, [ ]);
+
+  useEffect(() => {
+    getToken();
       //смена статуса при изменении даты
         if (editedEndDateFact) {
           if(editedEndDateFact != ' '){
@@ -490,7 +565,6 @@ if (contentType != null){
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req && accessToken){getStructure(); getOrganisations(); setReq(false); console.log('8'); }//вызов происходит только один раз
     
-    
     if (updateCom){
       updateComment();
     }
@@ -498,40 +572,20 @@ if (contentType != null){
       setBufsystem(editedSystemName);
     }
  
-    if(editedSystemName!= ' ' && editedSubObject!= '' ){
-      
-      if(editedSystemName != bufsystem){
-        setBufsystem(editedSystemName);
-      console.log(editedSystemName, 'systemName: use if(systemName )');
-      if (editedSystemName != ' ' ){
-        const filtered = array.filter(item => item.subObjectName === editedSubObject);
-        //console.log(filtered[0].data);
-        if(filtered.length != 0){
-          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
-        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-          console.log(filteredS.length, 'filteredS.length');
-          console.log(filteredS, 'filteredS');
-          if(filteredS.length != 0){
-            console.log('1');
-            setEditedIinumber(filteredS[0].numberII);
-            setExecut(filteredS[0].ciwexecutor);
-          }
-          else{
-            setEditedIinumber('');
-            setExecut('');
-            setEditedSystemName(' ');
-            setEditedSubObject('');
-          }
-        // if(filteredS[0].ciwexecutor){
-          setNoteListSystem(false);
-      }
-        //}
-      }
-      }  
-     
-    }
     if (statusDel === true){postPhoto();}
-      }, [statusDel, accessToken, editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
+      }, [statusDel, accessToken, editedEndDateFact, codeCCS, req, editedSystemName, updateCom ]);
+
+useEffect(() => {
+  if (editedSubObject && array.length > 0) {
+    const filtered = array.find(item => item.subObjectName === editedSubObject);
+    setListSystem(filtered?.data.map(system => ({
+      label: system.systemName,
+      value: system.systemName
+    })) || []);
+  } else {
+    setListSystem([]);
+  }
+}, [editedSubObject, array]);
 
    // Для подобъектов
 useEffect(() => {
@@ -608,6 +662,25 @@ useEffect(() => {
   
   
     //скачивание фото
+       
+const handleDownload = async (contentType = 'image/jpeg', bytes) => {
+    try {
+    
+      const fileExtension = contentType.split('/')[1] || 'jpeg';
+
+      const link = document.createElement('a');
+      link.href = singlePhoto;
+      link.download =  `photo_${Date.now()}.${fileExtension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(bytes);
+
+    } catch (error) {
+      console.error('Ошибка при скачивании файла:', error);
+    } 
+  };
+
     async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
       try {
         // 1. Запрашиваем разрешения
@@ -733,13 +806,16 @@ useEffect(() => {
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}
     >
-        <View style={[styles.container]}>
+        <View style={[styles.container, {
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'center'
+              }]}>
+                <>
+                <View style={{flex: 1, alignItems: 'center',
+                width: isDesktopWeb? '148%' :'100%'}}>
 
-
-          <>
-            <View style={[styles.container]}>
-
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flex: 1, alignItems: 'center', width: isDesktopWeb? '120%' :'100%' }}>
 
               <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
             <View style={{width: '20%', alignItems: 'center'}}>
@@ -804,7 +880,7 @@ useEffect(() => {
               //title=''
              // label='Система'  
               post={editedSystemName} 
-              onChange={(system) => setEditedSystemName(system)}
+              onChange={(system) => handleSystemChange(system)}
           />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Оборудование</Text>
           <TextInput
@@ -815,7 +891,14 @@ useEffect(() => {
           />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
           <TextInput
-            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 40
+            style={[styles.input,  
+              {fontSize: ts(14),
+                minHeight: 42, // минимальная высота
+                //maxHeight: 100, // максимальная высота (можно увеличить при необходимости)
+                height: inputHeight, // динамическая высота
+                lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center' }]} // Минимальная высота 40
                         
             placeholderTextColor="#111"
             value={editedDescription}
@@ -855,7 +938,7 @@ useEffect(() => {
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Изготовитель</Text>
            <ListOfOrganizations data={listOrganization} label='Изготовитель' title = {editedManufacturer? editedManufacturer : 'Не выбрано'} status={statusOrg} post ={editedManufacturer} onChange={(value) => setManufacturer(value)}/>
 
-          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+          <View style={{flexDirection: 'row',width: '96%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
                   <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата выдачи</Text>
                  </View>
@@ -865,13 +948,17 @@ useEffect(() => {
                  </View>
           </View>
 
-          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата выдачи и Плановая дата устранения */}
+          <View  style={{flexDirection: 'row', width: '96%'}}>{/* Дата выдачи и Плановая дата устранения */}
+            <View style={{width: '50%', alignSelf: 'center'}}>
             <CalendarWithoutDel theme='min' statusreq={true} post={startD} onChange={(dateString) => setEditedStartDate(dateString)}/>
             {/*<CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>*/}
-            <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
+            </View>
+            <View style={{width: '50%'}}>
+              <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
+            </View>
           </View>
 
-          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+          <View style={{flexDirection: 'row',width: '96%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
                   <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата устранения</Text>
                  </View>
@@ -883,14 +970,15 @@ useEffect(() => {
 
           
 
-          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата факта устранения и фото */}
-            
+          <View  style={{flexDirection: 'row', width: '96%'}}>{/* Дата факта устранения и фото */}
+            <View style={{width: '50%', alignSelf: 'center'}}>
             <Calendar theme='min' statusreq={true} post={editedEndDateFact} onChange={(dateString) => setEditedEndDateFact(dateString)}/>
+            </View>
             <View style={{width: '50%', paddingTop: 12}}>
             {singlePhoto  ? (
-                <View style={{ flexDirection: 'row', marginBottom: 8, alignSelf: 'center', width: '90%'}}> 
-                  <View style={{width: '73%'}}>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}> 
+                <View style={{ flexDirection: 'row', marginBottom: 8, alignSelf: 'center', width: '100%', justifyContent: 'center'}}> 
+                  <View style={{width: '69%'}}>
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={{}}> 
                       <Image
                       source={{ uri: singlePhoto }}
                       style={{
@@ -909,21 +997,21 @@ useEffect(() => {
                         <View style={styles.modalContainer}>
                           <View style={styles.modalContent}>
 
-                            <View style={{flexDirection: 'row', }}>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
                               <TouchableOpacity 
-                                onPress={() => downloadBase64Image( 'image/jpeg', singlePhoto)}
+                                onPress={() => handleDownload( 'image/jpeg', singlePhoto)}
                                 style={{alignItems: 'center', width: '33%', }}
                               >
                                  <Ionicons name='download-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-
+{/*}
                               <TouchableOpacity 
                                 onPress={() => shareImage(singlePhoto)}
                                 style={{alignItems: 'center', width: '33%' }}
                               >
                                  <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-
+*/}
                               <TouchableOpacity 
                                 onPress={() => setModalVisible(false)} 
                                 style={{alignItems: 'center', width: '33%' }}
@@ -948,7 +1036,7 @@ useEffect(() => {
                     </Modal>
 
                     </View>
-                  <View style={{width: '24%' ,alignSelf: 'center'}}>
+                  <View style={{alignSelf: 'center', paddingStart: 3}}>
                     <TouchableOpacity onPress={cancelPhoto} style={{alignItems: 'flex-end'}}>
                       <Ionicons name='close-outline' size={30} />
                     </TouchableOpacity>
@@ -960,7 +1048,7 @@ useEffect(() => {
                 (
                 <View style={{ marginBottom: 8}}>
                   <View style={{width: '100%'}}>
-                    <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+                    <TouchableOpacity onPress={selectFile} style={{alignSelf: 'flex-end', width: '20%'}}>
                       <Ionicons name='image-outline' size={30}></Ionicons>
                     </TouchableOpacity> 
                     </View>

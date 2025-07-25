@@ -1,6 +1,7 @@
 import CustomButton from '@/components/CustomButton';
 import Note from '@/components/Note';
 import SystemsForTwo from '@/components/SystemsForTwo';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -8,7 +9,6 @@ import type { PropsWithChildren } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 import type { Structure } from './structure';
-
  
 type Note = {
   id: number; //Идентификатор
@@ -31,7 +31,8 @@ type Note = {
 
 const Defacts = () => {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
-    
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+
   const router = useRouter();
   const currentDate = new Date; //console.log(currentDate);
   const [accessToken, setAccessToken] = useState<any>('');
@@ -211,97 +212,170 @@ const [inputHeight, setInputHeight] = useState(40);
     const str = `${capitalCSName}\nДефекты`
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
+<View style={{ flex: 1, backgroundColor: "white" }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
+        }}
+      >
+        <View
+          style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, width: '100%' }}
+        >
+          <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
+            <Ionicons
+              name="home-outline"
+              size={25}
+              style={{ alignSelf: "center" }}
+            />
+          </TouchableOpacity>
 
-      <View style={{
-        flex: 1, alignItems: 'center'
-        // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
-      }}>
-         <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15, width: '100%'}}>
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
-                      <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
-                    </TouchableOpacity>
-
-            <TextInput
-                style={{
-                  flex: 1,
-                  paddingTop:  0,
-                  paddingBottom: 8,
-                  fontWeight: 500,
-                  height: Math.max(42,inputHeight), // min: 42, max: 100
-                  fontSize: ts(20),
-                  textAlign: 'center',          // Горизонтальное выравнивание.
-                  textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
-                }}
-                multiline
-                editable={false}
-                onContentSizeChange={e => {
-                  const newHeight = e.nativeEvent.contentSize.height;
-                  setInputHeight(Math.max(42, newHeight));
-                }}
-              >
-                {str}
-              
-              </TextInput>
-              
-    
-              </View>
-              
-<View style={{flexDirection: 'row', justifyContent: 'space-between', width: '98%'}}>
-        <SystemsForTwo list={listSubObj} nameFilter='Все подобъекты' width={130} onChange={(system) => setChooseSubobject(system)}/>
-        <SystemsForTwo list={listSystem} nameFilter='Все системы' width={130} onChange={(system) => setChooseSystem(system)}/>
-        <SystemsForTwo list={statusList} nameFilter='Все' width={130} onChange={(status) => setChooseStatus(status)}/>
-          
+          <TextInput
+            style={{
+              flex: 1,
+              paddingTop: 0,
+              fontWeight: 500,
+              paddingBottom: 8,
+              height: Math.max(42, inputHeight), // min: 42, max: 100
+              fontSize: ts(20),
+              textAlign: "center", // Горизонтальное выравнивание.
+              textAlignVertical: "center", // Вертикальное выравнивание (Android/iOS).
+            }}
+            multiline
+            editable={false}
+            onContentSizeChange={(e) => {
+              const newHeight = e.nativeEvent.contentSize.height;
+              setInputHeight(Math.max(42, newHeight));
+            }}
+          >
+              {str}
+          </TextInput>
         </View>
 
-          <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6,}}>
-            <View style={{width: '15%', justifyContent: 'center'}}>
-              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>№</Text>
-            </View>
-            <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
-              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>Содержание</Text>
-            </View>
-            <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
-              <Text style={{ fontSize: ts(14), color: '#1E1E1E', textAlign: 'center' }}>Статус</Text>
-            </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: isDesktopWeb&& screenWidth>900? 900 : '98%',
+          }}
+        >
+          <SystemsForTwo
+            list={listSubObj}
+            nameFilter="Все подобъекты"
+            width={isDesktopWeb? 130: 80}
+            onChange={(system) => setChooseSubobject(system)}
+          />
+          <SystemsForTwo
+            list={listSystem}
+            nameFilter="Все системы"
+            width={isDesktopWeb? 130: 80}
+            onChange={(system) => setChooseSystem(system)}
+          />
+          <SystemsForTwo
+            list={statusList}
+            nameFilter="Все"
+            width={isDesktopWeb? 130: 80}
+            onChange={(status) => setChooseStatus(status)}
+          />
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            width: isDesktopWeb && screenWidth>900? 900 : '95%',
+            height: 32,
+            paddingTop: 12,
+            //justifyContent: "space-between",
+          }}
+        >
+          <View style = {{width: '12%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center'}}>№</Text>
           </View>
+          <View style = {{width: '73%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Содержание</Text>
+          </View>
+          <View style = {{width: '14%' }}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Статус</Text>
+          </View>
+        </View>
 
-          <View style={{ flex: 15, marginTop: 12, width: '98%'}}>
+        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '98%', }}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <FlatList
+              style={{ width: "100%" }}
+              data={data}
+              keyExtractor={({ id }) => id}
+              renderItem={({ item }) => (
+                <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/defacts/see_defact', params: { capitalCSName: capitalCSName, post: item.id, codeCCS: codeCCS }})}  }>
+                  
+                  <View
+                    style={{
+                      backgroundColor: "#E0F2FE",
+                      flexDirection: "row",
+                      width: "100%",
+                      height: 37,
+                      justifyContent: "center",
+                      marginBottom: 15,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <View style={{ width: "12%", justifyContent: "center" }}>
+                      <Text
+                        style={{
+                          //marginStart: 18,
+                          fontSize: ts(14),
+                          color: "#334155",
+                          textAlign: "center",
+                        }}
+                      >
+                        {item.serialNumber}
+                      </Text>
+                    </View>
 
-               { isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <FlatList
-                style={{width: '100%'}}
-                data={data}
-                keyExtractor={({id}) => id}
-                renderItem={({item}) => (
-                  <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/defacts/see_defact', params: { capitalCSName: capitalCSName, post: item.id, codeCCS: codeCCS }})}  }>
-                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: 15, borderRadius: 8}}>
-          
-                      <View style={{width: '15%', justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', marginRight: '20%' }}>{item.serialNumber}</Text>
-                      </View>
-          
-                      <View style={{width: '75%', marginStart: 2, justifyContent: 'center'}}>
-                      <Text numberOfLines={2} style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.description}</Text>
-                      </View>
-                      
-                      <View style={{width: '7%', marginStart: 2, justifyContent: 'center'}}>
-                      
-                       {(item.defectiveActStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
+                    <View
+                      style={{
+                        width: "75%",
+                       // marginStart: 2,
+                        justifyContent: "center",
+                      //  backgroundColor: 'red'
+                      }}
+                    >
+                      <Text
+                      numberOfLines={2}
+                        style={{
+                          fontSize: ts(14),
+                          color: "#334155",
+                          textAlign: "left",
+                        }}
+                      >
+                        {item.description}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        width: "12%",
+                        //marginStart: 2,
+                        justifyContent: "center",
+                        alignItems: 'center',
+                        //backgroundColor: 'green'
+                      }}
+                    >
+                        {(item.defectiveActStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
                         
-                       {(item.defectiveActStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
-                       
-                      
-                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
-                     {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
-                      </View>
-                  </View>
-                  </TouchableWithoutFeedback>
+                        {(item.defectiveActStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
 
-          )}
-              />
+
+                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
+                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              )}
+            />
             )}
 
           </View>

@@ -9,6 +9,7 @@ import ListOfSubobj from '@/components/ListOfOrganizations';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Structure } from '../(tabs)/structure';
 //import { setSeconds } from 'date-fns';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createPortal } from 'react-dom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -28,6 +29,8 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+   
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
@@ -49,8 +52,6 @@ export default function CreateNote() {
   const [inputHeight, setInputHeight] = useState(40);
   
   const [bufsystem, setBufsystem] = useState('');
-  
-  
 
   const [accessToken, setAccessToken] = useState<any>('');
   const [organisationFrAsync, setOrganisationFrAsync] = useState<any>('');
@@ -279,7 +280,7 @@ useEffect(() => {
     }]}>
         <View style={{ flex: 1, alignItems: 'center',
           //height: 1,
-         width: '130%',
+         width: isDesktopWeb? '188%' :'100%'
          }}>
 
             <View style={{flexDirection: 'column', width: '100%'}}>
@@ -315,7 +316,7 @@ useEffect(() => {
             post={systemName} 
             onChange={(system) => setSystemName(system)}/>
 
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Краткое описание и условия выполнения работ</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Краткое описание и условия выполнения работ</Text>
           <TextInput
             multiline
             onContentSizeChange={e=>{

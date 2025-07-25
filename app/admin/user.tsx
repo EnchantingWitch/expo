@@ -1,12 +1,14 @@
 import CustomButton from '@/components/CustomButton';
 import ListOfAccessRole from '@/components/ListOfAccessRole';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function TabOneScreen() {
-   const fontScale = useWindowDimensions().fontScale;
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+  const fontScale = useWindowDimensions().fontScale;
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
@@ -16,8 +18,8 @@ export default function TabOneScreen() {
   const [statusRole, setStatusRole] = useState(false);
   const [startAdminRole, setStartAdminRole] = useState(false);
 
-   const {username} = useLocalSearchParams();
-   const {organisation} = useLocalSearchParams();
+  const {username} = useLocalSearchParams();
+  const {organisation} = useLocalSearchParams();
   const {numberPhone} = useLocalSearchParams();
   const {registrationDate} = useLocalSearchParams();
   const {fullName} = useLocalSearchParams();
@@ -58,7 +60,6 @@ export default function TabOneScreen() {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-       'Content-Type': 'multipart/form-data'
       },
       body: body,
     });
@@ -89,7 +90,6 @@ export default function TabOneScreen() {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-       'Content-Type': 'multipart/form-data'
       }, 
       body: body,
     });
@@ -214,7 +214,7 @@ console.log(userId, 'userId');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={styles.container}>
+    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}]}>
      
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>ФИО</Text>
       <TextInput
@@ -272,7 +272,9 @@ console.log(userId, 'userId');
         <CustomButton disabled={disabled} title='Сохранить' handlePress={setAdmin}/>
       </View>
       : 
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
       <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>
+      </View>
     }
     </SafeAreaView>
   ); 

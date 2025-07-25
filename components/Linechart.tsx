@@ -1,3 +1,4 @@
+import useDevice from "@/hooks/useDevice";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
@@ -29,6 +30,8 @@ const Linechart = ({
   codeCCS,
   accessToken,
 }: Props) => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+
   const fontScale = useWindowDimensions().fontScale;
   const [modalStatus, setModalStatus] = useState(false);
   const [data, setData] = useState();
@@ -347,7 +350,7 @@ const Linechart = ({
               initialSpacing={15}
               data={lineData}
               textColor1="black"
-              width={Dimensions.get("window").width * 0.62} //238
+              width={isDesktopWeb && screenWidth>900? 600 : Dimensions.get("window").width * 0.62} //238
               height={65}
               stepValue={8}
               //adjustToWidth={true}
@@ -361,7 +364,7 @@ const Linechart = ({
               hideRules
               hideYAxisText={true}
               hideAxesAndRules={true} //скрывает оси
-              spacing={Dimensions.get("window").width * 0.092} //расстояние между метками - 34
+              spacing={isDesktopWeb && screenWidth>600? 90: Dimensions.get("window").width * 0.092} //расстояние между метками - 34
               showXAxisIndices
               xAxisIndicesHeight={1}
               xAxisIndicesWidth={250}
@@ -372,7 +375,7 @@ const Linechart = ({
                 color: "#1A4072", //#E24831
                 //fontFamily: 'Arial'
               }}
-              spacing1={Dimensions.get("window").width * 0.092} //расстояние между точками - 34
+              spacing1={isDesktopWeb && screenWidth>900? 90: Dimensions.get("window").width * 0.092} //расстояние между точками - 34
               yAxisColor="#0BA5A4"
               // showVerticalLines
               verticalLinesColor="rgba(14,164,164,0.5)"

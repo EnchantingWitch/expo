@@ -120,7 +120,7 @@ const CalendarWithoutDel = ({ theme, post, statusreq, onChange }: Props) => {
         />
 
         <TouchableOpacity 
-          style={{ width: '24%', height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} 
+          style={{  height: '100%', alignSelf: 'flex-end', borderRadius: 4 }} 
           onPress={showDatePicker}
         >
           <Image 
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   containerrowMin: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignContent: 'center', //alignItems: 'center'
     paddingTop: 11,
     paddingBottom: 12,
     backgroundColor: '#fff',
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#D9D9D9',
-   // width: '50%',
+    width: '70%',
     height: 42,
     color: '#B3B3B3',
     textAlign: 'center',
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#D9D9D9',
-    //width: '66%',
+    width: '70%',
     height: 42,
     color: '#B3B3B3',
     textAlign: 'center',

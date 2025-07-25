@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //import { Image } from 'expo-image';
 //import * as MediaLibrary from 'expo-media-library';
 //import * as Sharing from 'expo-sharing';
+import useDevice from '@/hooks/useDevice';
 import { Dimensions } from 'react-native';
 
 export type SystemGET = {
@@ -28,6 +29,8 @@ export type SystemGET = {
 }
 const { width, height } = Dimensions.get('window');
 const DetailsScreen = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
@@ -164,13 +167,13 @@ const timeoutRef = useRef(null); // Храним ID таймера
 
   return (
 
-    <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
+    <ScrollView style={{flex: 1, backgroundColor: '#fff',  }}>
       <View style={[styles.container, {minHeight: Dimensions.get('window').height-BOTTOM_SAFE_AREA-54, alignItems: 'center',
     justifyContent: 'center',
     //width: '120%',
     alignSelf: 'center'}]}>
         
-        <View style={{flex: 1, alignItems: 'center', width: '130%'}}>
+        <View style={{flex: 1, alignItems: 'center', width: isDesktopWeb? '188%' :'100%'}}>
 
           <View style={{flexDirection: 'row', width: '100%', marginBottom: 0 }}>
             <View style={{width: '40%', alignItems: 'center'}}>
@@ -240,7 +243,7 @@ const timeoutRef = useRef(null); // Храним ID таймера
             editable={false}
           />     
           
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Краткое описание работ и условия выполнения</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Краткое описание работ и условия выполнения</Text>
           <TextInput
           //показывает все поле макс высотой даже если оно не полное
            style={[styles.input, { 

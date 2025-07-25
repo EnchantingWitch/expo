@@ -2,6 +2,7 @@ import Barchart from '@/components/Barchart';
 import Linechart from '@/components/Linechart';
 import PiechartBig from '@/components/PiechartBig';
 import PiechartSmall from '@/components/PiechartSmall';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
@@ -9,6 +10,8 @@ import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Structure } from './structure';
 
+
+  
 
 type Object = {
   systemsPNRTotalQuantity: number; //всего систем
@@ -29,7 +32,7 @@ type Object = {
 
 export default function TabOneScreen() {
    const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
-  
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
   const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
@@ -214,7 +217,8 @@ const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuse
       </TextInput>
       </View>
 <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
-    <ScrollView >
+    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
+    <ScrollView style={{ }}>
       <View style={styles.container}>
          <View style={{paddingTop: 11}}>
         <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
@@ -242,6 +246,7 @@ const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuse
         </View>
       </View>
     </ScrollView>
+    </View>
   </View>
   ); 
 }

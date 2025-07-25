@@ -4,6 +4,7 @@ import { ActivityIndicator, Alert, Modal, Platform, ScrollView, StatusBar, Style
 //import DropdownComponent2 from '@/components/list_categories';
 import Calendar from '@/components/Calendar+';
 import CustomButton from '@/components/CustomButton';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
@@ -37,6 +38,7 @@ export type SystemGET = {
 const { width, height } = Dimensions.get('window');
 
 const SeeDefact = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
@@ -342,6 +344,24 @@ console.log('statusReqPhoto',statusReqPhoto);
   }
 
   //скачивание фото
+  const handleDownload = async (contentType = 'image/jpeg', bytes) => {
+    try {
+    
+      const fileExtension = contentType.split('/')[1] || 'jpeg';
+
+      const link = document.createElement('a');
+      link.href = uriPhoto;
+      link.download =  `photo_${Date.now()}.${fileExtension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(bytes);
+
+    } catch (error) {
+      console.error('Ошибка при скачивании файла:', error);
+    } 
+  };
+
   async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
     try {
       // 1. Запрашиваем разрешения
@@ -430,10 +450,15 @@ console.log('statusReqPhoto',statusReqPhoto);
 
   return (
 
-    <ScrollView>
-      <View style={[styles.container]}>
-        
-        <View style={{flex: 1, alignItems: 'center'}}>
+    <ScrollView style={{backgroundColor: '#FFFFFF',}}>
+      <View style={[styles.container, {
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignSelf: 'center'
+            }]}>
+              
+              <View style={{flex: 1, alignItems: 'center',
+              width: isDesktopWeb? '130%' :'100%'}}>
 
           <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
             <View style={{width: '20%', alignItems: 'center'}}>
@@ -475,7 +500,7 @@ console.log('statusReqPhoto',statusReqPhoto);
             style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(19)}]}
             placeholderTextColor="#111"
             value={subObj}
-            multiline
+            numberOfLines={2}
             editable={false}
             maxLength={45}
             />
@@ -488,7 +513,7 @@ console.log('statusReqPhoto',statusReqPhoto);
             style={[styles.input, {fontSize: ts(14), lineHeight: 19 }]}
             placeholderTextColor="#111"
             value={systemN}
-            multiline
+            numberOfLines={2}
             editable={false}
           />   
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Оборудование</Text>
@@ -496,35 +521,32 @@ console.log('statusReqPhoto',statusReqPhoto);
             style={[styles.input, {fontSize: ts(14), lineHeight: 19 }]}
             placeholderTextColor="#111"
             value={equipment}
-            multiline
+            numberOfLines={2}
             editable={false}
           />     
           
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
           <TextInput
-            /*style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 42
-            placeholderTextColor="#111"
+          style={[
+            styles.input, 
+            {
+              fontSize: ts(14),
+              minHeight: 42, // минимальная высота
+                         //maxHeight: 100, // максимальная высота (можно увеличить при необходимости)
+              height: inputHeight, // динамическая высота
+              lineHeight: ts(22),
+              alignContent: 'center',
+              textAlignVertical: 'center'
+            }
+          ]}
+           placeholderTextColor="#111"
             multiline
            // onChangeText={setComment}
             onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-              if(inputH>120) inputH =100
-              setInputHeight(inputH)}}*/
-              
-                                style={[
-                          styles.input, 
-                          {
-                            height: 'auto',
-                            minHeight: 42,
-                            maxHeight: 100,
-                            fontSize: ts(14),
-                           // textAlignVertical: 'top'
-                          }
-                        ]}
-                         placeholderTextColor="#111"
-                          multiline
+                       if(inputH>120) inputH =100
+                       setInputHeight(inputH)}}
             value={comment}
-            //editable={false}
           />
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
@@ -622,21 +644,21 @@ console.log('statusReqPhoto',statusReqPhoto);
                         <View style={styles.modalContainer}>
                           <View style={styles.modalContent}>
 
-                            <View style={{flexDirection: 'row', }}>
+                            <View style={{flexDirection: 'row',  justifyContent: 'space-around', width: '100%'}}>
                               <TouchableOpacity 
-                                onPress={() => downloadBase64Image( contentType, bytes)}
+                                onPress={() => handleDownload( contentType, bytes)}
                                 style={{alignItems: 'center', width: '33%', }}
                               >
                                  <Ionicons name='download-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-
+{/*}
                               <TouchableOpacity 
                                 onPress={() => shareImage(`data:${contentType};base64,${bytes}`)}
                                 style={{alignItems: 'center', width: '33%' }}
                               >
                                  <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-
+*/}
                               <TouchableOpacity 
                                 onPress={() => setModalVisible(false)} 
                                 style={{alignItems: 'center', width: '33%' }}

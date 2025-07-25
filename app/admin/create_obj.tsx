@@ -2,7 +2,9 @@
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import ListOfRegion from '@/components/ListOfRegion';
 import { } from '@/components/Themed';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -14,7 +16,7 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-  
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const fontScale = useWindowDimensions().fontScale;
@@ -223,51 +225,29 @@ const request = async () => {
 
   return (
     <KeyboardAwareScrollView
-         style={{ flex: 1 }}
-      enableOnAndroid={true}
-      extraScrollHeight={100}
-      keyboardShouldPersistTaps="handled"
-       //enableAutomaticScroll={false}
-      contentContainerStyle={{ 
+        style={{ flex: 1, backgroundColor: 'white' }}
+        enableOnAndroid={true}
+        extraScrollHeight={100}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ 
         flexGrow: 1,
-        alignItems: 'center',  // ← Перенесено сюда
-        justifyContent: 'center',  // ← Перенесено сюда
+        alignItems: 'center', 
+        justifyContent: 'center',  
       }}
-            >
-{/*</KeyboardAwareScrollView>    <KeyboardAwareScrollView
-  style={{ flex: 1 }}
-  enableOnAndroid={true}
-  extraScrollHeight={100}
-  keyboardShouldPersistTaps="handled"
-  contentContainerStyle={{ 
-    flexGrow: 1,
-    //paddingBottom: 100, // Добавляем отступ снизу
-  }}
-  enableResetScrollToCoords={false} // Отключаем автоматический скролл
-  //extraHeight={200} // Дополнительное пространство для клавиатуры
->*/}
-    <View style={styles.container}>
+    >
+    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}]}>
       <FormField title='Объект капитального строительства' onChange={(value) => setOks(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
       <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
-{/*         <AdaptiveDropdown
-          data={countries}
-          value={selectedCountry}
-          onChange={setSelectedCountry}
-          placeholder="Выберите страну"
-          style={styles.input}
-        />*/}
-        
-      <ListOfOrganizations data={listRegion} title='Регион' label={`Регион`} post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
-       <ListOfOrganizations data={listTypeObj} title='Тип объекта' label={`Тип объекта`} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
-      {/*<FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>*/}
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Регион</Text>
+      <ListOfRegion items={listRegion} modalTitle='Регион'  selectedValue={region} isEnabled={true} onValueChange={(value) => setRegion(value)}/>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Тип объекта</Text>
+      <ListOfOrganizations data={listTypeObj} title='Тип объекта' label={`Тип объекта`} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
       <ListOfOrganizations data={listOrganization} title='' label={`Заказчик`} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
-      {/*<FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>*/}
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
       <ListOfOrganizations data={listOrganization} label={`Исполнитель ПНР`} title='' post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
-      {/*<FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>*/}
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
       <ListOfOrganizations data={listOrganization} label={`Исполнитель СМР`} title='' post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>

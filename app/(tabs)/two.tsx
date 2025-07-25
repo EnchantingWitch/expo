@@ -1,6 +1,7 @@
 import CustomButton from "@/components/CustomButton";
 import Note from "@/components/Note";
 import SystemsForTwo from "@/components/SystemsForTwo";
+import useDevice from "@/hooks/useDevice";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -38,6 +39,7 @@ type Note = {
 };
 
 const DirectionLayout = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
@@ -288,25 +290,25 @@ const DirectionLayout = () => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: "98%",
+            width: isDesktopWeb&& screenWidth>900? 900 : '98%',
           }}
         >
           <SystemsForTwo
             list={listSubObj}
             nameFilter="Все подобъекты"
-            width={130}
+            width={isDesktopWeb? 130: 80}
             onChange={(system) => setChooseSubobject(system)}
           />
           <SystemsForTwo
             list={listSystem}
             nameFilter="Все системы"
-            width={130}
+            width={isDesktopWeb? 130: 80}
             onChange={(system) => setChooseSystem(system)}
           />
           <SystemsForTwo
             list={statusList}
             nameFilter="Все"
-            width={130}
+            width={isDesktopWeb? 130: 80}
             onChange={(status) => setChooseStatus(status)}
           />
         </View>
@@ -314,18 +316,24 @@ const DirectionLayout = () => {
         <View
           style={{
             flexDirection: "row",
-            width: "98%",
+            width: isDesktopWeb && screenWidth>900? 900 : '95%',
             height: 32,
-            paddingTop: 6,
-            justifyContent: "space-between",
+            paddingTop: 12,
+            //justifyContent: "space-between",
           }}
         >
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>№</Text>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Содержание</Text>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Статус</Text>
+          <View style = {{width: '12%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center'}}>№</Text>
+          </View>
+          <View style = {{width: '73%'}}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Содержание</Text>
+          </View>
+          <View style = {{width: '14%' }}>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Статус</Text>
+          </View>
         </View>
 
-        <View style={{ flex: 15, marginTop: 12, width: '98%' }}>
+        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '98%', }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -357,12 +365,13 @@ const DirectionLayout = () => {
                       borderRadius: 8,
                     }}
                   >
-                    <View style={{ width: "15%", justifyContent: "center" }}>
+                    <View style={{ width: "12%", justifyContent: "center" }}>
                       <Text
                         style={{
+                          //marginStart: 18,
                           fontSize: ts(14),
                           color: "#334155",
-                          textAlign: "left",
+                          textAlign: "center",
                         }}
                       >
                         {item.serialNumber}
@@ -372,8 +381,9 @@ const DirectionLayout = () => {
                     <View
                       style={{
                         width: "75%",
-                        marginStart: 2,
+                       // marginStart: 2,
                         justifyContent: "center",
+                      //  backgroundColor: 'red'
                       }}
                     >
                       <Text
@@ -390,9 +400,11 @@ const DirectionLayout = () => {
 
                     <View
                       style={{
-                        width: "7%",
-                        marginStart: 2,
+                        width: "12%",
+                        //marginStart: 2,
                         justifyContent: "center",
+                        alignItems: 'center',
+                        //backgroundColor: 'green'
                       }}
                     >
                       {item.commentStatus == "Устранено" ? (

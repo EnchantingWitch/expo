@@ -1,6 +1,7 @@
 import DateInputWithPicker2 from '@/components/Calendar+';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
+import * as DocumentPicker from "expo-document-picker";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -13,6 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Structure } from '../(tabs)/structure';
 //import { setSeconds } from 'date-fns';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
@@ -25,7 +27,6 @@ import Animated, {
   withSpring
 } from 'react-native-reanimated';
 
-
 export type ListToDrop = {
   label: string;
   value: string; 
@@ -33,6 +34,8 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+  
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
@@ -210,6 +213,42 @@ export default function CreateNote() {
         } finally {
         }
       };
+
+
+
+  const selectFile = async () => {
+      // Opening Document Picker to select one file
+      try {
+        const res = await DocumentPicker.getDocumentAsync({
+          // Provide which type of file you want user to pick
+          //type: "*/*",
+          //Ограничение загружаемых типов файлов (mime type)
+          type: [
+            //'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' 
+            'image/*',// 'image/jpeg'
+          ],
+          copyToCacheDirectory: true, 
+          
+        });
+        // Printing the log realted to the file
+        console.log('res of DocumentPicker : ' + JSON.stringify(res));
+        // Setting the state to show single file attributes
+        if (!res.canceled) {
+        setSinglePhoto(res.assets[0].uri); }
+        console.log('RES PHOTO', res);
+      } catch (err) {
+        setSinglePhoto('');
+        // Handling any exception (If any)
+       if (DocumentPicker.Cancel(err)) {
+          // If user canceled the document selection
+          alert('Canceled');
+        } else {
+          // For Unknown Error
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+      }
+    };
 
   useEffect(() => {
     getToken('accessToken', setAccessToken);
@@ -389,21 +428,32 @@ console.log(JSON.stringify({
       
       
       //Тут добавила
-      const photoToUpload = singlePhoto;
+     if(singlePhoto!=''){
       const body = new FormData();
       //data.append('name', 'Image Upload');
-      body.append("photo", {
-        uri: photoToUpload,
-        type: 'image/*',
-        name: 'photoToUpload'
-      })
-    /*  console.log(body);
-      for (let [key, value] of body) {
+      // 1. Преобразуем base64 в Blob
+  const base64Data = singlePhoto.split(',')[1];
+  const byteCharacters = atob(base64Data);
+  const byteArrays = new Uint8Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArrays[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const blob = new Blob([byteArrays], { type: 'image/jpeg' });
+  console.log('byteArrays', byteArrays)
+
+  // 2. Создаем File (если нужно имя файла)
+  const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
+
+  // 3. Добавляем в FormData
+  body.append('photo', file); // Ключевое отличие: передаем File, а не URL
+    /*  for (let [key, value] of body) {
         console.log(key);
         console.log(value);
     }*/
-    console.log(singlePhoto.uri, 'singlePhoto');
-    console.log(photoToUpload.uri, 'photoToUpload');
+  //  console.log(singlePhoto.uri, 'singlePhoto');
+  //  console.log(photoToUpload.uri, 'photoToUpload');
       //body.append("photo", photoToUpload);
       // Please change file upload URL
       //alert(id);
@@ -418,11 +468,12 @@ console.log(JSON.stringify({
           body: body,
           headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
+            
           }
         }
       );
       console.log('ResponsePhoto:', res);
+      }
       
       //до сюда
       
@@ -570,7 +621,14 @@ console.log(JSON.stringify({
   keyboardShouldPersistTaps="handled"
   contentContainerStyle={{ flexGrow: 1 }}
 >
-  <View style={{ flex: 1, alignItems: 'center' }}>
+ <View style={[styles.container, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center'
+      }]}>
+        
+        <View style={{flex: 1, alignItems: 'center',
+        width: isDesktopWeb? '148%' :'100%'}}>
     <View style={{width: '100%', alignItems: 'center'}}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
       <ListOfOrganizations 
@@ -603,19 +661,32 @@ console.log(JSON.stringify({
     />
     
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
-    <TextInput
-      style={[styles.input, {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14)}]}
-      multiline
-      maxLength={250}
-      onContentSizeChange={e => {
-        let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-        if(inputH > 120) inputH = 100
-        setInputHeight(inputH)
-      }}
-      placeholderTextColor="#111"
-      onChangeText={setDescription}
-      value={description}
-    />          
+     <TextInput
+                //style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight),fontSize: ts(14)}]} // Минимальная высота 40
+                multiline
+                onContentSizeChange={e=>{
+                  let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
+                  if(inputH>120) inputH =100
+                  setInputHeight(inputH)
+              }}
+              style={[
+                  styles.input, 
+                  {
+                     height: Math.max(42, inputHeight),
+               // minHeight: 42, // Минимальная высота
+               // maxHeight: 100, // Максимальная высота
+                fontSize: ts(14),
+                lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center',
+                  }
+                ]}
+                //placeholder="Содержание замечания"
+                maxLength={250}
+                placeholderTextColor="#111"
+                onChangeText={setDescription}
+                value={description}
+              />
     {description.length >=200? 
                           <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
                             Можете ввести еще {250-description.length}{' '}
@@ -647,19 +718,24 @@ console.log(JSON.stringify({
       </View>
     </View>
     
-    <View style={{flexDirection: 'row'}}>
-      <DateInputWithPicker theme='min' onChange={(dateString) => setStartDate(dateString)}/>
-      <DateInputWithPicker2 statusreq={true} post={planDate} theme='min' onChange={(dateString) => setPlanDate(dateString)}/>
+    <View style={{flexDirection: 'row', width: '96%'}}>
+      <View style={{width: '50%',  alignItems: 'center'}}>
+        <DateInputWithPicker theme='min' onChange={(dateString) => setStartDate(dateString)}/>
+      </View>
+      <View style={{width: '50%', }}>
+        <DateInputWithPicker2 statusreq={true} post={planDate} theme='min' onChange={(dateString) => setPlanDate(dateString)}/>
+      </View>
     </View>
     
     {/* Фото */}
     <View style={{width: '100%'}}>
       {singlePhoto ? (
-        <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center'}}> 
-          <View style={{width: '48%', alignSelf: 'center'}}>
+        <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center', width: '100%'}}> 
+          <View style={{width: '50%', alignSelf: 'center'}}>
             <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
           </View>
-          <View style={{width: '33%'}}>
+          <View style={{width: '42%',justifyContent: 'flex-end',  flexDirection: 'row'}}>
+          <View style={{ width: '78%', backgroundColor: 'red', alignContent: 'center'}}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Image
                 source={{ uri: singlePhoto }}
@@ -676,13 +752,13 @@ console.log(JSON.stringify({
 <GestureHandlerRootView style={{ flex: 1 }}>
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContent}>
-                    <View style={{flexDirection: 'row'}}>
-                      <TouchableOpacity 
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
+             {/*}         <TouchableOpacity 
                         onPress={() => shareImage(singlePhoto)}
                         style={{alignItems: 'center', width: '50%' }}
                       >
                         <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
-                      </TouchableOpacity>
+                      </TouchableOpacity>*/}
                       <TouchableOpacity 
                         onPress={() => setModalVisible(false)} 
                         style={{alignItems: 'center', width: '50%' }}
@@ -706,19 +782,20 @@ console.log(JSON.stringify({
               </GestureHandlerRootView>
             </Modal>
           </View>
-          <View style={{width: '10%', alignSelf: 'center' }}>
-            <TouchableOpacity onPress={cancelPhoto} style={{alignSelf: 'flex-end', width: '70%'}}>
+          <View style={{ alignSelf: 'center' }}>
+            <TouchableOpacity onPress={cancelPhoto} style={{}}>
               <Ionicons name='close-outline' size={30} />
             </TouchableOpacity>
           </View>
+        </View>
         </View>
       ) : (
         <View style={{ marginBottom: 8, flexDirection: 'row'}}>
           <View style={{width: '50%'}}>
             <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
           </View>
-          <View style={{width: '46%'}}>
-            <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
+          <View style={{width: '48%'}}>
+            <TouchableOpacity onPress={selectFile} style={{alignSelf: 'flex-end', width: '20%'}}>
               <Ionicons name='image-outline' size={30}></Ionicons>
             </TouchableOpacity> 
           </View>
@@ -741,7 +818,7 @@ console.log(JSON.stringify({
       title="Добавить дефект"
       handlePress={TwoFunction}
     />
-  </View>
+  </View></View>
 </KeyboardAwareScrollView> );
 }
 

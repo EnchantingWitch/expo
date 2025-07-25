@@ -15,6 +15,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
   
   const [accessToken, setAccessToken] = useState<any>('');
   const [objname, setObjname] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -43,53 +44,85 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
   const {capitalCSName} = useLocalSearchParams();//получение id объекта
   //console.log(codeCCS, 'ID load_reistry');
 
-  const uploadImage = async () => {
-    
+  const uploadFile = async () => {
+    setDisabled(true);
       try {
-    // Check if any file is selected or not
       setLoad(true);
-      // If file selected then create FormData
       const fileToUpload = singleFile;
       const data = new FormData();
-      //data.append('name', 'Image Upload');
-      data.append("file", {
+     // const file = new File(fileToUpload.uri, 'fileToUpload', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const fileObject = {
         uri: fileToUpload.uri,
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         name: 'fileToUpload'
-      });
-      //data.append("file", fileToUpload )
-      // Please change file upload URL
-      let res = await fetch(
+      };
+
+      const file = new File([fileToUpload], 'filename.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  data.append('file', file);
+
+      data.append('file', 
+        {
+        uri: fileToUpload.uri,
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        name: 'fileToUpload'
+      }
+       );
+
+    //  console.log('fileToUpload.uri', fileToUpload.uri)
+
+    /*   for (let [key, value] of data.entries()) {
+        console.log(key, value);
+       }*/
+      const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW';
+
+        const body = `--${boundary}\r\n` +
+        'Content-Disposition: form-data; name="file"; filename="fileToUpload.xlsx"\r\n' +
+        'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n' +
+        `${fileToUpload.uri}\r\n` +
+        `--${boundary}--`;
+        console.log('BODY', body)
+
+    /*   let res = await axios.post('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/' + codeCCS, data, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'multipart/form-data', boundary: '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+          },
+        });
+        */
+
+       let res = await fetch(
         'https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/'+codeCCS,
         {
           method: 'post',
           body: data,
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data; ',
+            'Authorization': `Bearer ${accessToken}`, 
+            'Content-Type': 'multipart/form-data'
           },
         }
       );
+
+    /*  axios.interceptors.request.use((config) => {
+        console.log('Отправляемые данные:', config.data);
+        return config;
+      });
+*/
       console.log('ResponseLoadRegistry:', res);
-      console.log('FormData:', data);
-     // console.log('fileToUpload:', fileToUpload);
-      //alert(res.status);
-      //Обратная связь пользователю по загрузке дока
+     
       if (res.status == 200){
        Alert.alert('', 'Структура загружена.', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
       }
-      if (res.status == 400) {
-        Alert.alert('', 'Структура не загружена.', [
-          {text: 'OK', onPress: () => console.log('OK Pressed')}])
-   
-      }
+      
       } catch (error) {
+        Alert.alert('', 'Произошла ошибка: ' + error, [
+                     {text: 'OK', onPress: () => console.log('OK Pressed')},
+                  ])
         console.error('Error:', error);
+        setDisabled(false);
       }
       finally{
         router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: objname}})
-        //router.push('/(tabs)/structure'); setLoad(false);
+        setDisabled(false);
       }  
   };
 
@@ -128,48 +161,6 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
       }
     }
   };
-
-  /*
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const req = async () => {
-  try {
-  const request = fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadStructure/051-2004430.0003', {
-    method: 'POST',
-    headers: {'Content-Type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},
-    body: selectedImage
-  })
-   console.log('Response:', request);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      //router.push('/(tabs)/two'); 
-    }
- }*/
- // const pickDocument = async () => {
-   // let result = await DocumentPicker.getDocumentAsync({ 
-     // type: "*/*",
-      // all files
-      // type: "image/*" // all images files
-      // type: "audio/*" // all audio files
-      // type: "application/*" // for pdf, doc and docx
-      // type: "application/pdf" // .pdf
-      // type: "application/msword" // .doc
-      // type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // .docx
-      // type: "vnd.ms-excel" // .xls
-      // type: "vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
-      // type: "text/csv" // .csv
-   /*   multiple: true,
-      copyToCacheDirectory: true 
-    });
-    console.log(result.uri);
-    console.log(result);
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    } else {
-      //alert('You did not select any image.');
-    }
-  }*/
-
     useEffect(() => {
       getToken();
       if(capitalCSName){setObjname(capitalCSName);}
@@ -181,8 +172,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
        
           <CustomButton
                     title="Выбрать файл"
-                    handlePress={selectFile} // Вызов функции отправки данных
-                   // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
+                    handlePress={selectFile} 
                   />
         <View >
         {singleFile ? (<Text style={{fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center', paddingTop: 15}}>
@@ -194,9 +184,10 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton
+                      disabled={disabled}
                       title="Отправить"
-                      handlePress={uploadImage} // Вызов функции отправки данных
-                  //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
+                      handlePress={uploadFile} 
+                
         />
         <View>
           {load ? ( <ActivityIndicator size={'large'} style={{paddingTop: 10, }}/>):('')

@@ -1,11 +1,14 @@
 import CustomButton from '@/components/CustomButton';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, SafeAreaView, StatusBar, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function TabOneScreen() {
-   const fontScale = useWindowDimensions().fontScale;
+  
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+  const fontScale = useWindowDimensions().fontScale;
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
@@ -17,7 +20,7 @@ export default function TabOneScreen() {
   const {id} = useLocalSearchParams();
   const [accessToken, setAccessToken] = useState<any>('');
   const [disabled, setDisabled] = useState(false); //для кнопки
-console.log('id', id)
+  console.log('id', id)
   useEffect(() => {
     if(organisation){setOrg(organisation);}
   }, [organisation]);
@@ -111,7 +114,7 @@ console.log('id', id)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={styles.container}>
+    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}]}>
      
   {/*}  <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Организация</Text>
     */}  <TextInput

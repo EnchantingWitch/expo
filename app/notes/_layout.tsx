@@ -88,23 +88,5 @@ export default function TabLayout() {
         },
         }}
       />
-      <Stack.Screen
-        name="add_photo"
-        options={{
-          title: 'Добавить фото',
-         // tabBarLabel: 'jjj',
-          headerTitleAlign: 'center',
-  
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-         
-        headerStyle: { backgroundColor: '#FFFFFF' },
-        headerTitleStyle: {
-          fontSize: ts(20), // Укажите нужный размер шрифта
-          //fontWeight: 'bold', // Опционально: можно добавить жирность
-          // Другие стили для заголовка, если нужно
-        },
-        }}
-      />
     </Stack>
   )}

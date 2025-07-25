@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
 //import * as Sharing from 'expo-sharing';
+import useDevice from "@/hooks/useDevice";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from 'expo-sharing';
 import { openBrowserAsync } from "expo-web-browser";
@@ -27,6 +28,7 @@ import RNFetchBlob from 'react-native-blob-util';
 
 
 export default function Docs() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();  
   const { StorageAccessFramework } = FileSystem
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
@@ -403,25 +405,25 @@ const saveF = async () => {
   }
 };
 
-const handleDownload = async () => {
+const handleDownload = async (toFetch: string, fileName: string, extands: string) => {
   setStatusPressGetExcel(true);
     try {
        const response = await fetch(
-      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443/excelForms/getMonitoring/${codeCCS}`,
+      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443${toFetch}${codeCCS}`,
       {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
+        //  Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
         },
       }
     );
       const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectURL(blob); 
 
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download =  `Мониторинг ПНР по объекту ${capitalCSName}.xlsx`;
+      link.download =  `${fileName} ${capitalCSName}.${extands}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -439,7 +441,7 @@ const handleDownload = async () => {
   const str = `${capitalCSName}\nДокументация`
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "white",  }}>
       <View style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, marginBottom: 10 }}>
         <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
           <Ionicons
@@ -468,8 +470,278 @@ const handleDownload = async () => {
             {str}
         </TextInput>
       </View>
-
+<View style={{width: isDesktopWeb&& screenWidth>900? 900 : '100%', alignSelf: 'center',}}>
       <ScrollView>
+        {isMobile? 
+        <View style={styles.container}>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity
+              onPress={(event) => {
+                handleLink(event, urlWork);
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Image
+                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  source={require("../../assets/images/WorkDocs.svg")}
+                />
+                <TouchableOpacity
+                  style={{ alignItems: "flex-end", width: 35 }}
+                  onPress={() => openModalWithCurrentLink("рабочей")}
+                >
+                  <Ionicons
+                    name="link-outline"
+                    size={24}
+                    color="#0072C8"
+                    style={{ alignSelf: "center" }}
+                  />
+                </TouchableOpacity>
+              </View>
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Рабочая
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={(event) => {
+                handleLink(event, urlOperate);
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Image
+                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  source={require("../../assets/images/factoryDocs.svg")}
+                />
+                <TouchableOpacity
+                  style={{ alignItems: "flex-end", width: 35 }}
+                  onPress={() => openModalWithCurrentLink("заводской")}
+                >
+                  <Ionicons
+                    name="link-outline"
+                    size={24}
+                    color="#0072C8"
+                    style={{ alignSelf: "center" }}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Заводская
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity
+              onPress={(event) => {
+                handleLink(event, urlPreporate);
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Image
+                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  source={require("../../assets/images/preparationDocs.svg")}
+                />
+                <TouchableOpacity
+                  style={{ alignItems: "flex-end", width: 35 }}
+                  onPress={() => openModalWithCurrentLink("подготовительной")}
+                >
+                  <Ionicons
+                    name="link-outline"
+                    size={24}
+                    color="#0072C8"
+                    style={{ alignSelf: "center" }}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Подготовительная
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={(event) => {
+                handleLink(event, urlExecute);
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Image
+                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  source={require("../../assets/images/executionDocs.svg")}
+                />
+                <TouchableOpacity
+                  style={{ alignItems: "flex-end", width: 35 }}
+                  onPress={() => openModalWithCurrentLink("исполнительной")}
+                >
+                  <Ionicons
+                    name="link-outline"
+                    size={24}
+                    color="#0072C8"
+                    style={{ alignSelf: "center" }}
+                  />
+                </TouchableOpacity>
+              </View>
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Исполнительная
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity
+              onPress={(event) => {
+                handleLink(
+                  event,
+                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
+                );
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <Image
+                style={{ width: 100, height: 100, marginLeft: -7 }}
+                source={require("../../assets/images/standartDocs.svg")}
+              />
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Нормативная
+              </Text>
+            </TouchableOpacity>
+
+          {statusPressGetExcel===false? 
+            <TouchableOpacity
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+              onPress={()=>[handleDownload(
+                '/excelForms/getMonitoring/', 
+                'Мониторинг ПНР по объекту', 
+                'xlsx',
+              )
+              //  getExcelFile(), setStatusPressGetExcel(true)
+              ]}
+             /* onPress={(event) => {
+                handleLink(
+                  event,
+                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
+                );
+              }}*/
+            >
+              <Image
+                style={{ width: 100, height: 100, marginLeft: -7 }}
+                source={require("../../assets/images/monitoring.svg")}
+              />
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Мониторинг ПНР
+              </Text>
+            </TouchableOpacity>
+          :
+            <View
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}>
+              <Image
+                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5}}
+                  source={require("../../assets/images/monitoring.svg")}
+                />
+                <Text
+                  style={{
+                    fontSize: ts(14),
+                    color: "#0072C8",
+                    fontWeight: "400",
+                    textAlign: "center",
+                    marginLeft: -7,
+                  }}
+                >
+                  Мониторинг ПНР
+                </Text>
+            </View>
+          }
+            
+          </View>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity
+              onPress={(event) => {
+             handleDownload(
+                '/journal/getJournal/', 
+                'Журнал ПНР по объекту', 
+                'docx'
+                );
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <Image
+              
+                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",
+                  filter: Platform.select({
+                  web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
+                  default: undefined
+                })
+                }}
+                source={require("../../assets/images/journal.svg")}
+              />
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Журнал ПНР
+              </Text>
+            </TouchableOpacity>
+            </View>
+        </View>
+        :
         <View style={styles.container}>
           <View style={{ flexDirection: "row",  }}>
             <TouchableOpacity
@@ -548,9 +820,7 @@ const handleDownload = async () => {
             {statusPressGetExcel===false? 
             <TouchableOpacity
               style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[handleDownload()
-              //  getExcelFile(), setStatusPressGetExcel(true)
-              ]}
+              onPress={()=>[handleDownload()]}
              /* onPress={(event) => {
                 handleLink(
                   event,
@@ -735,9 +1005,11 @@ const handleDownload = async () => {
           <View style={{ flexDirection: "row" }}>
             
             </View>
-        </View>
+        </View> }
       </ScrollView>
-
+   
+</View>
+<TouchableOpacity onPress={()=> setModalStatus(false)}>
       <Modal
         animationType="fade" // Можно использовать 'slide', 'fade' или 'none'
         transparent={true} // Установите true, чтобы сделать фон полупрозрачным
@@ -828,6 +1100,7 @@ const handleDownload = async () => {
           </View>
         </View>
       </Modal>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -193,7 +193,7 @@ const DropdownComponent = forwardRef(({
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
-                                <Ionicons name='chevron-down' color={ '#B3B3B3'}/>
+                                <Ionicons name='chevron-down' color={ '#B3B3B3'} size={16}/>
                             </View>
                         </View>
                     </TouchableOpacity>

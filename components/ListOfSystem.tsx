@@ -10,13 +10,14 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[];
     post: string;
-    buf: string;
+    title?: string;
+    buf?: string;
     statusreq?: boolean;
     onChange: (subobj: string) => void;
     onChangeStatus?: (subobj: boolean) => void; 
 };
 
-const ListOfSystem = ({ list, post, buf, statusreq = true, onChange, onChangeStatus }: Props) => {
+const ListOfSystem = ({ list, post, buf, title, statusreq = true, onChange, onChangeStatus }: Props) => {
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -107,7 +108,7 @@ useEffect(() => {
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
-                                <Ionicons name='chevron-down' color='#B3B3B3'/>
+                                <Ionicons name='chevron-down' color='#B3B3B3' size={16}/>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -136,7 +137,7 @@ useEffect(() => {
                                                 }
                                             ]}
                                         >
-                                            <Text style={styles.modalHeaderText}>Система</Text>
+                                            <Text style={styles.modalHeaderText}>{title? title : 'Система'}</Text>
                                             <Text style={styles.selectedValueText}>
                                                 {value!=='' && value!==' ' && value!==undefined ? selectedLabel : 
                                                             <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
     },
     selectedTextStyle: {
         color: '#B3B3B3',
-        textAlign: 'left',
+        textAlign: 'center',
     },
     modalOverlay: {
         flex: 1,
