@@ -15,6 +15,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
   
   const [accessToken, setAccessToken] = useState<any>('');
   const [objname, setObjname] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -44,7 +45,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
   //console.log(codeCCS, 'ID load_reistry');
 
   const uploadImage = async () => {
-    
+    setDisabled(true);
       try {
     // Check if any file is selected or not
       setLoad(true);
@@ -79,17 +80,17 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
        Alert.alert('', 'Структура загружена.', [
              {text: 'OK', onPress: () => console.log('OK Pressed')}])
       }
-      if (res.status == 400) {
-        Alert.alert('', 'Структура не загружена.', [
-          {text: 'OK', onPress: () => console.log('OK Pressed')}])
-   
-      }
+      
       } catch (error) {
+        Alert.alert('', 'Произошла ошибка: ' + error, [
+                     {text: 'OK', onPress: () => console.log('OK Pressed')},
+                  ])
         console.error('Error:', error);
+        setDisabled(false);
       }
       finally{
         router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: objname}})
-        //router.push('/(tabs)/structure'); setLoad(false);
+        setDisabled(false);
       }  
   };
 
@@ -194,6 +195,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton
+                      disabled={disabled}
                       title="Отправить"
                       handlePress={uploadImage} // Вызов функции отправки данных
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно

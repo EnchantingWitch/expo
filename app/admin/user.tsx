@@ -272,7 +272,9 @@ console.log(userId, 'userId');
         <CustomButton disabled={disabled} title='Сохранить' handlePress={setAdmin}/>
       </View>
       : 
-      <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>
+      <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+        <Text style={{ fontSize: ts(14), color: '#0072C8', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Изменение карточки данного пользователя невозможно</Text>
+      </View>
     }
     </SafeAreaView>
   ); 

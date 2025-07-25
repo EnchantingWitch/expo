@@ -326,7 +326,7 @@ const DirectionLayout = () => {
         <View
           style={{
             flexDirection: "row",
-            width: "98%",
+            width: "96%",
             height: 32,
             paddingTop: 6,
             justifyContent: "space-between",
@@ -342,7 +342,7 @@ const DirectionLayout = () => {
             <ActivityIndicator />
           ) : (
             <FlatList
-              style={{ width: "100%" }}
+              style={{ width: "98%" }}
               data={data}
               keyExtractor={({ commentId }) => commentId}
               renderItem={({ item }) => (

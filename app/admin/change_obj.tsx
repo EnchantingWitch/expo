@@ -1,6 +1,7 @@
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import ListOfRegion from '@/components/ListOfRegion';
 import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -35,8 +36,8 @@ export default function TabOneScreen() {
   const {locationRegion} = useLocalSearchParams();  
   const {objectType} = useLocalSearchParams();  
 
-  const [oks, setOks] = useState<string>();//наименование окс
-  const [key, setKey] = useState<string>();//код ОКС
+  const [oks, setOks] = useState<string>('');//наименование окс
+  const [key, setKey] = useState<string>('');//код ОКС
   const [region, setRegion] = useState<string>();//регион
   const [typeObj, setTypeObj] = useState<string>();//тип окс
   const [charterer, setCharterer] = useState<string>();//заказчик
@@ -86,6 +87,12 @@ export default function TabOneScreen() {
 };
   const request = async () => {
     setDisabled(true);
+    if(oks ==='' || key===''){
+              Alert.alert('', 'Заполните поля наименования объекта и кода ОКС.', [
+                                      {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                         setDisabled(false);
+                         return;
+                       }
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/updateCapitalCS/' + capitalCSId, {
       method: 'PUT',
@@ -304,8 +311,11 @@ useEffect(() => {
             value={key}
             // editable={false}
         />
-     <ListOfOrganizations data={listRegion} title={region!=''? region:'Регион'} post={region} status={statusRegion} onChange={(value) => setRegion(value)}/>
-       <ListOfOrganizations data={listTypeObj} title={typeObj!=''? typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
+     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Регион</Text>
+        <ListOfRegion items={listRegion} modalTitle='Регион'  selectedValue={region} isEnabled={statusRegion} onValueChange={(value) => setRegion(value)}/>
+    
+       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Тип объекта</Text>
+        <ListOfOrganizations data={listTypeObj} title={typeObj!=''? typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
       <ListOfOrganizations data={listOrganization} title={charterer!=''? charterer:''} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' post={cuCharterer} onChange={(value) => setCuCharterer(value)}/>

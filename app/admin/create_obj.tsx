@@ -1,6 +1,8 @@
+//import SmartKeyboardView from '@/components/SmartKeyboardView';
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import ListOfRegion from '@/components/ListOfRegion';
 import { } from '@/components/Themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -24,8 +26,8 @@ export default function TabOneScreen() {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState<Object[]>([]);
 
-  const [oks, setOks] = useState<string>();//наименование окс
-  const [key, setKey] = useState<string>();//код ОКС
+  const [oks, setOks] = useState<string>('');//наименование окс
+  const [key, setKey] = useState<string>('');//код ОКС
   const [region, setRegion] = useState<string>();//регион
   const [typeObj, setTypeObj] = useState<string>();//тип окс
   const [charterer, setCharterer] = useState<string>();//заказчик
@@ -54,8 +56,20 @@ export default function TabOneScreen() {
         console.error('Error retrieving token:', error);
     }
 };
-  const request = async () => {
+
+console.log (oks, 'oks');
+console.log (key, 'key');
+
+console.log('oks === || key===', oks ==='' || key==='')
+
+const request = async () => {
     setDisabled(true);
+    if(oks ==='' || key===''){
+          Alert.alert('', 'Заполните поля наименования объекта и кода ОКС.', [
+                                  {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                     setDisabled(false);
+                     return;
+                   }
     try {
     let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/capitals/createObject', {
       method: 'POST',
@@ -210,7 +224,7 @@ export default function TabOneScreen() {
 
   return (
     <KeyboardAwareScrollView
-         style={{ flex: 1 }}
+         style={{ flex: 1, backgroundColor: 'white' }}
       enableOnAndroid={true}
       extraScrollHeight={100}
       keyboardShouldPersistTaps="handled"
@@ -236,19 +250,28 @@ export default function TabOneScreen() {
     <View style={styles.container}>
       <FormField title='Объект капитального строительства' onChange={(value) => setOks(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
       <FormField title='Код ОКС' onChange={(value) => setKey(value)}/>
-      <ListOfOrganizations data={listRegion} title='Регион' post='' status={statusRegion} onChange={(value) => setRegion(value)}/>
-       <ListOfOrganizations data={listTypeObj} title='Тип объекта' post='' status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
+{/*         <AdaptiveDropdown
+          data={countries}
+          value={selectedCountry}
+          onChange={setSelectedCountry}
+          placeholder="Выберите страну"
+          style={styles.input}
+        />*/}
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Регион</Text>
+      <ListOfRegion items={listRegion} modalTitle='Регион'  selectedValue={region} isEnabled={true} onValueChange={(value) => setRegion(value)}/>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Тип объекта</Text>
+      <ListOfOrganizations data={listTypeObj} title='Тип объекта' label={`Тип объекта`} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       {/*<FormField title='Заказчик' onChange={(value) => setCharterer(value)}/>*/}
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
-      <ListOfOrganizations data={listOrganization} title='' post='' status={statusOrg} onChange={(value) => setCharterer(value)}/>
+      <ListOfOrganizations data={listOrganization} title='' label={`Заказчик`} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' onChange={(value) => setCuCharterer(value)}/>
       {/*<FormField title='Исполнитель ПНР' onChange={(value) => setExecutorPnr(value)}/>*/}
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations data={listOrganization} title='' post='' status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
+      <ListOfOrganizations data={listOrganization} label={`Исполнитель ПНР`} title='' post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' onChange={(value) => setDirPnr(value)}/>
       {/*<FormField title='Исполнитель СМР' onChange={(value) => setExecutorCmr(value)}/>*/}
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-      <ListOfOrganizations data={listOrganization} title='' post='' status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
+      <ListOfOrganizations data={listOrganization} label={`Исполнитель СМР`} title='' post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' onChange={(value) => setCuCmr(value)}/>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
         <CustomButton title='Сохранить' disabled={disabled} handlePress={request}/>

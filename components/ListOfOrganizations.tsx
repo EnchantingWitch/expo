@@ -1,99 +1,138 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, findNodeHandle, StyleSheet, UIManager, useWindowDimensions, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
-
+import { Ionicons } from '@expo/vector-icons';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, FlatList, Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Props = {
     post: string;
     status: boolean;
     title: string;
-    data: [];
-    onChange: (status: string) => void;
+    label?: string;
+    data: Array<{label: string, value: string}>;
+    onChange: (value: string) => void;
 };
 
-const ListOfOrganizations = ({ post, status, title, data, onChange }: Props, ref) => {
+const AdaptiveDropdown = forwardRef(({ post, status, title, label, data, onChange }: Props, ref) => {
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
-    const [direction, setDirection] = useState<'top' | 'bottom' | 'auto'>('auto');
+    const [searchText, setSearchText] = useState('');
+    const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
+    const dropdownRef = useRef<View>(null);
 
     const fontScale = useWindowDimensions().fontScale;
-
-    const ts = (fontSize: number) => {
-        return (fontSize / fontScale);
-    };
+    const ts = (fontSize: number) => fontSize / fontScale;
 
     useEffect(() => {
-        // Устанавливаем значение из props при изменении post или status
         if (post !== value && status) {
             setValue(post);
         }
     }, [post, status]);
 
-    useEffect(() => {
-        // Only handle dropdown opening when focused
-        if(isFocus) {
-            handleOpen();
-        }
-    }, [isFocus]);
-
-    const dropdownRef = useRef<View>(null);
-
     const handleOpen = () => {
-        const handle = findNodeHandle(dropdownRef.current);
-        if (handle) {
-            UIManager.measure(handle, (x, y, width, height, pageX, pageY) => {
+        Keyboard.dismiss(); // Скрываем клавиатуру перед открытием
+        if (dropdownRef.current) {
+            dropdownRef.current.measureInWindow((x, y, width, height) => {
                 const windowHeight = Dimensions.get('window').height;
-                const spaceBelow = windowHeight - pageY - height;
-                if (spaceBelow > 340) {
-                    setDirection('bottom');
-                } else {
-                    setDirection('top');
-                }
+                const spaceBelow = windowHeight - y - height;
+                setDropdownPosition(spaceBelow > 340 ? 'bottom' : 'top');
             });
         }
+        setIsFocus(true);
     };
 
+    const handleSelect = (selectedValue: string) => {
+        setValue(selectedValue);
+        setIsFocus(false);
+        onChange(selectedValue);
+    };
+
+    const filteredData = searchText 
+        ? data.filter(item => 
+            item.label.toLowerCase().includes(searchText.toLowerCase()))
+        : data;
+
+    const selectedLabel = value 
+        ? data.find(item => item.value === value)?.label 
+        : title;
+
     return (
+        <View style={{width: '96%'}}>
         <View style={styles.container}>
-            <View ref={dropdownRef} style={{width: '100%'}}>
-                <Dropdown
+            {/* Триггер для открытия модального окна */}
+            <View ref={dropdownRef} >
+                <TouchableOpacity
+                    onPress={handleOpen}
                     style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                    placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), lineHeight: ts(20), includeFontPadding: false, textAlignVertical: 'center' }]}
-                    selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), lineHeight: ts(20), includeFontPadding: false, textAlignVertical: 'center' }]}
-                    inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), lineHeight: ts(20), includeFontPadding: false, textAlignVertical: 'center' }]}
-                    iconStyle={styles.iconStyle}
-                    data={data}
-                    search
-                     keyboardAvoiding={false} // Добавляем избегание клавиатуры
-                    autoScroll={false}
-                    maxHeight={300}
-                    mode='default'
-                    dropdownPosition={direction}
-                    itemTextStyle={{ fontSize: ts(14) }}
-                    labelField="label"
-                    valueField="value"
-                    placeholder={!isFocus ? title : title}
-                    searchPlaceholder="Search..."
-                    value={value}
-                    onFocus={() => setIsFocus(true)}
-                    onBlur={() => setIsFocus(false)}
-                    onChange={item => {
-                        setValue(item.value);
-                        setIsFocus(false);
-                        if (onChange) {
-                            onChange(item.value);
-                        }
-                    }}
-                    
-                />
+                >
+                    <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
+                        <View style={{width: '95%'}}>
+                        <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
+                            {post!=='' && post!==' '? post : selectedLabel? selectedLabel : 'Не выбрано'}
+                        </Text></View>
+                        <View style={{width: '5%'}}>
+                        <Ionicons name='chevron-down' color={ '#B3B3B3'}/></View>
+                    </View>
+                </TouchableOpacity>
             </View>
+
+            {/* Модальное окно с выпадающим списком */}
+            <Modal
+                visible={isFocus}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setIsFocus(false)}
+            >
+                <TouchableOpacity 
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setIsFocus(false)}
+                >
+                    <Animated.View 
+                        style={[
+                        styles.modalContent,
+                        { maxHeight: '70%' } // Фиксированная процентная высота
+                        ]}
+                    >
+                       <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2, fontWeight: 500,  color: '#0072C8', alignSelf: 'center' }]}>
+                        {label}
+                    </Text>
+                    <Text style={[styles.selectedTextStyle, { fontSize: ts(16), paddingBottom: 14, alignSelf: 'center' }]}>
+                        {post!=='' && post!==' ' && post!==undefined? post : 
+                            <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
+                                Не выбрано
+                            </Text>}
+                    </Text>
+                        <TextInput
+                            placeholder="Поиск..."
+                            placeholderTextColor={'#B2B3B3'}
+                            value={searchText}
+                            onChangeText={setSearchText}
+                            style={[styles.inputSearchStyle, { fontSize: ts(14) }]}
+                            autoFocus
+                        />
+
+                        <FlatList
+                            data={filteredData}
+                            keyExtractor={item => item.value}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={styles.dropdownItem}
+                                    onPress={() => handleSelect(item.value)}
+                                >
+                                    <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
+                                </TouchableOpacity>
+                            )}
+                            keyboardShouldPersistTaps="handled"
+                        />
+                    </Animated.View>
+                </TouchableOpacity>
+            </Modal>
+        </View>
         </View>
     );
-};
-export default ListOfOrganizations;
+});
 
 const styles = StyleSheet.create({
-    container: {
+      container: {
         paddingBottom: 16,
     },
     dropdown: {
@@ -102,39 +141,67 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 8,
-        width: '96%',
-        backgroundColor: '#fff',
         alignItems: 'center',
+        backgroundColor: '#fff',
         justifyContent: 'center',
     },
-    icon: {
-        marginRight: 5,
-    },
-    label: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        left: 22,
-        top: 8,
-        zIndex: 999,
-        paddingHorizontal: 8,
-        fontSize: 14,
-    },
-    placeholderStyle: {
-        fontSize: 16,
-        textAlign: 'center',
-        color: '#B3B3B3',
-    },
     selectedTextStyle: {
-        fontSize: 16,
         color: '#B3B3B3',
-        textAlign: 'center',
+        textAlign: 'left',
     },
-    iconStyle: {
-        width: 20,
-        height: 20,
+  dropdownInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  dropdownText: {
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    maxHeight: '50%',
+    padding: 16,
+  },
+  searchInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+   // alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+   modalContentBottom: {
+        position: 'absolute',
+       // bottom: 150,
+        left: 0,
+        right: 0,
     },
     inputSearchStyle: {
         height: 40,
-        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#D9D9D9',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        marginBottom: 8,
+        backgroundColor: '#fff',
     },
 });
+
+export default AdaptiveDropdown;

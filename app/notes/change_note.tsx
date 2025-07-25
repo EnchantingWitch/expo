@@ -2,7 +2,8 @@ import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import CustomButton from '@/components/CustomButton';
 import DropdownComponent2 from '@/components/ListOfCategories';
-import ListOfSubobj from '@/components/ListOfSubobj';
+import ListOfSubobj from '@/components/ListOfOrganizations';
+//import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -102,6 +103,7 @@ const EditDataScreen: React.FC = () => {
   const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
   const [statusActivityIndicator, setStatusActivityIndicator] = useState(true);
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -269,8 +271,18 @@ const json = JSON.stringify({
         executor: editedExecut,
       });
       console.log(json);
+
+console.log('if',editedSubObject ==='' || (editedSystemName===''|| editedSystemName===' ') ||  editedDescription==='' || category==='')
   const updateComment = async () => {
-    
+
+    setDisabled(true);
+    if(editedSubObject ==='' || (editedSystemName===''|| editedSystemName===' ') ||  editedDescription==='' || category===''){
+          Alert.alert('', 'Заполните поля подобъекта, системы, содержания замечания, категории.', [
+                                  {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                     setDisabled(false);
+                     return;
+                   }
+
     try {
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/`+id, {
         method: 'PUT',
@@ -292,12 +304,12 @@ const json = JSON.stringify({
       } else {
         throw new Error('Не удалось сохранить данные.');
       }
-    } catch (error) {
+    } catch (error) { setDisabled(false);
       console.error('Ошибка при сохранении данных:', error);
-    } finally{
-      if (statusReqPhoto === false && singlePhoto === ''){
+    } finally{ setDisabled(false);
+    //  if (statusReqPhoto === false && singlePhoto === ''){
       router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});}
-    }
+ //   }
 
   };
 
@@ -378,6 +390,7 @@ if (contentType != null){
   };
 
    const deletePhoto = async () => {
+    setDisabled(true);
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/removePhoto/'+id, {
           method: "DELETE",
@@ -392,24 +405,22 @@ if (contentType != null){
       });
     console.log('deletePhoto', response);
     if (response.status === 200) {setStatusDel(true);}
-  } catch (err) {
-  } finally {
+  } catch (err) { setDisabled(false);
+  } finally { 
     if (changePhoto === false){router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});}
-    else{postPhoto();}
+    else{postPhoto();}setDisabled(false);
   }
 }
 
   const postPhoto = async () => {
+    setDisabled(true);
     try{
     const photoToUpload = singlePhoto;
     const body = new FormData();
           //data.append('name', 'Image Upload');
-    body.append("photo", {
-      uri: photoToUpload,
-      type: 'image/*',
-      name: 'photoToUpload'
-    })
-
+    const photoObj = { uri: singlePhoto, type: 'image/*', name: 'photoToUpload' };
+    console.log('photoObj:', photoObj);
+    body.append("photo", photoObj);
     let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/addPhoto/' + id);
     console.log(str);
     
@@ -432,12 +443,16 @@ if (contentType != null){
                  {text: 'OK', onPress: () => console.log('OK Pressed')},
               ])
           }*/
-    } catch (error) {
+    } catch (error) { setDisabled(false);
       console.error('Error:', error);
-    } finally {router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});}
+    } finally {
+      router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
+      setDisabled(false);
+    }
   }
 
   const deleteNote = async () => {
+    setDisabled(true);
     try {
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/deleteComment/'+id, {
           method: "DELETE",
@@ -450,9 +465,10 @@ if (contentType != null){
       Alert.alert('', 'Замечание удалено', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
-  } catch (err) {
+  } catch (err) { setDisabled(false);
   } finally {
     router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
+    setDisabled(false);
   }
   }
 
@@ -537,6 +553,13 @@ useEffect(() => {
     }
   }
 }, [editedSubObject, array]);
+
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setEditedSubObject(selectedSubObject);
+    setEditedSystemName(' '); // Явный сброс системы
+    setEditedIinumber('');
+    setExecut('');
+};
 
 
     //зумирование фото
@@ -734,10 +757,12 @@ useEffect(() => {
             editable={false}
             />*/}
             <ListOfSubobj 
-                list={listSubObj} 
+                label='Подобъект'
+                title=''
+                data={listSubObj} 
                 post={editedSubObject} 
-                statusreq={statusReq} 
-                onChange={(subobj) => setEditedSubObject(subobj)}
+                status={statusReq} 
+                onChange={(subobj) => handleSubObjectChange(subobj)}
             />
               </View>
 
@@ -746,6 +771,9 @@ useEffect(() => {
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <ListOfSystem 
               list={listSystem} 
+              /*label='Система'
+              title=''
+              status={statusReq} */
               buf={bufsystem} 
               post={editedSystemName} 
               onChange={(system) => setEditedSystemName(system)}
@@ -758,11 +786,20 @@ useEffect(() => {
             value={editedDescription}
             onChangeText={setEditedDescription}
             multiline
+            maxLength={250}
             onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
               if(inputH>120) inputH =100
               setInputHeight(inputH)}}
           />
+          {editedDescription.length >=200? 
+                                  <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
+                                    Можете ввести еще {250-editedDescription.length}{' '}
+                                    {(250-editedDescription.length) % 10 === 1? <Text>символ</Text>
+                                    : (250-editedDescription.length) % 10 === 2 || (250-editedDescription.length) % 10 === 3 || (250-editedDescription.length) % 10 === 4? <Text>символа</Text>
+                                    : <Text>символов</Text>}
+                                  </Text>
+                                : '' }
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Статус</Text>
           <TextInput
@@ -905,15 +942,17 @@ useEffect(() => {
             style={[styles.input, {fontSize: ts(14)}]}
             placeholderTextColor="#111"
             value={editedCommentExplanation}
-            onChange={()=>setEditedCommentExplanation}
+            onChangeText={setEditedCommentExplanation}
           />
 
           <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
 
                 <CustomButton
+                  disabled={disabled}
                   title="Сохранить изменения"
                   handlePress={handleSaveClick} />
                   <CustomButton
+                  disabled={disabled}
                   title="Удалить замечание"
                   handlePress={deleteNote} />
                 </View>

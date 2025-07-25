@@ -6,7 +6,8 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import { Video } from 'react-native-video';
-import ListOfSubobj from '@/components/ListOfSubobj';
+import ListOfSubobj from '@/components/ListOfOrganizations';
+//import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -68,7 +69,7 @@ export default function CreateNote() {
   const [accessToken, setAccessToken] = useState<any>('');
   const [organisationFrAsync, setOrganisationFrAsync] = useState<any>('');
   const [fullNameFrAsync, setFullNameFrAsync] = useState<any>('');
-
+  const [disabled, setDisabled] = useState(false); //для кнопки
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -97,6 +98,19 @@ export default function CreateNote() {
         console.error('Error retrieving token:', error);
     }
 };
+
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setSubObject(selectedSubObject);
+    setSystemName(' '); // Явный сброс системы
+    setNumber('');
+    setExecut('');
+};
+
+
+console.log(JSON.stringify({
+          subObject: subObject,
+          system: systemName,
+        }))
 
   const [form, setForm] = useState({ video: null, image: null });
 
@@ -331,16 +345,13 @@ console.log(JSON.stringify({
 }));
 
   const submitData = async () => {
-    if(subObject ==='' && systemName===' ' &&  description!=='' && category!==''){
-      Alert.alert('', 'Заполните поля подобъекта, системы. Если выпадающий список пустой, загрузите структуру.', [
-                              {text: 'OK', onPress: () => console.log('OK Pressed')}])
-                 return;
-               }
+     setDisabled(true);
 
-    if(subObject ==='' && systemName===' ' &&  description==='' && category===''){
+    if(subObject ==='' || systemName===' ' || systemName==='' ||  description==='' || category===''){
        Alert.alert('', 'Заполните поля подобъекта, системы, содержания замечания, категории', [
                                {text: 'OK', onPress: () => console.log('OK Pressed')}])
-                  return;
+                 setDisabled(false);
+                 return;
                 }
 
     try {
@@ -370,6 +381,12 @@ console.log(JSON.stringify({
           endDateFact: ' '
         }),
       });
+
+      if(response.status === 200){
+        Alert.alert('', 'Замечание добавлено', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ])
+      }
       
       const id = await response.text()
 
@@ -423,9 +440,18 @@ console.log(JSON.stringify({
              {text: 'OK', onPress: () => console.log('OK Pressed')},
           ])
       }
+      if(response.status != 200){
+        Alert.alert('', 'Замечание не добавлено', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ])
+      }
     } catch (error) {
-      console.error('Error:', error);
+      setDisabled(false);
+    /*  Alert.alert('', 'Произошла ошибка при создании замечания: ' + error, [
+                   {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ])*/
     } finally {
+      setDisabled(false);
       setUpLoading(false);
       //  alert(id);
       router.replace({pathname: '/(tabs)/two', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
@@ -552,10 +578,12 @@ console.log(JSON.stringify({
             <View style={{width: '100%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
               <ListOfSubobj 
-                  list={listSubObj} 
+                  data={listSubObj} 
                   post={subObject} 
-                  statusreq={statusReq} 
-                  onChange={(subobj) => setSubObject(subobj)}
+                  status={statusReq}
+                  label='Подобъект'
+                  title='' 
+                  onChange={(subobj) => handleSubObjectChange(subobj)}
               />
               {/*<ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>*/}
              
@@ -565,8 +593,11 @@ console.log(JSON.stringify({
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
           <ListOfSystem 
-            list={listSystem} 
-            buf={bufsystem} 
+            list={listSystem}
+            buf={bufsystem}
+            /*status={statusReq} 
+            label='Система'
+            title=''*/
             post={systemName} 
             onChange={(system) => setSystemName(system)}/>
 
@@ -592,10 +623,19 @@ console.log(JSON.stringify({
               }
             ]}
             //placeholder="Содержание замечания"
+            maxLength={250}
             placeholderTextColor="#111"
             onChangeText={setDescription}
             value={description}
           />
+          {description.length >=200? 
+                      <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
+                        Можете ввести еще {250-description.length}{' '}
+                        {(250-description.length) % 10 === 1? <Text>символ</Text>
+                        : (250-description.length) % 10 === 2 || (250-description.length) % 10 === 3 || (250-description.length) % 10 === 4? <Text>символа</Text>
+                        : <Text>символов</Text>}
+                      </Text>
+                    : '' }
           {/* <Link href='/notes/add_photo' asChild>
             <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
           </Link>
@@ -739,6 +779,7 @@ console.log(JSON.stringify({
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
             <CustomButton
+              disabled={disabled}
               title="Добавить замечание"
               handlePress={TwoFunction} // Вызов функции отправки данных
             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно

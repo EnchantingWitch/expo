@@ -51,7 +51,8 @@ export default function Docs() {
   const [urlPreporate, setUrlPreporate] = useState<any>("");
   const [urlBuffer, setUrlBuffer] = useState<any>("");
 
-  const [statusPressGetExcel, setStatusPressGetExcel] = useState<boolean>(false);
+  const [statusPressGetExcel, setStatusPressGetExcel] = useState<boolean>(false);//для мониторинга
+  const [statusPressGetJournal, setStatusPressGeJournal] = useState<boolean>(false);//для журнала
 
   const navigation = useNavigation();
 
@@ -292,7 +293,10 @@ const blobToBase64 = (blob) => {
   });
 };
 
-const saveF = async () => {
+const saveF = async (toFetch: string, fileName: string, extands: string, mimeType: string, toUTI: string, setF) => {
+  //toFetch - /.../.../ со слешом до кода окс
+  //fileName - имя файла для сохранения ''
+  //extands - расширение без точки например: 'xlsx'
   try {
     // 1. Запрашиваем разрешение на доступ к директории
     const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
@@ -333,12 +337,12 @@ const saveF = async () => {
    
     // 2. Получаем данные с сервера
     const response = await fetch(
-      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443/excelForms/getMonitoring/${codeCCS}`,
+      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443${toFetch}${codeCCS}`,
       {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
+        //  Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
         },
       }
     );
@@ -349,44 +353,30 @@ const saveF = async () => {
     
     // 3. Получаем бинарные данные
     const blob = await response.blob();
+  //  console.log(blob);
     const base64data = await blobToBase64(blob);
 
     // 4. Создаем файл с правильным расширением
     const fileUri = await StorageAccessFramework.createFileAsync(
       directoryUri,
-      `Мониторинг ПНР по объекту ${capitalCSName}.xlsx`, // имя файла с расширением
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // MIME тип для Excel
+      `${fileName} ${capitalCSName}.${extands}`, // имя файла с расширением
+      mimeType // MIME тип для Excel
     );
 
-    
-
-    // 5. Записываем бинарные данные в файл
     await FileSystem.writeAsStringAsync(fileUri, base64data, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
     console.log("Файл успешно сохранен:", fileUri);
     if (Platform.OS === 'android') {
-          await RNFetchBlob.android.actionViewIntent( fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          await RNFetchBlob.android.actionViewIntent( fileUri, mimeType);
         } else {
           await Sharing.shareAsync(fileUri, {
-            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            mimeType: mimeType,
             dialogTitle: 'Открыть файл',
-            UTI: 'org.openxmlformats.spreadsheetml.sheet' // или 'com.microsoft.excel.xlsx'
+            UTI: toUTI // или 'com.microsoft.excel.xlsx'
           });
         }
-  /*  Alert.alert(
-      '','Файл сохранен',
-      
-     // `Файл сохранен по пути: ${response.path()}`, //можно прописать, если предусмотреть возврат пути из saveFileWithSAF
-      [
-        {
-          text: 'Открыть', //по-хорошему наверное здесь также поменять путь файла на открытие 
-          onPress: () => RNFetchBlob.android.actionViewIntent(fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        },
-        { text: 'OK' }
-      ]
-    );*/
   } catch (err) {
     console.error("Ошибка при сохранении файла:", err);
     Alert.alert(
@@ -396,11 +386,27 @@ const saveF = async () => {
       ]
     );
   } finally {
-    setStatusPressGetExcel(false);
+    setF(false);
   }
 };
 
- 
+
+const reqForJournal = async () => { 
+  try{
+    const response = await fetch(
+      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443/journal/getJournal/${codeCCS}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    console.log('responseGetJournal', response)
+  } catch (err) {
+    console.log(err);
+  }
+}
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -627,7 +633,14 @@ const saveF = async () => {
           {statusPressGetExcel===false? 
             <TouchableOpacity
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[saveF()
+              onPress={()=>[saveF(
+                '/excelForms/getMonitoring/', 
+                'Мониторинг ПНР по объекту', 
+                'xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'org.openxmlformats.spreadsheetml.sheet',
+                setStatusPressGetExcel
+              )
               //  getExcelFile(), setStatusPressGetExcel(true)
               ]}
              /* onPress={(event) => {
@@ -675,6 +688,60 @@ const saveF = async () => {
           }
             
           </View>
+          <View style={{ flexDirection: "row" }}>
+          {statusPressGetJournal===false? 
+            <TouchableOpacity
+              onPress={(event) => { //reqForJournal()
+             saveF(
+                '/journal/getJournal/', 
+                'Журнал ПНР по объекту', 
+                'docx',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'org.openxmlformats.wordprocessingml.document',
+                setStatusPressGeJournal
+              )
+              }}
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <Image
+              
+                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",}}
+                source={require("../../assets/images/journal.svg")}
+              />
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Журнал ПНР
+              </Text>
+            </TouchableOpacity>
+            :
+            <View
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}>
+              <Image
+                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5}}
+                  source={require("../../assets/images/monitoring.svg")}
+                />
+                <Text
+                  style={{
+                    fontSize: ts(14),
+                    color: "#0072C8",
+                    fontWeight: "400",
+                    textAlign: "center",
+                    marginLeft: -7,
+                  }}
+                >
+                  Мониторинг ПНР
+                </Text>
+            </View>
+          }
+            </View>
         </View>
       </ScrollView>
 
@@ -684,6 +751,9 @@ const saveF = async () => {
         visible={modalStatus}
         onRequestClose={() => setModalStatus(false)} // Для Android
       >
+        <TouchableOpacity activeOpacity={1} style={{flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    justifyContent: 'flex-end',}} onPress={()=> setModalStatus(false)}>
         <View
           style={{
             flex: 1,
@@ -711,7 +781,7 @@ const saveF = async () => {
               style={{ alignSelf: "flex-end" }}
             >
               <Ionicons name="close-outline" size={30} />
-            </TouchableOpacity>
+            </TouchableOpacity >
             <View style={{ justifyContent: "center" }}>
               <View
                 style={{
@@ -767,7 +837,9 @@ const saveF = async () => {
             </View>
           </View>
         </View>
+      </TouchableOpacity>
       </Modal>
+      
     </View>
   );
 }

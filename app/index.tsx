@@ -27,9 +27,11 @@ type token = {
     const getToken = async () => {
       try {
           const token = await AsyncStorage.getItem('accessToken');
+          const tokenRefresh = await AsyncStorage.getItem('refreshToken');
           //setAccessToken(token);
           if (token !== null) {
-              console.log('Retrieved token:', token);
+              console.log('Retrieved token ACCESS:', token);
+              console.log('Retrieved token REFRASH:', tokenRefresh);
               setAccessToken(token);
               //вызов getAuth для проверки актуальности токена
               //authUserAfterLogin();
@@ -181,9 +183,9 @@ type token = {
             console.error('Error removing token:', error);
         }
         finally{
-          if (tokenKey === 'accessToken'){saveToken('accessToken', accessToken);
+          if (tokenKey === 'accessToken'){saveToken('accessToken', accessTokenNew);
           }
-          if (tokenKey === 'refreshToken'){saveToken('refreshToken', refreshToken);
+          if (tokenKey === 'refreshToken'){saveToken('refreshToken', refreshTokenNew);
           }
         }
     };
@@ -221,7 +223,8 @@ type token = {
 //console.log('accessTokenIndex', accessToken);
 
 useEffect(() => {
-  getToken();
+  // router.replace('/object');
+   getToken();
 }, []);
 
 useEffect(() => {

@@ -6,10 +6,15 @@ import { Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextIn
 import { Ionicons } from '@expo/vector-icons';
 import { Asset } from 'expo-asset';
 import Checkbox from 'expo-checkbox/build/ExpoCheckbox';
-import * as FileSystem from 'expo-file-system';
+//import * as FileSystem from 'expo-file-system';
 //import * as MediaLibrary from 'expo-media-library';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
+import * as FileSystem from "expo-file-system";
 import * as Sharing from 'expo-sharing';
+import RNFetchBlob from 'react-native-blob-util';
+
+
+
 
 type RegisterResponse = {
     success: boolean;
@@ -17,6 +22,7 @@ type RegisterResponse = {
 };
 
 const RegistrationModal = () => {
+  const { StorageAccessFramework } = FileSystem
     const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     const [isVisible, setIsVisible] = useState(false);
@@ -31,6 +37,7 @@ const RegistrationModal = () => {
     const [visible, setVisible] = useState(false);
     const [visibleConsent, setVisibleConsent] = useState(false);
     const [isSelected, setSelection] = useState(false);
+    const [disabled, setDisabled] = useState(false); //для кнопки
 
     const fontScale = useWindowDimensions().fontScale;
     const source = {
@@ -49,21 +56,25 @@ console.log(JSON.stringify({
   }));
 
     const handleRegister = async () => {
+      setDisabled(true);
         //без проверки на организацию
         if (email === ''  || password === '' || name === '' || email === ' '  || password === ' ' || name === ' '){
             Alert.alert('', 'Заполните все поля регистрации.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
-            return;
+            setDisabled(false);
+                  return;
         }
         if (password !== confirmPassword) {
              Alert.alert('', 'Пароли не совпадают.', [
                          {text: 'OK', onPress: () => console.log('OK Pressed')}])
-            return;
+            setDisabled(false);
+                  return;
         }
         if (isSelected === false){
             Alert.alert('', 'Подтвердите согласие с политикой конфиденциальности и обработки персональных данных.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
-            return;
+            setDisabled(false);
+                  return;
         }
 
       try{
@@ -91,14 +102,14 @@ console.log(JSON.stringify({
                     {text: 'OK', onPress: () => console.log('OK Pressed')}])
                 router.push('/sign/sign_in');
            }
-           else{
-            Alert.alert('', 'Произошла ошибка при регистрации', [
-                {text: 'OK', onPress: () => console.log('OK Pressed')}])
-            //router.push('/sign/sign_in');
-       }
+           
         }catch (error) {
             console.error('Error:', error);
-          }
+             Alert.alert('', 'Произошла ошибка при регистрации: ' + error, [
+                         {text: 'OK', onPress: () => console.log('OK Pressed')},
+                      ])
+            setDisabled(false);
+          } finally{setDisabled(false);}
     };
 
      // Путь к вашему PDF-файлу
@@ -150,7 +161,105 @@ console.log(JSON.stringify({
     if (listOrganization){setStatusOrg(true)}
   }, [listOrganization]);
 
+//В этом варианте нет разрешений, поэтому сохраняется в кеш или память, выделенную под приложение - без доступа пользователя к нему
+ async function saveFile(pdfType: 'policy' | 'consent') {
+  try {
+    // 1. Определяем какой PDF загружать
+    const pdfAssetModule = pdfType === 'policy' 
+      ? require('../../assets/files/Политика_конфиденциальности_Планшет_ПНР.pdf')
+      : require('../../assets/files/Согласие_на_обработку_ПД_в_Планшет_ПНР.pdf');
 
+    const safeFileName = pdfType === 'policy' 
+      ? 'Политика конфиденциальности Планшет ПНР.pdf' 
+      : 'Согласие на обработку ПД в Планшет ПНР.pdf';
+
+    // 2. Загружаем ассет (Expo way)
+    const asset = Asset.fromModule(pdfAssetModule);
+    await asset.downloadAsync();
+
+    if (!asset.localUri) {
+      throw new Error('Не удалось загрузить файл');
+    }
+
+    // 3. Получаем содержимое файла как base64
+    const fileContent = await FileSystem.readAsStringAsync(asset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+    if (!permissions.granted) {
+      Alert.alert('',"Вы должны предоставить разрешение для сохранения файла.",
+            [
+              { text: 'OK' }
+            ]
+             );
+      return;
+    }
+    
+    const directoryUri = permissions.directoryUri;
+    console.log('const directoryUri ', directoryUri);
+    
+    // Проверяем возможность записи тестовым файлом
+    try {
+      const testFileUri = await StorageAccessFramework.createFileAsync(
+        directoryUri,
+        "test_write_check",
+        "text/plain"
+      );
+      
+      await FileSystem.writeAsStringAsync(testFileUri, "test", {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      await FileSystem.deleteAsync(testFileUri);
+    } catch (testError) {
+      Alert.alert('', "Выбранная директория недоступна для записи. Пожалуйста, выберите другую.",
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // 4. Создаем файл и записываем данные
+    const fileUri = await StorageAccessFramework.createFileAsync(
+      directoryUri,
+      safeFileName,
+      "application/pdf"
+    );
+
+    // Записываем содержимое файла в base64
+    await FileSystem.writeAsStringAsync(fileUri, fileContent, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // 5. Открываем файл
+    if (Platform.OS === 'android') {
+      await RNFetchBlob.android.actionViewIntent( fileUri, 'application/pdf');
+    } else {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Открыть PDF',
+        UTI: 'com.adobe.pdf'
+      });
+    }
+
+    Alert.alert(
+      'Файл сохранён',
+      `Файл сохранён по пути: ${fileUri}`,
+      [{ text: 'OK' }]
+    );
+
+  } catch (error) {
+    console.error('Ошибка при сохранении файла:', error);
+    Alert.alert(
+      'Ошибка', 
+      'Не удалось сохранить файл: ' + error,
+      [{ text: 'OK' }]
+    );
+  }
+}
+
+/* //Это вариант, в котором у Антона только поделиться, у меня с возможностью выбора проводника
 async function saveFile(pdfType: 'policy' | 'consent') {
   try {
     // Determine which PDF to load based on the parameter
@@ -190,7 +299,7 @@ async function saveFile(pdfType: 'policy' | 'consent') {
     console.error('Ошибка при сохранении файла:', error);
     Alert.alert('Ошибка', 'Не удалось сохранить файл.');
   }
-}
+}*/
     return (
 
         <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center',}}>
@@ -261,6 +370,7 @@ async function saveFile(pdfType: 'policy' | 'consent') {
              </View>   
              <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
                 <CustomButton
+                disabled={disabled}
                     title="Зарегистрироваться"
                     handlePress={handleRegister} /></View>
 

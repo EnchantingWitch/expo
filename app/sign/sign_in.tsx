@@ -8,13 +8,12 @@ import {
   Alert,
   Image,
   Platform,
-  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 
 type token = {
@@ -47,6 +46,7 @@ const LoginModal = () => {
   const [savedId, setSavedId] = useState(false);
   const [savedName, setSavedName] = useState(false);
   const [savedOrg, setSavedOrg] = useState(false);
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const [storageData, setStorageData] = useState([]);
 
@@ -94,6 +94,7 @@ const LoginModal = () => {
   console.log(storageData);
 
   const handleLogin = async () => {
+    setDisabled(true);
     try {
       let response = await fetch(
         "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/login",
@@ -116,13 +117,13 @@ const LoginModal = () => {
         })
       );
 
-      if (!response.ok) {
+   /*   if (!response.ok) {
         Alert.alert(
           "Ошибка при авторизации",
           "Проверьте корректность введенных почты и пароля.",
           [{ text: "OK", onPress: () => console.log("OK Pressed") }]
         );
-      }
+      }*/
       console.log("ResponseSignIn:", response);
       const token = await response.json();
       console.log(token);
@@ -135,7 +136,12 @@ const LoginModal = () => {
         saveToken("accessToken", token.accessToken, setSavedToken);
       }
     } catch (error) {
+      
       console.error("Error:", error);
+       Alert.alert('', 'Произошла ошибка при авторизации: ' + error, [
+                   {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ])
+      setDisabled(false);
     } finally {
     }
   };
@@ -179,11 +185,11 @@ const LoginModal = () => {
   }, [savedToken, accessToken, savedId, savedName, savedOrg]);
 
   return (
-    <ScrollView
+    <View
       style={{
         flex: 1,
         alignContent: "center",
-
+        alignItems: 'center',
         backgroundColor: "white",
       }}
     >
@@ -199,12 +205,12 @@ const LoginModal = () => {
           Планшет ПНР
         </Text>
         <Image
-          style={{ width: 200, height: 200 }}
+          style={{ width: 200, height: 200, alignSelf: "center" }}
           source={require("../../assets/images/logo1.png")}
         />
-      </View>
-
-      <View style={styles.modalContainer}>
+     
+      </View>    
+      <View style={[styles.modalContainer, {width: 380, alignSelf: 'center' }]}>
         <Text
           style={{
             fontSize: ts(14),
@@ -243,9 +249,11 @@ const LoginModal = () => {
           <CustomButton title="Войти" handlePress={handleLogin} />
         )}
         <CustomButton
+          disabled={disabled}
           title="Зарегистрироваться"
           handlePress={() => router.push("/sign/register")}
         />
+     
 {/*}
           <CustomButton
                     title="refreshToken по определенному"
@@ -277,10 +285,10 @@ const LoginModal = () => {
             textAlign: "center",
           }}
         >
-          Версия 1.09
+          Версия 1.12
         </Text>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

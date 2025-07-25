@@ -196,11 +196,11 @@ console.log('statusReqPhoto',statusReqPhoto);
         /*  const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));*/
         //console.log(base64);
 
-
+`   `
 
         setBytes(base64Data);
         setContentType(contentType);
-        setStatusReqPhoto(true);
+        if (response.status===200){setStatusReqPhoto(true);}
         setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
         //setStatusReq(true);
       } catch (error) {
@@ -231,13 +231,16 @@ console.log('statusReqPhoto',statusReqPhoto);
             systemName: systemN,
             description: comment,
             defectiveActStatus: defectiveActStatus,
-            
+            equipment: equipment,
             startDate: startD,
             endDatePlan: planD,
             endDateFact: factD,
             defectiveActExplanation: explanation,
             iiNumber: numberII,
-            codeCCS: codeCCS
+            codeCCS: codeCCS,
+            executor: execut,
+            manufacturerNumber: manufacturerNumber,
+            manufacturer: manufacturer
           
           }),
         });
@@ -497,7 +500,7 @@ console.log('statusReqPhoto',statusReqPhoto);
             editable={false}
           />     
           
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефакт</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
           <TextInput
             /*style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 42
             placeholderTextColor="#111"

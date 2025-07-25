@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, SafeAreaView, StatusBar, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 
 // Исправляем тип UserInfo - это должен быть объект, а не массив
 type UserInfo = {
@@ -23,6 +23,8 @@ type Users = {
 };
 
 const DirectionLayout = () => {
+   const BOTTOM_SAFE_AREA =
+    Platform.OS === "android" ? StatusBar.currentHeight : 0;
   //const router = useRouter();
   const [accessToken, setAccessToken] = useState<string>('');
   const [chooseOrg, setChooseOrg] = useState<string>('');
@@ -145,6 +147,7 @@ const DirectionLayout = () => {
         <TextInput 
             style={{ borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8,  width: '96%' }}
             placeholder="Поиск по ФИО"
+            placeholderTextColor={'#B2B3B3'}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -180,8 +183,9 @@ const DirectionLayout = () => {
           {isLoading ? (
             <ActivityIndicator size="large" style={{ marginTop: 20 }} />
           ) : (
+            <View style={{paddingBottom: BOTTOM_SAFE_AREA + 20, alignItems: 'center'}}>
             <FlatList
-            style={{width: '100%'}}
+            style={{width: '100%', paddingBottom: BOTTOM_SAFE_AREA + 20}}
             data={filteredData}
             keyExtractor={({id}) => id}
             renderItem={({item}: {item: Users}) => (
@@ -229,6 +233,7 @@ const DirectionLayout = () => {
          </TouchableWithoutFeedback>
      )}
      />
+     </View>
           )}
         </View>
       </View>

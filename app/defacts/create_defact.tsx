@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 //import { Video } from 'react-native-video';
-import ListOfSubobj from '@/components/ListOfSubobj';
+//import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -68,6 +68,9 @@ export default function CreateNote() {
   const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
 
   const [accessToken, setAccessToken] = useState<any>('');
+  const [organisationFrAsync, setOrganisationFrAsync] = useState<any>('');
+  const [fullNameFrAsync, setFullNameFrAsync] = useState<any>('');
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -80,13 +83,13 @@ export default function CreateNote() {
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
   const {capitalCSName} = useLocalSearchParams();
   
-  const getToken = async () => {
+  const getToken = async (keyToken, setF) => {
     try {
-        const token = await AsyncStorage.getItem('accessToken');
+        const token = await AsyncStorage.getItem(keyToken);
         //setAccessToken(token);
         if (token !== null) {
-            console.log('Retrieved token:', token);
-            setAccessToken(token);
+            console.log('Retrieved token:', keyToken, '-', token);
+            setF(token);
             //вызов getAuth для проверки актуальности токена
             //authUserAfterLogin();
         } else {
@@ -209,7 +212,12 @@ export default function CreateNote() {
       };
 
   useEffect(() => {
-    getToken();
+    getToken('accessToken', setAccessToken);
+    getToken('fullName', setFullNameFrAsync);
+    getToken('organisation', setOrganisationFrAsync);
+  }, []);
+
+  useEffect(() => {
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req&& accessToken){getStructure(); getOrganisations(); setReq(false); console.log('8'); }//вызов происходит только один раз
 
@@ -286,6 +294,13 @@ useEffect(() => {
   }
 }, [systemName, subObject, array]);
 
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setSubObject(selectedSubObject);
+    setSystemName(' '); // Явный сброс системы
+    setNumber('');
+    setExecut('');
+};
+
 console.log(JSON.stringify({
   //iiNumber: '1',
           iiNumber: numberII,
@@ -309,19 +324,16 @@ console.log(JSON.stringify({
 }));
 
   const submitData = async () => {
-    if(subObject ==='' && systemName===' ' &&  description!=='' && manufacturerNumber!=='' && manufacturer!=='' && equipment!==''){
-      Alert.alert('', 'Заполните поля подобъекта, системы. Если выпадающий список пустой, загрузите структуру.', [
+    setDisabled(true);
+    if(subObject ==='' || systemName===' ' || systemName==='' ||  description==='' || manufacturerNumber==='' || manufacturer==='' || equipment===''){
+      Alert.alert('', 'Заполните поля подобъекта, системы, дефекта, оборудования, заводского номера, изготовителя.', [
                               {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                 setDisabled(false);
                  return;
                }
 
-    if(subObject ==='' && systemName===' ' &&  description==='' && manufacturerNumber==='' && manufacturer==='' && equipment===''){
-       Alert.alert('', 'Заполните поля подобъекта, системы, дефекта, оборудования, заводского номера, изготовителя', [
-                               {text: 'OK', onPress: () => console.log('OK Pressed')}])
-                  return;
-                }
-
     try {
+      const user = fullNameFrAsync +',' + ' ' +organisationFrAsync;
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/createDefAct', {
         method: 'POST',
         headers: {
@@ -339,7 +351,7 @@ console.log(JSON.stringify({
           description: description,
           defectiveActStatus: "Не устранено",
           executor: execut,
-          userName: 'userName',
+          userName: user,
           startDate: startDate,
           //commentCategory: category,
          // commentExplanation: comExp,
@@ -352,6 +364,13 @@ console.log(JSON.stringify({
         }),
       });
       console.log('ResponseCreateNote:', response);
+
+      if(response.status === 200){
+        Alert.alert('', 'Дефект добавлен', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ])
+      }
+
       const id = await response.text()
 
       // Обработка ответа, если необходимо
@@ -399,15 +418,13 @@ console.log(JSON.stringify({
       console.log('ResponsePhoto:', res);
       
       //до сюда
-      if(response.status === 200){
-        Alert.alert('', 'Замечание добавлено', [
-             {text: 'OK', onPress: () => console.log('OK Pressed')},
-          ])
-      }
+      
       
     } catch (error) {
+      setDisabled(false);
       console.error('Error:', error);
     } finally {
+      setDisabled(false);
       setUpLoading(false);
       //  alert(id);
       router.replace({pathname: '/(tabs)/defacts', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
@@ -549,11 +566,13 @@ console.log(JSON.stringify({
   <View style={{ flex: 1, alignItems: 'center' }}>
     <View style={{width: '100%', alignItems: 'center'}}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
-      <ListOfSubobj 
-        list={listSubObj} 
+      <ListOfOrganizations 
+        data={listSubObj} 
         post={subObject} 
-        statusreq={statusReq} 
-        onChange={(subobj) => setSubObject(subobj)}
+        status={statusReq} 
+        title = {subObject? subObject : 'Не выбрано'}
+        label='Подобъект'
+        onChange={(subobj) => handleSubObjectChange(subobj)}
       />   
     </View>
     
@@ -562,6 +581,9 @@ console.log(JSON.stringify({
       list={listSystem} 
       buf={bufsystem} 
       post={systemName} 
+     // status={statusReq} 
+    //  title = ''
+     // label='Система'
       onChange={(system) => setSystemName(system)}
     />
     
@@ -577,6 +599,7 @@ console.log(JSON.stringify({
     <TextInput
       style={[styles.input, {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14)}]}
       multiline
+      maxLength={250}
       onContentSizeChange={e => {
         let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
         if(inputH > 120) inputH = 100
@@ -586,6 +609,14 @@ console.log(JSON.stringify({
       onChangeText={setDescription}
       value={description}
     />          
+    {description.length >=200? 
+                          <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
+                            Можете ввести еще {250-description.length}{' '}
+                            {(250-description.length) % 10 === 1? <Text>символ</Text>
+                            : (250-description.length) % 10 === 2 || (250-description.length) % 10 === 3 || (250-description.length) % 10 === 4? <Text>символа</Text>
+                            : <Text>символов</Text>}
+                          </Text>
+                        : '' }
     
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
     <TextInput
@@ -596,7 +627,7 @@ console.log(JSON.stringify({
     />
     
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Изготовитель</Text>
-    <ListOfOrganizations data={listOrganization} title = {manufacturer? manufacturer : 'Не выбрано'} status={statusOrg} post ={manufacturer} onChange={(value) => setManufacturer(value)}/>
+    <ListOfOrganizations data={listOrganization} label='Изготовитель' title = {manufacturer? manufacturer : 'Не выбрано'} status={statusOrg} post ={manufacturer} onChange={(value) => setManufacturer(value)}/>
     
     
     {/* Даты */}
@@ -699,6 +730,7 @@ console.log(JSON.stringify({
   
   <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
     <CustomButton
+      disabled={disabled}
       title="Добавить дефект"
       handlePress={TwoFunction}
     />

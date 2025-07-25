@@ -124,7 +124,7 @@ console.log('statusReqPhoto',statusReqPhoto);
         console.log(3);
        // 
     }
-    }, [accessToken, post, factD, statusReqPhoto]);
+    }, [accessToken, post, factD, statusReqPhoto, startReq]);
 
     async function convertBlobToBase64(blob) {
       const reader = new FileReader();
@@ -195,7 +195,7 @@ console.log('statusReqPhoto',statusReqPhoto);
         // 4️⃣ Можно сохранить в состоянии (если нужно)
         setBytes(base64Data);
         setContentType(contentType);
-        setStatusReqPhoto(true);
+        if (response.status===200){setStatusReqPhoto(true);}
         setStatusActivityIndicator(false); // Останавливаем индикатор загрузки
 
       } catch (error) {

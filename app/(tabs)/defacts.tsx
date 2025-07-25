@@ -257,7 +257,7 @@ const [inputHeight, setInputHeight] = useState(40);
           
         </View>
 
-          <View style={{ flexDirection: 'row', width: '98%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', width: '96%', height: 32, paddingTop: 6, justifyContent: 'space-between' }}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>№</Text>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Содержание</Text>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Статус</Text>
@@ -269,7 +269,7 @@ const [inputHeight, setInputHeight] = useState(40);
               <ActivityIndicator />
             ) : (
               <FlatList
-                style={{width: '100%'}}
+                style={{width: '98%'}}
                 data={data}
                 keyExtractor={({id}) => id}
                 renderItem={({item}) => (

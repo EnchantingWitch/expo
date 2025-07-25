@@ -10,11 +10,12 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[]; // список
     nameFilter: string;
+    width?: number;
    // statusreq: boolean; // для обновления значения даты при получении даты с запроса
     onChange: (subobj: string) => void; // Функция для обновления значения
 };
 
-const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
+const ListOfSubobj = ({ list, nameFilter, width, onChange }: Props) => {
     const [value, setValue] = useState<string>('');
     const [isFocus, setIsFocus] = useState(false);
     const [List, setList] = useState<ListToDrop[]>([]);
@@ -43,12 +44,12 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
       }, [list]);
       
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {width: width? width : 110}]}>
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue'}]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)}]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), includeFontPadding: false,}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), includeFontPadding: false,}]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), includeFontPadding: false, }]}
                 iconStyle={styles.iconStyle}
                 containerStyle={{
                     //width: '37%', // Ширина списка может отличаться от инпута
@@ -64,7 +65,7 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? nameFilter : nameFilter}
-                searchPlaceholder="Search..."
+                searchPlaceholder="Поиск..."
                 value={value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
@@ -78,14 +79,11 @@ const ListOfSubobj = ({ list, nameFilter, onChange }: Props) => {
 };
 
 // ... остальной код стилей остается без изменений
-
-export default ListOfSubobj;
-
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         //paddingBottom: 16,
-        width: 120,
+        width: 110,
         borderRadius: 8,
     },
     dropdown: {
@@ -129,6 +127,10 @@ const styles = StyleSheet.create({
     inputSearchStyle: {
         height: 37,
         borderRadius: 8,
+        color: '#B2B3B3'
        // fontSize: 16,
     },
 });
+
+export default ListOfSubobj;
+

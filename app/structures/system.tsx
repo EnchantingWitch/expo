@@ -63,9 +63,11 @@ export default function TabOneScreen() {
   const [kofact, setKofact] = useState<string | null>('');
   const [comment, setComments] = useState<string>('');
   const [system, setSystem] = useState<string>('');//наименование системы
+  const [rd, setRd] = useState<string>('');//наименование системы
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
   const [conditionKO, setConditionKO] = useState<boolean>(false);//выбрана дата факта или нет
   const [conditionII, setConditionII] = useState<boolean>(false);
+  const [disabled, setDisabled] = useState(false); //для кнопки
 
   const [accessToken, setAccessToken] = useState<any>('');
   const [listOrganization, setListOrganization] = useState<[]>();
@@ -91,7 +93,7 @@ export default function TabOneScreen() {
 };
 
   const putSystem = async () => {
-  
+    setDisabled(true);
     try {
     const js = JSON.stringify({ 
       pnrsystemStatus: systemStat,
@@ -123,7 +125,12 @@ export default function TabOneScreen() {
       console.log('ResponseUpdateSystem:', response);
     } catch (error) {
       console.error(error);
+      setDisabled(false);
+            Alert.alert('', 'Произошла ошибка при обновлении данных: ' + error, [
+                   {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ])
     } finally {
+      setDisabled(false);
       router.replace({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})
       //router.push('/(tabs)/structure');
 
@@ -150,6 +157,7 @@ export default function TabOneScreen() {
       setIifact(json.iifactDate);
       setKoplan(json.koplanDate);
       setKofact(json.kofactDate);
+      setRd(json.systemRD);
       setComments(''+json.comments.toString());
       
       console.log(json.systemName, 'json.systemName');
@@ -303,7 +311,7 @@ export default function TabOneScreen() {
 
 
 
-      <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', paddingTop: 6,  marginBottom: 8}}>
+      <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', }}>
           
                       <View style={{width: '50%', marginStart: 2}}>
                       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
@@ -322,22 +330,32 @@ export default function TabOneScreen() {
                       <TextInput
                   style={[styles.input, {fontSize: ts(14)}]}
                   placeholderTextColor="#111"
+                  editable={false}
                 />
                       
                       </View>
       </View>
+
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Шифр РД</Text>
+                      <TextInput
+                        style={[styles.input, {fontSize: ts(14)}]}
+                        placeholderTextColor="#111"
+                        //onChangeText={setComments}
+                        value={rd}
+                        editable={false}
+                        />
       
 
        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-       <ListOfOrganizations data={listOrganization} title='' post={ciwexecut} status={statusOrg} onChange={(value) => setCiwexecut(value)}/>
+       <ListOfOrganizations data={listOrganization} label='Исполнитель СМР' title={ciwexecut} post={ciwexecut} status={statusOrg} onChange={(value) => setCiwexecut(value)}/>
                
 
 
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations data={listOrganization} title='' post={cwexecut} status={statusOrg} onChange={(value) => setCwexecut(value)}/>
+      <ListOfOrganizations data={listOrganization} label='Исполнитель ПНР' title={cwexecut} post={cwexecut} status={statusOrg} onChange={(value) => setCwexecut(value)}/>
                
  <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-      <CustomButton title='Подтвердить'  handlePress={() => putSystem() }/>
+      <CustomButton title='Подтвердить' disabled={disabled} handlePress={() => putSystem() }/>
       <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
     </View>
     </View>

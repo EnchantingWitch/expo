@@ -16,7 +16,7 @@ type Req = {
     locationRegion: string;
     objectType: string;
     customer: string; // заказчик
-    CIWExecutor: string; // исполнитель СМР
+    CIWExecutor: string; // исполнитель СМР 
     CWExecutor: string; // исполнитель ПНР
     customerSupervisor: string; // Куратор заказчика
     CWSupervisor: string; // Куратор ПНР
@@ -133,17 +133,41 @@ const handleSubmit = async ()  => {
   }, [idReq, accessToken]);
 
   const renderItem = ({ item }) => (
-    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', height: 37, marginBottom: '5%',}}>
-                <Checkbox
-                    value={!!checkedItems[item.codeCCS]}
-                    onValueChange={() => toggleCheckbox(item.codeCCS)}
-                    color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
-                    style={{alignSelf: 'center'}}
-                />
-                
-                <Text style={[ { marginLeft: 8,fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text>
-            </View>
-  );
+        <View style={{ 
+         
+          
+          flexDirection: 'row', 
+          width: '100%', 
+           // Заменяем height на minHeight
+          marginBottom: 15,
+          alignItems: 'center', // Центрируем элементы по вертикали
+        }}>
+          <Checkbox
+          style={{ marginRight: 8, }}// Добавляем отступы
+            value={!!checkedItems[item.codeCCS]}
+            onValueChange={() => toggleCheckbox(item.codeCCS)}
+            color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
+          />
+          <View style={{ 
+            flex: 1, // Занимает всё доступное пространство
+            justifyContent: 'center', 
+            paddingHorizontal: 8, // Добавляем отступы
+            backgroundColor: '#E0F2FE', minHeight: 40, borderRadius: 8, 
+          }}>
+            <Text 
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={{
+                fontSize: ts(14),
+                // textAlign: 'left', // Выравнивание текста (по умолчанию 'left')
+                flexShrink: 1, // Позволяет тексту сжиматься и переноситься
+              }}
+            >
+              {item.capitalCSName}
+            </Text>
+          </View>
+        </View>
+      );
 
 
   return (
@@ -183,10 +207,15 @@ const handleSubmit = async ()  => {
      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
      
         <FlatList
-          style={{ width: '96%' }}
+          style={{ width: '96%'}}
           data={data.objectsToAdd}
           keyExtractor={(item, index) => index.toString()} // Используйте уникальное значение для ключа
           renderItem={renderItem}
+          showsVerticalScrollIndicator={true}
+
+          // Для iOS/Android
+       //   indicatorStyle='black'
+          persistentScrollbar={true} // Android - всегда показывать скроллба
         />
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>

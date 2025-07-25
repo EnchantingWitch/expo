@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
  
 type Reqs = {
   id: number;//айди заявки
@@ -20,6 +20,8 @@ type Reqs = {
 };
 
 const DirectionLayout = () => {
+ const BOTTOM_SAFE_AREA =
+    Platform.OS === "android" ? StatusBar.currentHeight : 0;
   const router = useRouter();
 
   const fontScale = useWindowDimensions().fontScale;
@@ -93,9 +95,9 @@ const DirectionLayout = () => {
                { isLoading ? (
               <ActivityIndicator />
             ) : (
-
+<View style={{paddingBottom: BOTTOM_SAFE_AREA + 20, alignItems: 'center'}}>
               <FlatList
-                      style={{width: '96%'}}
+                      style={{width: '98%'}}
                       data={data}
                       keyExtractor={({id}) => id}
                       renderItem={({item}) => (
@@ -119,6 +121,7 @@ const DirectionLayout = () => {
                   </TouchableWithoutFeedback>
  )}
  />
+ </View>
        
             )}
         

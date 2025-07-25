@@ -95,6 +95,7 @@ const DirectionLayout = () => {
           <TextInput 
             style={{ borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8,  width: '96%' }}
             placeholder="Поиск по организации"
+            placeholderTextColor={'#B2B3B3'}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />

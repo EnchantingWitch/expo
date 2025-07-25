@@ -2,7 +2,7 @@ import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import CustomButton from '@/components/CustomButton';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
-import ListOfSubobj from '@/components/ListOfSubobj';
+//import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -275,8 +275,18 @@ const json = JSON.stringify({
         manufacturer: editedManufacturer
       });
       console.log(json);
+
+
+
   const updateComment = async () => {
     setDisabled(true);
+     if(editedSubObject ==='' || editedSystemName===' ' || editedSystemName==='' ||  editedDescription==='' || editedManufacturerNumber==='' || editedManufacturer==='' || editedEquipment===''){
+          Alert.alert('', 'Заполните поля подобъекта, системы, дефекта, оборудования, заводского номера, изготовителя.', [
+                                  {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                     setDisabled(false);
+                     return;
+                   }
+    
     try {
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/updateDefAct/`+id, {
         method: 'PUT',
@@ -307,6 +317,13 @@ const json = JSON.stringify({
     }
 
   };
+
+    const handleSubObjectChange = (selectedSubObject: string) => {
+    setEditedSubObject(selectedSubObject);
+    setEditedSystemName(' '); // Явный сброс системы
+    setEditedIinumber('');
+    setExecut('');
+};
 
   /*if (loading) {
     return (
@@ -776,11 +793,13 @@ useEffect(() => {
             value={editedSubObject}
             editable={false}
             />*/}
-            <ListOfSubobj 
-                list={listSubObj} 
+            <ListOfOrganizations 
+                data={listSubObj} 
                 post={editedSubObject} 
-                statusreq={statusReq} 
-                onChange={(subobj) => setEditedSubObject(subobj)}
+                status={statusReq}
+                title=''
+                label='Подобъект' 
+                onChange={(subobj) => handleSubObjectChange(subobj)}
             />
               </View>
 
@@ -789,7 +808,11 @@ useEffect(() => {
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <ListOfSystem 
               list={listSystem} 
-              buf={bufsystem} 
+              //data={listSystem} 
+              buf={bufsystem}
+              //status={statusReq}
+              //title=''
+             // label='Система'  
               post={editedSystemName} 
               onChange={(system) => setEditedSystemName(system)}
           />
@@ -840,7 +863,7 @@ useEffect(() => {
           />
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Изготовитель</Text>
-           <ListOfOrganizations data={listOrganization} title = {editedManufacturer? editedManufacturer : 'Не выбрано'} status={statusOrg} post ={editedManufacturer} onChange={(value) => setManufacturer(value)}/>
+           <ListOfOrganizations data={listOrganization} label='Изготовитель' title = {editedManufacturer? editedManufacturer : 'Не выбрано'} status={statusOrg} post ={editedManufacturer} onChange={(value) => setManufacturer(value)}/>
 
           <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
