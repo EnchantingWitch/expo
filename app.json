@@ -2,7 +2,7 @@
   "expo": {
     "name": "pnr",
     "slug": "pr",
-    "version": "1.0.0",
+    "version": "1.12",
     "orientation": "portrait",
     "icon": "./assets/images/logo1.png",
     "scheme": "pr",
@@ -34,7 +34,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -44,6 +45,11 @@
       "eas": {
         "projectId": "6fecdf1c-cb1f-4ee1-bd32-c2aee6563963"
       }
-    }
+    },
+      "permissions": [
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.ACCESS_MEDIA_LOCATION"
+    ]
   }
 }
