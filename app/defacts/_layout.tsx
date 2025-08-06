@@ -4,7 +4,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack } from 'expo-router';
 import React from 'react';
 import { useWindowDimensions } from 'react-native';
-
+import { getGlobalStyles } from '../../constants/globalStyles';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -17,6 +17,7 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const fontScale = useWindowDimensions().fontScale;
+  const globalStyles = getGlobalStyles(fontScale);
 
   const ts = (fontSize: number) => {
     return (Math.round(fontSize / fontScale))};
@@ -43,11 +44,7 @@ export default function TabLayout() {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: {
-          fontSize: ts(20), // Укажите нужный размер шрифта
-          //fontWeight: 'bold', // Опционально: можно добавить жирность
-          // Другие стили для заголовка, если нужно
-        },
+        headerTitleStyle: globalStyles.headerTitleStyle,
         }}
       />
       <Stack.Screen
@@ -61,11 +58,7 @@ export default function TabLayout() {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: {
-          fontSize: ts(20), // Укажите нужный размер шрифта
-          //fontWeight: 'bold', // Опционально: можно добавить жирность
-          // Другие стили для заголовка, если нужно
-        },
+        headerTitleStyle: globalStyles.headerTitleStyle,
         }}
       />
       <Stack.Screen
@@ -81,11 +74,7 @@ export default function TabLayout() {
           
           
         headerStyle: { backgroundColor: '#FFFFFF' },
-        headerTitleStyle: {
-          fontSize: ts(20), // Укажите нужный размер шрифта
-          //fontWeight: 'bold', // Опционально: можно добавить жирность
-          // Другие стили для заголовка, если нужно
-        },
+        headerTitleStyle: globalStyles.headerTitleStyle,
         }}
       />
       

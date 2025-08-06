@@ -1,3 +1,4 @@
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useRef, useState } from 'react';
 import { Animated, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -24,6 +25,8 @@ const Dropdown = ({
   placeholder = 'Не выбрано',
   modalTitle = 'Выберите значение',
 }: DropdownProps) => {
+  const modalContentRef = useRef<View>(null);
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const dropdownRef = useRef<View>(null);
@@ -31,19 +34,22 @@ const Dropdown = ({
   const fontScale = useWindowDimensions().fontScale;
   const ts = (fontSize: number) => fontSize / fontScale;
 
-  // Safely find selected item
-  const selectedItem = items?.find(item => item.value === selectedValue);
-  const displayText = selectedItem ? selectedItem.label : ''; //: placeholder;
+  // Find selected item or use raw value if not found
+  const selectedItem = items.find(item => item.value === selectedValue);
+  const displayText = selectedItem ? selectedItem.label : selectedValue ;
 
   // Filter items safely
   const filteredItems = searchText
-    ? items?.filter(item =>
+    ? items.filter(item =>
         item.label.toLowerCase().includes(searchText.toLowerCase())
-      ) || []
-    : items || [];
+      )
+    : items;
 
   const handleSelect = (value: string) => {
-    onValueChange(value);
+    // Find the selected item to get its label
+    //const selected = items.find(item => item.value === value);
+    // Send the label if found, otherwise send the original value
+    onValueChange(value ? value : selectedValue);
     setIsOpen(false);
     setSearchText('');
   };
@@ -53,26 +59,42 @@ const Dropdown = ({
     setIsOpen(true);
   };
 
+  const handleOverlayPress = (e: any) => {
+    if (modalContentRef.current) {
+      modalContentRef.current.measureInWindow((x, y, width, height) => {
+        const { pageX, pageY } = e.nativeEvent;
+        if (
+          pageX < x || 
+          pageX > x + width || 
+          pageY < y || 
+          pageY > y + height
+        ) {
+          setIsOpen(false);
+        }
+      });
+    }
+  };
+
   if (!isEnabled) {
     return (
       <View style={styles.dropdownContent}>
-              <View style={styles.textContainer}>
-                <Text 
-                  style={[
-                    styles.selectedText,
-                    { 
-                      fontSize: ts(14),
-                      color: '#B3B3B3',
-                    }
-                  ]}
-                >
-                  {displayText}
-                </Text>
-              </View>
-              <View style={styles.iconContainer}>
-                <Ionicons name='chevron-down' color='#B3B3B3' size={16} />
-              </View>
-            </View>
+        <View style={styles.textContainer}>
+          <Text 
+            style={[
+              styles.selectedText,
+              { 
+                fontSize: ts(14),
+                color: '#B3B3B3',
+              }
+            ]}
+          >
+            {displayText}
+          </Text>
+        </View>
+        <View style={styles.iconContainer}>
+          <Ionicons name='chevron-down' color='#B3B3B3' size={16} />
+        </View>
+      </View>
     );
   }
 
@@ -118,12 +140,14 @@ const Dropdown = ({
           <TouchableOpacity
             style={styles.modalOverlay}
             activeOpacity={1}
-            onPress={() => setIsOpen(false)}
+            onPress={handleOverlayPress}
           >
             <Animated.View
+              ref={modalContentRef}
               style={[
                 styles.modalContent,
                 {
+                //  width: isMobileWeb ? '100%' : '40%',
                   width: '40%',
                   maxHeight: '100%',
                   right: 0,
@@ -134,12 +158,12 @@ const Dropdown = ({
             >
               <Text style={styles.modalHeaderText}>{modalTitle}</Text>
               
-               <Text style={styles.selectedValueText}>
-                    {selectedItem? selectedItem.label : 
-                    <Text style={[ { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
-                        Не выбрано
-                    </Text>}
-                </Text>
+              <Text style={styles.selectedValueText}>
+                {selectedItem ? selectedItem.label : selectedValue || 
+                  <Text style={[ { fontSize: ts(14), paddingBottom: 2, alignSelf: 'center' }]}>
+                    {placeholder}
+                  </Text>}
+              </Text>
 
               <TextInput
                 placeholder="Поиск..."
@@ -147,7 +171,7 @@ const Dropdown = ({
                 value={searchText}
                 onChangeText={setSearchText}
                 style={styles.searchInput}
-                autoFocus
+                autoFocus={isDesktopWeb}
               />
 
               {filteredItems.length > 0 ? (
@@ -157,7 +181,7 @@ const Dropdown = ({
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.listItem}
-                      onPress={() => handleSelect(item.value)}
+                      onPress={() => handleSelect(item.label)}
                     >
                       <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
                     </TouchableOpacity>
@@ -206,7 +230,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   selectedText: {
-   // color: '#B3B3B3',
     textAlign: 'center',
   },
   modalOverlay: {
@@ -236,17 +259,17 @@ const styles = StyleSheet.create({
     color: '#B3B3B3',
   },
   searchInput: {
-    height: 42, // Фиксированная высота
-    minHeight: 42, // Минимальная высота
-    maxHeight: 42, // Максимальная высота
+    height: 42,
+    minHeight: 42,
+    maxHeight: 42,
     borderWidth: 1,
     borderColor: '#D9D9D9',
     borderRadius: 8,
     paddingHorizontal: 8,
     marginBottom: 8,
     backgroundColor: '#fff',
-    includeFontPadding: false, // Убираем дополнительные отступы для шрифта
-    textAlignVertical: 'center', // Выравнивание текста по вертикали
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   listItem: {
     paddingVertical: 12,

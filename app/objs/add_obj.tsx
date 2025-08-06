@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
 import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
-
+import { getGlobalStyles } from '../../constants/globalStyles';
 
 type Object = {
   capitalCSName: string;
@@ -97,6 +97,7 @@ const CheckboxList = () => {
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
+    const globalStyles = getGlobalStyles(fontScale);
 
 //что-то делает для отображения чекбоксов для каждого объекта по состоянию
     const toggleCheckbox = (id) => {
@@ -189,11 +190,9 @@ const CheckboxList = () => {
           <Text 
             numberOfLines={2}
             ellipsizeMode="tail"
-            style={{
-              fontSize: ts(14),
-              // textAlign: 'left', // Выравнивание текста (по умолчанию 'left')
-              flexShrink: 1, // Позволяет тексту сжиматься и переноситься
-            }}
+            style={globalStyles.text
+              /*{flexShrink: 1, // Позволяет тексту сжиматься и переноситься
+            }*/}
           >
             {item.capitalCSName}
           </Text>
@@ -205,24 +204,12 @@ const CheckboxList = () => {
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
         <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
            <TextInput 
-        style={{ 
-          height: 42,
-          minHeight: 42, // Фиксируем минимальную высоту
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: '#D9D9D9',
-          borderRadius: 8,
-          paddingHorizontal: 12, // Горизонтальные отступы
-          paddingVertical: 0, // Убираем вертикальные отступы
-          backgroundColor: 'white', // Явно задаём фон
-          includeFontPadding: false, // Убираем лишние отступы для текста (Android)
-          textAlignVertical: 'center', // Центрируем текст вертикально
-        }}
-        placeholder="Поиск по объекту строительства"                    
-        placeholderTextColor={'#B2B3B3'}
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+            style={globalStyles.search}
+            placeholder="Поиск по объекту строительства"                    
+            placeholderTextColor={'#B2B3B3'}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
             <FlatList
                 data={filteredData}
                 renderItem={renderItem}

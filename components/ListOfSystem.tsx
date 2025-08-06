@@ -1,3 +1,4 @@
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -18,6 +19,8 @@ type Props = {
 };
 
 const ListOfSystem = ({ list, post, buf, title, statusreq = true, onChange, onChangeStatus }: Props) => {
+    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -27,7 +30,24 @@ const ListOfSystem = ({ list, post, buf, title, statusreq = true, onChange, onCh
     const ts = (fontSize: number) => fontSize / fontScale;
 
     const [initialized, setInitialized] = useState(false);
-
+    
+    const modalContentRef = useRef<View>(null);
+    const handleOverlayPress = (e: any) => {
+        // Проверяем, было ли нажатие вне контейнера модального окна
+        if (modalContentRef.current) {
+            modalContentRef.current.measureInWindow((x, y, width, height) => {
+                const { pageX, pageY } = e.nativeEvent;
+                if (
+                    pageX < x || 
+                    pageX > x + width || 
+                    pageY < y || 
+                    pageY > y + height
+                ) {
+                    setIsFocus(false);
+                }
+            });
+        }
+    };
     useEffect(() => {
         if (!initialized && list.length > 0) {
             setInitialized(true);
@@ -123,9 +143,10 @@ useEffect(() => {
                                     <TouchableOpacity 
                                         style={styles.modalOverlay}
                                         activeOpacity={1}
-                                        onPress={() => setIsFocus(false)}
+                                        onPress={handleOverlayPress}
                                     >
                                         <Animated.View 
+                                        ref={modalContentRef}
                                             style={[
                                                 styles.modalContent,
                                                 { 
@@ -151,7 +172,7 @@ useEffect(() => {
                                                 value={searchText}
                                                 onChangeText={setSearchText}
                                                 style={styles.inputSearchStyle}
-                                                autoFocus
+                                                autoFocus={isDesktopWeb}
                                             />
                 
                                             {filteredData.length > 0 ? (

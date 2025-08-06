@@ -93,10 +93,15 @@ const DirectionLayout = () => {
   useEffect(() => {
     getReqs();
   }, []);
-
+//<View style={{flex: 1, alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}}>
   return (
-    <View style={styles.container}>
-      <View style={{flex: 1, alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}}>
+      <View style={styles.container}>
+    <View style={{
+      flex: 1,
+   //   width: '100%',
+      width: isDesktopWeb && screenWidth>900? 900 : '100%',
+      alignSelf: 'center'
+    }}>
       <View style={styles.searchContainer}>
         <TextInput 
           style={styles.searchInput}
@@ -114,7 +119,7 @@ const DirectionLayout = () => {
       ) : (
         <View style={styles.listContainer}>
           <FlatList
-            
+            style={styles.flatList}
             contentContainerStyle={styles.flatListContent}
             data={filteredData}
             keyExtractor={(item) => item.id.toString()}
@@ -143,13 +148,14 @@ const DirectionLayout = () => {
         </View>
       )}
     </View>
-      <View style={[styles.buttonContainer, { paddingBottom: BOTTOM_SAFE_AREA + 16 }]}>
-        <CustomButton
-          title="Добавить организацию"
-          handlePress={() => router.push('./create_organization')}
-        />
-      </View>
+    
+    <View style={[styles.buttonContainer, { paddingBottom: BOTTOM_SAFE_AREA + 16 }]}>
+      <CustomButton
+        title="Добавить организацию"
+        handlePress={() => router.push('./create_organization')}
+      />
     </View>
+  </View>
   );
 };
 
@@ -159,8 +165,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   searchContainer: {
-    padding: 16,
+    //paddingVertical: 16,
     paddingBottom: 8,
+    width: '96%',
+    alignSelf: 'center'
   },
   searchInput: {
     borderWidth: 1,
@@ -176,13 +184,17 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    //paddingHorizontal: 16,
+    alignSelf: 'center',
+     width: '96%',
   },
   flatList: {
     width: '100%',
   },
   flatListContent: {
     paddingBottom: 16,
+    flex: 1,
+     flexGrow: 1,
   },
   itemContainer: {
     backgroundColor: '#E0F2FE',
@@ -208,7 +220,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+   // paddingTop: 16,
   },
 });
 

@@ -267,7 +267,7 @@ useEffect(() => {
 
   return (
     <KeyboardAwareScrollView
-          style={styles.container}
+          style={[styles.container, ]}
           enableOnAndroid={true}
           extraScrollHeight={100}
           keyboardShouldPersistTaps="handled"
@@ -275,12 +275,14 @@ useEffect(() => {
         >
       <View style={[styles.container, {alignItems: 'center',
     justifyContent: 'center',
-   // width: '50%',
+    //backgroundColor: 'green',
+    width: isDesktopWeb || width>900? '100%' : '90%',
     alignSelf: 'center'
     }]}>
         <View style={{ flex: 1, alignItems: 'center',
           //height: 1,
-         width: isDesktopWeb? '188%' :'100%'
+         //width: isDesktopWeb? '188%' :'100%'
+         width: isDesktopWeb || width>900? 550:'110%',
          }}>
 
             <View style={{flexDirection: 'column', width: '100%'}}>

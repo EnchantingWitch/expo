@@ -257,7 +257,7 @@ const [inputHeight, setInputHeight] = useState(40);
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: isDesktopWeb&& screenWidth>900? 900 : '98%',
+            width: isDesktopWeb&& screenWidth>900? 900 : '96%',
           }}
         >
           <SystemsForTwo
@@ -300,7 +300,7 @@ const [inputHeight, setInputHeight] = useState(40);
           </View>
         </View>
 
-        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '98%', }}>
+        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '96%', }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -316,7 +316,7 @@ const [inputHeight, setInputHeight] = useState(40);
                       backgroundColor: "#E0F2FE",
                       flexDirection: "row",
                       width: "100%",
-                      height: 37,
+                      height: 42,
                       justifyContent: "center",
                       marginBottom: 15,
                       borderRadius: 8,

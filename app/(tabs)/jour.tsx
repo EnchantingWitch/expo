@@ -398,7 +398,7 @@ console.log(chooseUser);
                     style={{
                       backgroundColor: "#E0F2FE",
                       flexDirection: "row",
-                      width: "98%",
+                      width: "100%",
                       height: 42,
                       alignSelf: 'center',
                       justifyContent: "center",

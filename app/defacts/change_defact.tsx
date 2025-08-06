@@ -835,7 +835,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
              
             <View style={{width: '20%', alignItems: 'center'}}>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, width: '90%'}]}
             //placeholder="№ акта ИИ"
             placeholderTextColor="#111"
             value={editedSerialNumber.toString()}

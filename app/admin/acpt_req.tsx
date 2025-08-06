@@ -181,7 +181,7 @@ const handleSubmit = async ()  => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={[styles.container, { width: isDesktopWeb && screenWidth>900? 900 : '96%', alignSelf: 'center'}]}>
+      <View style={[styles.container, { width: isDesktopWeb && screenWidth>900? 900 : '100%', alignSelf: 'center'}]}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Пользователь</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}

@@ -193,59 +193,61 @@ const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuse
   return (
    <View style={{ flex: 1, backgroundColor: 'white' }}>
      <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15 }}>
-    <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
-              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
-            </TouchableOpacity>
-    <TextInput
-        style={{
-          flex: 1,
-          paddingTop:  0,
-          fontWeight: 500,
-          height: Math.max(42,inputHeight), // min: 42, max: 100
-          fontSize: ts(20),
-          textAlign: 'center',          // Горизонтальное выравнивание.
-          textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
-        }}
-        multiline
-        editable={false}
-        onContentSizeChange={e => {
-          const newHeight = e.nativeEvent.contentSize.height;
-          setInputHeight(Math.max(42, newHeight));
-        }}
+      <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
+                <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+              </TouchableOpacity>
+      <TextInput
+          style={{
+            flex: 1,
+            paddingTop:  0,
+            fontWeight: 500,
+            height: Math.max(42,inputHeight), // min: 42, max: 100
+            fontSize: ts(20),
+            textAlign: 'center',          // Горизонтальное выравнивание.
+            textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
+          }}
+          multiline
+          editable={false}
+          onContentSizeChange={e => {
+            const newHeight = e.nativeEvent.contentSize.height;
+            setInputHeight(Math.max(42, newHeight));
+          }}
       >
-        {capitalCSName}
+          {capitalCSName}
       </TextInput>
-      </View>
-<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
-    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
-    <ScrollView style={{ }}>
-      <View style={styles.container}>
-         <View style={{paddingTop: 11}}>
-        <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
     </View>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-
-          <View style={{width: '49.5%'}}>
-            <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
+    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
+      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
+    </View>
+    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
+      <ScrollView style={{ }}>
+        <View style={styles.container}>
+          <View style={{paddingTop: 11}}>
+            <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
           </View>
-          
-          <View style={{width: '49.5%'}}>
-            {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
-            */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
-         </View>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
 
+            <View style={{width: '49.5%'}}>
+              <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
+            </View>
+            
+            <View style={{width: '49.5%'}}>
+              {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
+              */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
+            </View>
+
+          </View>
+          <View style={{}}>
+            <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
+          </View>
+          <View style={{paddingTop: 11}}>
+            <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
+          </View>
+          <View style={{paddingTop: 11}}>
+            <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
+          </View>
         </View>
-        <View style={{}}>
-          <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
-        </View>
-        <View style={{paddingTop: 11}}>
-          <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
-        </View>
-        <View style={{paddingTop: 11}}>
-          <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </View>
   </View>
   ); 

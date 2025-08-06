@@ -1,4 +1,5 @@
 import CustomButton from "@/components/CustomButton";
+import useDevice from "@/hooks/useDevice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from "expo-document-picker";
 import { router, useLocalSearchParams } from "expo-router";
@@ -8,6 +9,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
 
 //const UploadFile =  ()  => {
   export default function UploadFile (){
+     const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
     const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [singleFile, setSingleFile] = useState<any>('');
@@ -57,16 +59,27 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
         name: 'fileToUpload'
       };
 
-      const file = new File([fileToUpload], 'filename.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  data.append('file', file);
-
-      data.append('file', 
+      const file = new File([fileToUpload], 'fileToUpload.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      console.log('file', file);
+      //data.append('file', file);
+      if (typeof File !== 'undefined' && fileToUpload instanceof File) {
+          // Веб-среда
+          data.append('file', singleFile);
+        } else if (fileToUpload.uri) {
+          // React Native среда
+          data.append('file', {
+            uri: fileToUpload.uri,
+            type: fileToUpload.type,
+            name: fileToUpload.name
+          });
+        } 
+     /*data.append('file', 
         {
         uri: fileToUpload.uri,
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         name: 'fileToUpload'
       }
-       );
+       );*/
 
     //  console.log('fileToUpload.uri', fileToUpload.uri)
 
@@ -96,7 +109,7 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
           body: data,
           headers: {
             'Authorization': `Bearer ${accessToken}`, 
-            'Content-Type': 'multipart/form-data'
+          //  'Content-Type': 'multipart/form-data'
           },
         }
       );
@@ -129,6 +142,19 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
   const selectFile = async () => {
     // Opening Document Picker to select one file
     try {
+      let file
+      if (!isMobile){
+       file = await new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel';
+
+        input.onchange = (e) => {
+          resolve(e.target.files[0]);
+        };
+        input.click();
+      })}
+       else{
       const res = await DocumentPicker.getDocumentAsync({
         // Provide which type of file you want user to pick
         //type: "*/*",
@@ -148,6 +174,8 @@ import { ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, Text, useWin
       // Setting the state to show single file attributes
       if (!res.canceled) {
       setSingleFile(res.assets[0]); }
+    }
+    if(file){setSingleFile(file)}
     } catch (err) {
       setSingleFile('');
       // Handling any exception (If any)

@@ -151,8 +151,8 @@ console.log(JSON.stringify({
   try {
     // 1. Определяем какой PDF загружать
     const pdfAssetModule = pdfType === 'policy' 
-      ? require('../../assets/files/Политика_конфиденциальности_Планшет_ПНР.pdf')
-      : require('../../assets/files/Согласие_на_обработку_ПД_в_Планшет_ПНР.pdf');
+      ? require('../../assets/files/politika_konfidencialnosti.pdf')
+      : require('../../assets/files/soglasie_na_pnr.pdf');
 
     const safeFileName = pdfType === 'policy' 
       ? 'Политика конфиденциальности Планшет ПНР.pdf' 
@@ -161,6 +161,7 @@ console.log(JSON.stringify({
       const link = document.createElement('a');
       link.href = pdfAssetModule;
       link.download =  safeFileName;
+      link.target = '_blank'; // Открыть в новой вкладке, если скачивание не сработает
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -179,9 +180,9 @@ console.log(JSON.stringify({
 
     return (
 <View style={{backgroundColor: 'white', height: screenHeight-BOTTOM_SAFE_AREA-44.5}}>
-        <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center', width: isDesktopWeb && screenWidth>900? 900 : '96%',  alignSelf: 'center',}}>
+        <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center', width: isDesktopWeb && screenWidth>900? 900 : '98%',  alignSelf: 'center',}}>
             <ScrollView >
-            <View style={styles.modalContainer}>
+            <View style={[styles.modalContainer, {width: '100%'}]}>
 
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>ФИО (полностью)</Text>
             <TextInput

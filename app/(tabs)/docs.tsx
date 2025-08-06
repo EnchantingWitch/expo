@@ -45,7 +45,7 @@ export default function Docs() {
   const [nameLink, setNameLink] = useState<any>("");
   const [urlFetch, setUrlFetch] = useState<any>("");
   const [modalStatus, setModalStatus] = useState<boolean>(false);
-  const [saveLinkStatus, setSaveLinkStatus] = useState<boolean>(false);
+  
   //router.setParams({ ID: ID });
   const [urlWork, setUrlWork] = useState<any>("");
   const [urlOperate, setUrlOperate] = useState<any>("");
@@ -55,7 +55,7 @@ export default function Docs() {
   const [titleModal, setTileModal] = useState(''); //формирование строки для TouchableOpacity, чтобы не падало в вебе 
 
   const [statusPressGetExcel, setStatusPressGetExcel] = useState<boolean>(false);
-
+  const [statusJournal, setStatusJournal] = useState<boolean>(false);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -405,8 +405,8 @@ const saveF = async () => {
   }
 };
 
-const handleDownload = async (toFetch: string, fileName: string, extands: string) => {
-  setStatusPressGetExcel(true);
+const handleDownload = async (toFetch: string, fileName: string, extands: string, setF) => {
+  setF(true);
     try {
        const response = await fetch(
       `https://xn----7sbpwlcifkq8d.xn--p1ai:8443${toFetch}${codeCCS}`,
@@ -432,7 +432,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
     } catch (error) {
       console.error('Ошибка при скачивании файла:', error);
     } finally {
-      setStatusPressGetExcel(false);
+      setF(false);
     }
   };
 
@@ -657,6 +657,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 '/excelForms/getMonitoring/', 
                 'Мониторинг ПНР по объекту', 
                 'xlsx',
+                setStatusPressGetExcel
               )
               //  getExcelFile(), setStatusPressGetExcel(true)
               ]}
@@ -706,12 +707,14 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             
           </View>
           <View style={{ flexDirection: "row" }}>
+          {statusJournal===false?
             <TouchableOpacity
               onPress={(event) => {
              handleDownload(
                 '/journal/getJournal/', 
                 'Журнал ПНР по объекту', 
-                'docx'
+                'docx',
+                setStatusJournal
                 );
               }}
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
@@ -739,6 +742,34 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 Журнал ПНР
               </Text>
             </TouchableOpacity>
+            :
+            <View
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
+            >
+              <Image
+              
+                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",
+                  filter: Platform.select({
+                  web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
+                  default: undefined
+                })
+                }}
+                source={require("../../assets/images/journal.svg")}
+              />
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Журнал ПНР
+              </Text>
+            </View>
+            }
             </View>
         </View>
         :
@@ -820,7 +851,12 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             {statusPressGetExcel===false? 
             <TouchableOpacity
               style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[handleDownload()]}
+              onPress={()=>[handleDownload(
+                '/excelForms/getMonitoring/', 
+                'Мониторинг ПНР по объекту', 
+                'xlsx',
+                setStatusPressGetExcel
+              )]}
              /* onPress={(event) => {
                 handleLink(
                   event,
@@ -939,13 +975,15 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 Исполнительная
               </Text>
             </TouchableOpacity>
-
+ {statusJournal===false?
             <TouchableOpacity
               onPress={(event) => {
-             /*   handleLink(
-                  event,
-                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
-                );*/
+             handleDownload(
+                '/journal/getJournal/', 
+                'Журнал ПНР по объекту', 
+                'docx',
+                setStatusJournal
+                );
               }}
               style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
             >
@@ -971,6 +1009,33 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 Журнал ПНР
               </Text>
             </TouchableOpacity>
+            :
+             <View
+              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
+            >
+              <Image
+              
+                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",  
+                  filter: Platform.select({
+      web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
+      default: undefined
+    }),}}
+                source={require("../../assets/images/journal.svg")}
+              />
+
+              <Text
+                style={{
+                  fontSize: ts(14),
+                  color: "#0072C8",
+                  fontWeight: "500",
+                  textAlign: "center",
+                  marginLeft: -7,
+                }}
+              >
+                Журнал ПНР
+              </Text>
+            </View>
+}
           </View>
           <View style={{ flexDirection: "row" }}>
 <TouchableOpacity

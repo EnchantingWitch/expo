@@ -290,7 +290,7 @@ const DirectionLayout = () => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: isDesktopWeb&& screenWidth>900? 900 : '98%',
+            width: isDesktopWeb&& screenWidth>900? 900 : '96%',
           }}
         >
           <SystemsForTwo
@@ -333,7 +333,7 @@ const DirectionLayout = () => {
           </View>
         </View>
 
-        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '98%', }}>
+        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '96%', }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -359,7 +359,7 @@ const DirectionLayout = () => {
                       backgroundColor: "#E0F2FE",
                       flexDirection: "row",
                       width: "100%",
-                      height: 37,
+                      height: 42,
                       justifyContent: "center",
                       marginBottom: 15,
                       borderRadius: 8,
@@ -421,9 +421,9 @@ const DirectionLayout = () => {
                         <Ionicons name="square" size={25} color="#F0F9FF" />
                       ) : (
                         ""
-                      )}
+                      )}    
                       {item.commentStatus == "Не устранено с просрочкой" ? (
-                        <Ionicons name="square" size={25} color="#F59E0B" />
+                        <Ionicons name="square" size={25} color="#F0F9FF" />
                       ) : (
                         ""
                       )}

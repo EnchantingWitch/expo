@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRouter } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
 import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { getGlobalStyles } from '../../constants/globalStyles';
 
 type Object = {
   capitalCSName: string;
@@ -25,8 +26,7 @@ export default function TabOneScreen() {
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
 const fontScale = useWindowDimensions().fontScale;
-const ts = (fontSize: number) => {
-        return (fontSize / fontScale)};
+const globalStyles = getGlobalStyles(fontScale);
 
 const router = useRouter();
 const [filteredData, setFilteredData] = useState([]);
@@ -204,7 +204,8 @@ const [data, setData] = useState<Object[]>([]);
                         </TouchableWithoutFeedback>*/}
    
           <TextInput 
-            style={{ height: 45, marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8, paddingHorizontal: 12 }}
+          style={globalStyles.search}
+            //style={{ height: 45, marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8, paddingHorizontal: 12 }}
             placeholder="Поиск по объекту строительства"
             placeholderTextColor={'#B2B3B3'}
             value={searchQuery}
@@ -216,10 +217,10 @@ const [data, setData] = useState<Object[]>([]);
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
                         <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS, capitalCSName: item.capitalCSName}})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 15, borderRadius: 8}}>
+                        <View style={globalStyles.view}>
                 
                             <View style={{width: '98%', justifyContent: 'center',}}>
-                            <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
+                            <Text numberOfLines={2} ellipsizeMode="tail" style={[globalStyles.text]}>{item.capitalCSName}</Text>
                             </View>
                                            
                         </View>

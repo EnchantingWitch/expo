@@ -813,7 +813,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
              
             <View style={{width: '20%', alignItems: 'center'}}>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, width: '85%'}]}
             //placeholder="№ акта ИИ"
             placeholderTextColor="#111"
             value={editedSerialNumber.toString()}
@@ -915,7 +915,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
                  </View>
           </View>
 
-          <View  style={{flexDirection: 'row', width: '96%'}}>{/* Дата выдачи и Плановая дата устранения */}
+          <View  style={{flexDirection: 'row', width: '98%'}}>{/* Дата выдачи и Плановая дата устранения */}
             <View style={{width: '50%', alignSelf: 'center'}}>
               <CalendarWithoutDel theme='min' statusreq={true} post={startD} onChange={(dateString) => setEditedStartDate(dateString)}/>
             {/*<CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>*/}
@@ -937,7 +937,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
 
           
 
-          <View  style={{flexDirection: 'row', width: '96%'}}>{/* Дата факта устранения и фото */}
+          <View  style={{flexDirection: 'row', width: '98%'}}>{/* Дата факта устранения и фото */}
             <View style={{width: '50%', alignSelf: 'center'}}>
               <Calendar theme='min' statusreq={true} post={editedEndDateFact} onChange={(dateString) => setEditedEndDateFact(dateString)}/>
             </View>

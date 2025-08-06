@@ -47,7 +47,12 @@ const ListOfSubobj = ({ list, nameFilter, width, onChange }: Props) => {
         <View style={[styles.container,]} >
             <Dropdown
                 style={[styles.dropdown,  isFocus && { borderColor: 'blue', width: width+30, maxWidth: width+30}]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), includeFontPadding: false, width: width, lineHeight: 17,  textAlignVertical: 'center', overflow: 'hidden', textOverflow: 'ellipsis', maxHeight: 37}]}
+                placeholderStyle={[styles.placeholderStyle, 
+                  { fontSize: ts(14), 
+                    includeFontPadding: false, 
+                    width: width, 
+                    lineHeight: 16,  
+                    textAlignVertical: 'center', overflow: 'hidden', textOverflow: 'ellipsis', maxHeight: 37}]}
                 selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), includeFontPadding: false, width: width, lineHeight: 17,  textAlignVertical: 'center', maxHeight: 37,   overflow: 'hidden',
   textOverflow: 'ellipsis'}]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), includeFontPadding: false, justifyContent: 'center', alignSelf: 'center', width: width+20, marginLeft: -9, paddingLeft: 15}]}

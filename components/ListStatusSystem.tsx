@@ -1,6 +1,6 @@
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
-
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Props = {
@@ -51,6 +51,7 @@ const DropdownComponent = forwardRef(({
     onChange
 }: Props, ref) => {
     const [value, setValue] = useState<string>(post || '');
+    const modalContentRef = useRef<View>(null);
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
@@ -61,6 +62,7 @@ const DropdownComponent = forwardRef(({
 
     const fontScale = useWindowDimensions().fontScale;
     const ts = (fontSize: number) => fontSize / fontScale;
+    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
 
     // Основной эффект для инициализации значений
     useEffect(() => {
@@ -175,6 +177,24 @@ const DropdownComponent = forwardRef(({
     const selectedLabel = value 
         ? getData().find(item => item.value === value)?.label 
         : 'Не выбрано';
+    
+    const handleOverlayPress = (e: any) => {
+        // Проверяем, было ли нажатие вне контейнера модального окна
+        if (modalContentRef.current) {
+            modalContentRef.current.measureInWindow((x, y, width, height) => {
+                const { pageX, pageY } = e.nativeEvent;
+                if (
+                    pageX < x || 
+                    pageX > x + width || 
+                    pageY < y || 
+                    pageY > y + height
+                ) {
+                    setIsFocus(false);
+                }
+            });
+        }
+    };
+
 
     return (
              <View style={{width: '96%'}}>
@@ -208,9 +228,10 @@ const DropdownComponent = forwardRef(({
                     <TouchableOpacity 
                         style={styles.modalOverlay}
                         activeOpacity={1}
-                        onPress={() => setIsFocus(false)}
+                        onPress={handleOverlayPress}
                     >
                         <Animated.View 
+                        ref={modalContentRef}
                             style={[
                                 styles.modalContent,
                                 { 
@@ -233,7 +254,8 @@ const DropdownComponent = forwardRef(({
                                 value={searchText}
                                 onChangeText={setSearchText}
                                 style={styles.inputSearchStyle}
-                                autoFocus
+                                autoFocus={isDesktopWeb}
+
                             />
 
                             {filteredData.length > 0 ? (
@@ -336,12 +358,16 @@ modalContent: {
     },
     inputSearchStyle: {
         height: 42,
+        minHeight: 42,
+        maxHeight: 42,
         borderWidth: 1,
         borderColor: '#D9D9D9',
         borderRadius: 8,
         paddingHorizontal: 8,
         marginBottom: 8,
         backgroundColor: '#fff',
+        includeFontPadding: false,
+        textAlignVertical: 'center',
     },
 });
 
