@@ -25,6 +25,14 @@
       "favicon": "./assets/images/logo1.png"
     },
     "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/helioscondc.otf"
+          ]
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -35,7 +43,13 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-asset",
+        {
+          "assets": ["./assets/files/politika_konfidencialnosti.pdf", "./assets/files/soglasie_na_pnr.pdf"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
