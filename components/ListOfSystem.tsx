@@ -1,4 +1,3 @@
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
@@ -11,19 +10,13 @@ export type ListToDrop = {
 type Props = {
     list: ListToDrop[];
     post: string;
-    editable?: boolean;
-    title?: string;
-    Title?: string;//перед текстинпутом название 
-    width?: string;
-    buf?: string;
+    buf: string;
     statusreq?: boolean;
     onChange: (subobj: string) => void;
     onChangeStatus?: (subobj: boolean) => void; 
 };
 
-const ListOfSystem = ({ list, post, buf,editable, Title, title, width, statusreq = true, onChange, onChangeStatus }: Props) => {
-    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
-
+const ListOfSystem = ({ list, post, buf, statusreq = true, onChange, onChangeStatus }: Props) => {
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -33,30 +26,13 @@ const ListOfSystem = ({ list, post, buf,editable, Title, title, width, statusreq
     const ts = (fontSize: number) => fontSize / fontScale;
 
     const [initialized, setInitialized] = useState(false);
-    
-    const modalContentRef = useRef<View>(null);
-    const handleOverlayPress = (e: any) => {
-        // Проверяем, было ли нажатие вне контейнера модального окна
-        if (modalContentRef.current) {
-            modalContentRef.current.measureInWindow((x, y, width, height) => {
-                const { pageX, pageY } = e.nativeEvent;
-                if (
-                    pageX < x || 
-                    pageX > x + width || 
-                    pageY < y || 
-                    pageY > y + height
-                ) {
-                    setIsFocus(false);
-                }
-            });
-        }
-    };
+
     useEffect(() => {
         if (!initialized && list.length > 0) {
             setInitialized(true);
             return;
         }
-        //если вывести в отдельный useEffect тогда будет обнулять значение для системы каждый раз при выборе объекта и даже не нового
+        
         if (initialized) {
             setValue('');
             if (onChange) {
@@ -68,7 +44,7 @@ const ListOfSystem = ({ list, post, buf,editable, Title, title, width, statusreq
     // ListOfSystem.tsx
 useEffect(() => {
     // Устанавливаем значение только если post изменился
-    if (post !== value) { 
+    if (post !== value) {
         setValue(post || '');
     }
 }, [post]); // Зависим только от post, а не от list
@@ -109,23 +85,21 @@ useEffect(() => {
         : 'Не выбрано';
 
     return (
-        <View style={{width: width? width : '96%'}}>
+        <View style={{width: '96%'}}>
             <View style={styles.container}>
-                <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>{Title}</Text>
-                                
                 <View ref={dropdownRef}>
                     <TouchableOpacity
                         onPress={handleOpen}
                         style={[
                             styles.dropdown, 
                             isFocus && { borderColor: 'blue' },
-                          //  !statusreq && { opacity: 0.5 }
+                            !statusreq && { opacity: 0.5 }
                         ]}
-                        disabled={editable? !editable: !statusreq}
+                        disabled={!statusreq}
                     >
                         <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
                             <View style={{width: '95%'}}>
-                                <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center', lineHeight: ts(22) }]}>
+                                <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
                                     {post!=='' && post!==' ' && post!==undefined? post : 
                                                                 <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
                                                                     Не выбрано
@@ -133,78 +107,63 @@ useEffect(() => {
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
-                                <Ionicons name='chevron-down' color='#B3B3B3' size={16}/>
+                                <Ionicons name='chevron-down' color='#B3B3B3'/>
                             </View>
                         </View>
                     </TouchableOpacity>
                 </View>
 
-                 <Modal
-                                    visible={isFocus}
-                                    transparent
-                                    animationType="fade"
-                                    onRequestClose={() => setIsFocus(false)}
-                                >
-                                    <TouchableOpacity 
-                                        style={styles.modalOverlay}
-                                        activeOpacity={1}
-                                        onPress={handleOverlayPress}
-                                    >
-                                        <Animated.View 
-                                        ref={modalContentRef}
-                                            style={[
-                                                styles.modalContent,
-                                                { 
-                                                    width: '40%',
-                                                    maxHeight: '100%',
-                                                    right: 0,
-                                                    top: 0,
-                                                    bottom: 0
-                                                }
-                                            ]}
-                                        >
-                                            <Text style={styles.modalHeaderText}>{title? title : 'Система'}</Text>
-                                            <Text style={styles.selectedValueText}>
-                                                {value!=='' && value!==' ' && value!==undefined ? selectedLabel : 
+                <Modal
+                    visible={isFocus}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setIsFocus(false)}
+                >
+                    <TouchableOpacity 
+                        style={styles.modalOverlay}
+                        activeOpacity={1}
+                        onPress={() => setIsFocus(false)}
+                    > 
+                        <Animated.View 
+                            style={[
+                            styles.modalContent,
+                            { maxHeight: '70%' } // Фиксированная процентная высота
+                            ]}
+                        >
+                            <Text style={[styles.modalTitle, { fontSize: ts(14) }]}>
+                                Система
+                            </Text>
+                            <Text style={[styles.selectedValue, { fontSize: ts(16) }]}>
+                                {value!=='' && value!==' ' && value!==undefined ? selectedLabel : 
                                                             <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
                                                                 Не выбрано
                                                             </Text>}
-                                            </Text>
-                                            
-                                            <TextInput
-                                                placeholder="Поиск..."
-                                                placeholderTextColor={'#B2B3B3'}
-                                                value={searchText}
-                                                onChangeText={setSearchText}
-                                                style={styles.inputSearchStyle}
-                                                autoFocus={isDesktopWeb}
-                                            />
-                
-                                            {filteredData.length > 0 ? (
-                                                <FlatList
-                                                    data={filteredData}
-                                                    keyExtractor={item => item.value}
-                                                    renderItem={({ item }) => (
-                                                        <TouchableOpacity
-                                                            style={styles.dropdownItem}
-                                                            onPress={() => {
-                                                                handleSelect(item.value);
-                                                                onChange(item.value);
-                                                            }}
-                                                        >
-                                                            <Text style={styles.itemText}>{item.label}</Text>
-                                                        </TouchableOpacity>
-                                                    )}
-                                                    keyboardShouldPersistTaps="handled"
-                                                />
-                                            ) : (
-                                                <View style={styles.emptyState}>
-                                                    <Text style={styles.emptyStateText}>Ничего не найдено</Text>
-                                                </View>
-                                            )}
-                                        </Animated.View>
+                            </Text>
+                            <TextInput
+                                placeholder="Поиск..."
+                                placeholderTextColor={'#B2B3B3'}
+                                value={searchText}
+                                onChangeText={setSearchText}
+                                style={[styles.searchInput, { fontSize: ts(14) }]}
+                                autoFocus
+                            />
+
+                            <FlatList
+                                data={filteredData}
+                                keyExtractor={item => item.value}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={styles.listItem}
+                                        onPress={() => handleSelect(item.value)}
+                                    >
+                                        <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
                                     </TouchableOpacity>
-                                </Modal>
+                                )}
+                                keyboardShouldPersistTaps="handled"
+                            />
+                        </Animated.View>
+                    </TouchableOpacity>
+                </Modal>
             </View>
         </View>
     );
@@ -232,59 +191,38 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
-        alignItems: 'flex-end',
-        //alignSelf: 'flex-start',
     },
-modalContent: {
+    modalContent: {
         backgroundColor: 'white',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
+        maxHeight: '50%',
         padding: 16,
-        position: 'absolute',
     },
-    modalHeaderText: {
-        fontSize: 14,
+    modalTitle: {
         paddingBottom: 2,
         fontWeight: '500',
         color: '#0072C8',
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
-    selectedValueText: {
-        fontSize: 16,
+    selectedValue: {
         paddingBottom: 14,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        color: '#B3B3B3',
     },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 20
-    },
-    emptyStateText: {
-        fontSize: 14,
-        color: '#B3B3B3'
-    },
-    itemText: {
-        fontSize: 14
-    },
-    dropdownItem: {
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-    },
-    modalContentBottom: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-    },
-    inputSearchStyle: {
-        height: 42,
+    searchInput: {
+        height: 40,
         borderWidth: 1,
         borderColor: '#D9D9D9',
         borderRadius: 8,
         paddingHorizontal: 8,
         marginBottom: 8,
         backgroundColor: '#fff',
+    },
+    listItem: {
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
     },
 });
 

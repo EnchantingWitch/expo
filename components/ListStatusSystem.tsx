@@ -1,7 +1,6 @@
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, Keyboard, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Animated, Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Props = {
     post?: string;
@@ -51,18 +50,14 @@ const DropdownComponent = forwardRef(({
     onChange
 }: Props, ref) => {
     const [value, setValue] = useState<string>(post || '');
-    const modalContentRef = useRef<View>(null);
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [dropdownPosition, setDropdownPosition] = useState<'top' | 'bottom'>('bottom');
     const [swith, setSwith] = useState<number>(1);
     const dropdownRef = useRef<View>(null);
-    const [keyboardHeight, setKeyboardHeight] = useState(0);
-    const [modalWidth, setModalWidth] = useState('40%');
 
     const fontScale = useWindowDimensions().fontScale;
     const ts = (fontSize: number) => fontSize / fontScale;
-    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
 
     // Основной эффект для инициализации значений
     useEffect(() => {
@@ -84,29 +79,6 @@ const DropdownComponent = forwardRef(({
             }
         }
     }, [post, statusreq, pnrFact, iiFact, koFact]);
-
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            (e) => {
-                setKeyboardHeight(e.endCoordinates.height);
-                setModalWidth('100%'); // Расширяем на весь экран при открытии клавиатуры
-            }
-        );
-        
-        const keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            () => {
-                setKeyboardHeight(0);
-                setModalWidth('40%'); // Возвращаем исходную ширину
-            }
-        );
-
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
 
     // Эффект для обработки изменений дат
     useEffect(() => {
@@ -153,14 +125,13 @@ const DropdownComponent = forwardRef(({
     const handleOpen = () => {
         if (!statusreq) return;
         
-       /* if (dropdownRef.current) {
+        if (dropdownRef.current) {
             dropdownRef.current.measureInWindow((x, y, width, height) => {
                 const windowHeight = Dimensions.get('window').height;
                 const spaceBelow = windowHeight - y - height;
                 setDropdownPosition(spaceBelow > 340 ? 'bottom' : 'top');
             });
-        }*/
-       setDropdownPosition('top');
+        }
         setIsFocus(true);
     };
 
@@ -177,111 +148,79 @@ const DropdownComponent = forwardRef(({
     const selectedLabel = value 
         ? getData().find(item => item.value === value)?.label 
         : 'Не выбрано';
-    
-    const handleOverlayPress = (e: any) => {
-        // Проверяем, было ли нажатие вне контейнера модального окна
-        if (modalContentRef.current) {
-            modalContentRef.current.measureInWindow((x, y, width, height) => {
-                const { pageX, pageY } = e.nativeEvent;
-                if (
-                    pageX < x || 
-                    pageX > x + width || 
-                    pageY < y || 
-                    pageY > y + height
-                ) {
-                    setIsFocus(false);
-                }
-            });
-        }
-    };
-
 
     return (
-             <View style={{width: '96%'}}>
+        <View style={{width: '96%'}}>
             <View style={styles.container}>
-                {/* Триггер для открытия модального окна (без изменений) */}
+                {/* Триггер для открытия модального окна */}
                 <View ref={dropdownRef}>
                     <TouchableOpacity
                         onPress={handleOpen}
-                        style={[styles.dropdown, isFocus && { borderColor: 'blue' }, !statusreq && { //opacity: 0.5 
-
-                        }]}
+                        style={[styles.dropdown, isFocus && { borderColor: 'blue' }, ]}//!statusreq && { opacity: 0.5 }
                         disabled={!statusreq}
                     >
                         <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
                             <View style={{width: '95%'}}>
                                 <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
-                                    {value ? selectedLabel : 'Не выбрано'}
+                                    {value && (value!='' && value!=' ') ? selectedLabel : 'Не выбрано'}
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
-                                <Ionicons name='chevron-down' color={ '#B3B3B3'} size={16}/>
+                                <Ionicons name='chevron-down' color={ '#B3B3B3'}/>
                             </View>
                         </View>
                     </TouchableOpacity>
                 </View>
+
                 {/* Модальное окно с выпадающим списком */}
                 <Modal
                     visible={isFocus}
                     transparent
-                    animationType="fade"
+                    animationType="slide"
                     onRequestClose={() => setIsFocus(false)}
                 >
                     <TouchableOpacity 
                         style={styles.modalOverlay}
                         activeOpacity={1}
-                        onPress={handleOverlayPress}
+                        onPress={() => setIsFocus(false)}
                     >
                         <Animated.View 
-                        ref={modalContentRef}
                             style={[
                                 styles.modalContent,
-                                { 
-                                    width: '40%',
-                                    maxHeight: '100%',
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0
-                                }
+                                { maxHeight: '70%' }
                             ]}
                         >
-                            <Text style={styles.modalHeaderText}>Статус объекта</Text>
-                            <Text style={styles.selectedValueText}>
+                            <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2, fontWeight: '500', color: '#0072C8', alignSelf: 'center' }]}>
+                                Статус объекта
+                            </Text>
+                            <Text style={[styles.selectedTextStyle, { fontSize: ts(16), paddingBottom: 14, alignSelf: 'center' }]}>
                                 {value && value !== ' ' ? selectedLabel : 'Не выбрано'}
                             </Text>
-                            
                             <TextInput
                                 placeholder="Поиск..."
                                 placeholderTextColor={'#B2B3B3'}
                                 value={searchText}
                                 onChangeText={setSearchText}
-                                style={styles.inputSearchStyle}
-                                autoFocus={isDesktopWeb}
-
+                                style={[styles.inputSearchStyle, { fontSize: ts(14) }]}
+                                autoFocus
                             />
 
-                            {filteredData.length > 0 ? (
-                                <FlatList
-                                    data={filteredData}
-                                    keyExtractor={item => item.value}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity
-                                            style={styles.dropdownItem}
-                                            onPress={() => {
-                                                handleSelect(item.value);
-                                                onChange(item.value);
-                                            }}
-                                        >
-                                            <Text style={styles.itemText}>{item.label}</Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    keyboardShouldPersistTaps="handled"
-                                />
-                            ) : (
-                                <View style={styles.emptyState}>
-                                    <Text style={styles.emptyStateText}>Ничего не найдено</Text>
-                                </View>
-                            )}
+                            <FlatList
+                                data={filteredData}
+                                keyExtractor={item => item.value}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={styles.dropdownItem}
+                                        onPress={() => {
+                                            handleSelect(item.value);
+                                            onChange(item.value);
+                                        }}
+                                    >
+                                        <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
+                                    </TouchableOpacity>
+                                )}
+                                keyboardShouldPersistTaps="handled"
+                            />
                         </Animated.View>
                     </TouchableOpacity>
                 </Modal>
@@ -289,7 +228,6 @@ const DropdownComponent = forwardRef(({
         </View>
     );
 });
-
 
 const styles = StyleSheet.create({
     container: {
@@ -313,40 +251,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
-        alignItems: 'flex-end',
-        //alignSelf: 'flex-start',
     },
-modalContent: {
+    modalContent: {
         backgroundColor: 'white',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
+        maxHeight: '50%',
         padding: 16,
-        position: 'absolute',
-    },
-    modalHeaderText: {
-        fontSize: 14,
-        paddingBottom: 2,
-        fontWeight: '500',
-        color: '#0072C8',
-        alignSelf: 'center'
-    },
-    selectedValueText: {
-        fontSize: 16,
-        paddingBottom: 14,
-        alignSelf: 'center'
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 20
-    },
-    emptyStateText: {
-        fontSize: 14,
-        color: '#B3B3B3'
-    },
-    itemText: {
-        fontSize: 14
     },
     dropdownItem: {
         paddingVertical: 12,
@@ -359,17 +270,13 @@ modalContent: {
         right: 0,
     },
     inputSearchStyle: {
-        height: 42,
-        minHeight: 42,
-        maxHeight: 42,
+        height: 40,
         borderWidth: 1,
         borderColor: '#D9D9D9',
         borderRadius: 8,
         paddingHorizontal: 8,
         marginBottom: 8,
         backgroundColor: '#fff',
-        includeFontPadding: false,
-        textAlignVertical: 'center',
     },
 });
 

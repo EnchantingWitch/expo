@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 const data = [
     { label: 'Без доступа', value: 'NONE' },
@@ -10,12 +10,11 @@ const data = [
 
 type Props = {
     post: string;
-    status?: boolean;
+    status: boolean;
     onChange: (status: string) => void;
-    onChangeStatus?: (status: boolean) => void;
 };
 
-const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Props) => {
+const ListOfAccessRole = ({ post, status, onChange }: Props) => {
     const [value, setValue] = useState(post || '');
     const [isFocus, setIsFocus] = useState(false);
     const [searchText, setSearchText] = useState('');
@@ -25,17 +24,14 @@ const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Pro
     const ts = (fontSize: number) => fontSize / fontScale;
 
     useEffect(() => {
-        if (post !== value) {
-            setValue(post || '');
+        if (post !== value && status) {
+            setValue(post);
         }
-    }, [post]);
+    }, [post, status]);
 
     useEffect(() => {
-        if (value && onChange && value !== post) {
+        if (value && onChange) {
             onChange(value);
-        }
-        if (onChangeStatus) {
-            onChangeStatus(!!value);
         }
     }, [value]);
 
@@ -56,7 +52,7 @@ const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Pro
 
     const selectedLabel = value 
         ? data.find(item => item.value === value)?.label 
-        : 'Не выбрано';
+        : 'Выберите роль';
 
     return (
         <View style={{width: '96%'}}>
@@ -73,11 +69,8 @@ const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Pro
                     >
                         <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
                             <View style={{width: '95%'}}>
-                                <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center', lineHeight: ts(22) }]}>
-                                    {value !== '' && value !== ' ' && value !== undefined ? selectedLabel : 
-                                        <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2, alignSelf: 'center' }]}>
-                                            Не выбрано
-                                        </Text>}
+                                <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
+                                    {selectedLabel}
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
@@ -90,7 +83,7 @@ const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Pro
                 <Modal
                     visible={isFocus}
                     transparent
-                    animationType="fade"
+                    animationType="slide"
                     onRequestClose={() => setIsFocus(false)}
                 >
                     <TouchableOpacity 
@@ -98,58 +91,36 @@ const ListOfAccessRole = ({ post, status = true, onChange, onChangeStatus }: Pro
                         activeOpacity={1}
                         onPress={() => setIsFocus(false)}
                     >
-                        <Animated.View 
-                            style={[
-                                styles.modalContent,
-                                { 
-                                    width: '40%',
-                                    maxHeight: '100%',
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0
-                                }
-                            ]}
-                        >
-                            <Text style={styles.modalHeaderText}>Роль</Text>
-                            <Text style={styles.selectedValueText}>
-                                {value !== '' && value !== ' ' && value !== undefined ? selectedLabel : 
-                                    <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2, alignSelf: 'center' }]}>
-                                        Не выбрано
-                                    </Text>}
+                        <View style={styles.modalContent}>
+                            <Text style={[styles.modalTitle, { fontSize: ts(14) }]}>
+                                Уровень доступа
                             </Text>
-                            
+                            <Text style={[styles.selectedValue, { fontSize: ts(16) }]}>
+                                {value ? selectedLabel : 'Не выбрано'}
+                            </Text>
                             <TextInput
                                 placeholder="Поиск..."
                                 placeholderTextColor={'#B2B3B3'}
                                 value={searchText}
                                 onChangeText={setSearchText}
-                                style={styles.inputSearchStyle}
+                                style={[styles.searchInput, { fontSize: ts(14) }]}
                                 autoFocus
                             />
 
-                            {filteredData.length > 0 ? (
-                                <FlatList
-                                    data={filteredData}
-                                    keyExtractor={item => item.value}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity
-                                            style={styles.dropdownItem}
-                                            onPress={() => {
-                                                handleSelect(item.value);
-                                                onChange(item.value);
-                                            }}
-                                        >
-                                            <Text style={styles.itemText}>{item.label}</Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    keyboardShouldPersistTaps="handled"
-                                />
-                            ) : (
-                                <View style={styles.emptyState}>
-                                    <Text style={styles.emptyStateText}>Ничего не найдено</Text>
-                                </View>
-                            )}
-                        </Animated.View>
+                            <FlatList
+                                data={filteredData}
+                                keyExtractor={item => item.value}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={styles.listItem}
+                                        onPress={() => handleSelect(item.value)}
+                                    >
+                                        <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
+                                    </TouchableOpacity>
+                                )}
+                                keyboardShouldPersistTaps="handled"
+                            />
+                        </View>
                     </TouchableOpacity>
                 </Modal>
             </View>
@@ -179,54 +150,38 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
-        alignItems: 'flex-end',
     },
     modalContent: {
         backgroundColor: 'white',
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
+        maxHeight: '50%',
         padding: 16,
-        position: 'absolute',
     },
-    modalHeaderText: {
-        fontSize: 14,
+    modalTitle: {
         paddingBottom: 2,
         fontWeight: '500',
         color: '#0072C8',
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
-    selectedValueText: {
+    selectedValue: {
         color: '#B3B3B3',
-        fontSize: 16,
         paddingBottom: 14,
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 20
-    },
-    emptyStateText: {
-        fontSize: 14,
-        color: '#B3B3B3'
-    },
-    itemText: {
-        fontSize: 14
-    },
-    dropdownItem: {
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-    },
-    inputSearchStyle: {
-        height: 42,
+    searchInput: {
+        height: 40,
         borderWidth: 1,
         borderColor: '#D9D9D9',
         borderRadius: 8,
         paddingHorizontal: 8,
         marginBottom: 8,
         backgroundColor: '#fff',
+    },
+    listItem: {
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
     },
 });
 

@@ -1,13 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
+  Animated,
+  Platform,
   ScrollView,
+  StatusBar,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
-import useDevice from '../hooks/useDevice';
+import Scroll from "./Scroll";
 
 type Props = {
   nameTab?: string; //Структура/Документация/Замечания и тд
@@ -15,42 +18,19 @@ type Props = {
 };
 
 export default function HeaderForTabs({ nameTab, capitalCSName}: Props) {
-    const { isMobileWeb } = useDevice();
+    const BOTTOM_SAFE_AREA =
+        Platform.OS === "android" ? StatusBar.currentHeight : 0;
     const scrollRef = useRef(null); //для скрола заголовка
     const [lineCount, setLineCount] = useState(1);//количество строк в заголовке 
     const textRef = useRef(null); //для скрола заголовка
     const router = useRouter();
-
-    useEffect(() => {
-          if (textRef.current) {
-            // Веб-версия: рассчитываем количество строк через DOM
-            const element = textRef.current;
-            const lineHeight = parseInt(window.getComputedStyle(element).lineHeight, 10);
-            const height = element.clientHeight;
-            const calculatedLineCount = Math.round(height / lineHeight);
-            setLineCount(calculatedLineCount);
-            console.log('lineCount', lineCount)
-          }
-    }, [isMobileWeb, textRef.current]);
-
-    const navigation = useNavigation();
-
-    useEffect(() => {
-      navigation.setOptions({
-        headerLeft: () => (
-          <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-            <Ionicons
-              name="home-outline"
-              size={25}
-              style={{ alignSelf: "center" }}
-            />
-          </TouchableOpacity>
-        ),
-      });
-    }, [navigation]);
+    const [completeScrollBarHeight, setCompleteScrollBarHeight] = useState(1);
+      const [visibleScrollBarHeight, setVisibleScrollBarHeight] = useState(0);
+      const [isScrollable, setIsScrollable] = React.useState(false);
+      const scrollIndicator = useRef(new Animated.Value(0)).current;
 
 return (
-    <View style={{ flexDirection: "row", paddingTop: 15, marginBottom: 10, width: '100%' }}>
+    <View style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, marginBottom: 0, width: '100%' }}>
         <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
           <Ionicons
             name="home-outline"
@@ -58,7 +38,9 @@ return (
             style={{ alignSelf: "center" }}
           />
         </TouchableOpacity>
-          <View style={{ flexDirection: 'column', width: '93%' }}>
+        <View style={{ flexDirection: 'column', }}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'column', width: '94%' }}>
               <ScrollView
                 style={{
                   maxHeight: lineCount > 1 ? 52: 26,//20 размер шрифта, т.е высота одной строки
@@ -66,8 +48,22 @@ return (
                 }}
                 ref={scrollRef}
                 onContentSizeChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })}
-                showsVerticalScrollIndicator={lineCount > 1}
-                persistentScrollbar={true}
+                showsVerticalScrollIndicator={false}
+                persistentScrollbar={false}
+                scrollEventThrottle={16}
+                    onContentSizeChange={(_, height) => {
+                      setCompleteScrollBarHeight(height);
+                      setIsScrollable(height > visibleScrollBarHeight);
+                    }}
+                    onLayout={({ nativeEvent }) => {
+                      const height = nativeEvent.layout.height;
+                      setVisibleScrollBarHeight(height);
+                      setIsScrollable(completeScrollBarHeight > height);
+                    }}
+                    onScroll={Animated.event(
+                      [{ nativeEvent: { contentOffset: { y: scrollIndicator } } }],
+                      { useNativeDriver: false }
+                    )}
               >
                 <Text
                   ref={textRef}
@@ -81,11 +77,22 @@ return (
                     lineHeight: 26,// display: 'inline-block',
                     width: '100%' 
                   }}
+                  onTextLayout={({ nativeEvent: { lines } }) => setLineCount(lines.length)}
                 >
                   {capitalCSName}
                 </Text>
               </ScrollView>
-              {nameTab? 
+            </View>
+          
+            {isScrollable &&
+              <Scroll completeScrollBarHeight={completeScrollBarHeight} 
+              visibleScrollBarHeight={visibleScrollBarHeight} 
+              scrollIndicator={scrollIndicator}
+              height={lineCount > 1 ? 52: 26}/>
+               }
+
+          </View>
+             {nameTab? 
               <Text
                 style={{
                   fontWeight: '500',
@@ -99,7 +106,7 @@ return (
                 {nameTab}
               </Text>
               : ''}
-            </View>
+        </View>
       </View>
   );
 }

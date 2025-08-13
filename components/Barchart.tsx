@@ -1,4 +1,3 @@
-import useDevice from '@/hooks/useDevice';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Dimensions, Text, useWindowDimensions, View } from 'react-native';
@@ -19,8 +18,7 @@ const PiechartBig = ({ totalQuantity, blueQuantity, greenQuantity, redQuantity, 
   const fontScale = useWindowDimensions().fontScale;
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
-    const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-  
+    
   const pieData = [
   {
     value: totalQuantity,
@@ -114,7 +112,7 @@ const renderLegendComponent = () => {
             </View>
             <View style={{ alignSelf: 'flex-end',   marginBottom: -2, marginRight: -7}}>
               <Image 
-                style={{ width: 30, height: 20, filter: 'brightness(0) saturate(100%) invert(39%) sepia(65%) saturate(1352%) hue-rotate(331deg) brightness(91%) contrast(92%)', alignItems: 'flex-end' }}
+                style={{ width: 30, height: 20, tintColor: '#E24831', alignItems: 'flex-end' }}
                 source={require('../assets/images/delta.svg')} 
               />
             </View>
@@ -160,21 +158,16 @@ const renderLegendComponent = () => {
         height: 105,
         position: 'relative'
       }}>
- <View style={{
-  position: 'absolute',  
-  height: 101, width: '106%', 
-  //marginLeft: isDesktopWeb? -48: -Dimensions.get('window').width *  0.1,
-  marginTop: isDesktopWeb? -18 : -Dimensions.get('window').width *  0.02, 
-  marginLeft: -48 
-}}>
-  {/**, marginLeft: '-13.5%'   * justifyContent: 'flex-end',marginLeft: -46 */}
-
-  
+ <View style={{position: 'absolute',  height: 101, width: '106%', marginLeft: -Dimensions.get('window').width * 0.1}}>
+  {/**, marginLeft: '-13.5%' */}
+  {/**marginTop: -6, marginLeft: -50 
+   * justifyContent: 'flex-end',marginLeft: -46
+  */}
           <BarChart
         //  barWidth={300}
        horizontal
-      //  width={Dimensions.get('window').width * 0.85/2}
-       width={ isDesktopWeb && screenWidth>1100? 485 : isDesktopWeb && screenWidth>900? 850 : Dimensions.get('window').width * 0.85}
+        width={Dimensions.get('window').width * 0.85}
+       //width={280}
         //height={1005}
         //maxValue={totalQuantity}
         // Отключаем подписи осей

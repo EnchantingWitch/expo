@@ -34,7 +34,7 @@ const ListOfSubobj = ({ list, nameFilter, width, onChange }: Props) => {
 
       useEffect(() => {
         if(list){
-            console.log(list);
+            console.log('listComponent',list);
             const updated = List.map(item => {
                 const found = list.find(s => s.label === item.label);
                 return found ? { ...item, value: found.value } : item;
@@ -42,40 +42,28 @@ const ListOfSubobj = ({ list, nameFilter, width, onChange }: Props) => {
               setList(updated);
            }
       }, [list]);
+
+      console.log('List', List);
       
     return (
-        <View style={[styles.container,]} >
+        <View style={[styles.container, {width: width? width : 110}]}>
             <Dropdown
-                style={[styles.dropdown,  isFocus && { borderColor: 'blue', width: width+30, maxWidth: width+30}]}
-                placeholderStyle={[styles.placeholderStyle, 
-                  { fontSize: ts(14), 
-                    includeFontPadding: false, 
-                    width: width, 
-                    lineHeight: 16,  
-                    textAlignVertical: 'center', overflow: 'hidden', textOverflow: 'ellipsis', maxHeight: 37}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), includeFontPadding: false, width: width, lineHeight: 17,  textAlignVertical: 'center', maxHeight: 37,   overflow: 'hidden',
-  textOverflow: 'ellipsis'}]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), includeFontPadding: false, justifyContent: 'center', alignSelf: 'center', width: width+20, marginLeft: -9, paddingLeft: 15}]}
+                style={[styles.dropdown, isFocus && { borderColor: 'blue'}]}
+                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), includeFontPadding: false,}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14), includeFontPadding: false,}]}
+                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14), includeFontPadding: false, }]}
                 iconStyle={styles.iconStyle}
-               // searchField={}
                 containerStyle={{
-                   // position: 'static',
-                  // zIndex: 1,
-                  alignItems: 'center',
-                  
-                    width: width+30, // Ширина списка может отличаться от инпута
+                    //width: '37%', // Ширина списка может отличаться от инпута
                     borderColor: '#E0F2FE',
                     borderWidth: 1,
                     borderRadius: 8,
-                  //   overflow: 'hidden', 
         //alignSelf: 'flex-start',
                   }}
-                  dropdownPosition="auto"
                 data={list}
                 search
-              //  dropdownPosition='auto'
-                maxHeight={250}
-                itemTextStyle={{ fontSize: ts(12), maxWidth: width,  }}
+                maxHeight={300}
+                itemTextStyle={{ fontSize: ts(12) }}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? nameFilter : nameFilter}
@@ -97,14 +85,11 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         //paddingBottom: 16,
-       // width: 110,
+        width: 110,
         borderRadius: 8,
-      // position: 'absolute', // Важно для позиционирования выпадающего списка
-       // zIndex: 999, // Убедитесь, что контейнер выше других элементов
     },
     dropdown: {
         height: 37,
-      
         borderColor: '#E0F2FE',
         borderWidth: 2,
         borderRadius: 8,
@@ -140,14 +125,11 @@ const styles = StyleSheet.create({
     iconStyle: {
         width: 10,
         height: 10,
-      //  alignContent: 'flex-end',
     },
     inputSearchStyle: {
         height: 37,
         borderRadius: 8,
-        color: 'rgba(178, 179, 179, 1)',
-        borderColor: 'rgba(0, 0, 179, 0)',
-        //,
+        color: '#B2B3B3'
        // fontSize: 16,
     },
 });

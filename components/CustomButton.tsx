@@ -17,9 +17,7 @@ const fontScale = useWindowDimensions().fontScale;
     <TouchableOpacity disabled={disabled} style={{ borderRadius: 8, backgroundColor: '#0072C8', width: 272, height: 40, alignSelf: 'center', justifyContent: 'center', marginBottom: 8}}
       onPress={handlePress}>
         
-      <Text style={{
-        //fontFamily: 'ArialNarrow', 
-        fontSize: ts(14), fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>{title}</Text>
+      <Text style={{ fontSize: ts(14), fontWeight: '400', color: '#F5F5F5', textAlign: 'center', }}>{title}</Text>
 
     </TouchableOpacity >
   );

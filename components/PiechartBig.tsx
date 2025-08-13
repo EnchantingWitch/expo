@@ -4,7 +4,7 @@ import { Text, useWindowDimensions, View } from 'react-native';
 import { PieChart } from "react-native-gifted-charts";
 
 
-type Props = { 
+type Props = {
     totalQuantity: number;
     blueQuantity: number;
     greenQuantity: number;
@@ -164,7 +164,7 @@ const renderLegendComponent = () => {
                   <View style={{flexDirection: 'row', height: 24}}>
                     <View style={{ alignSelf: 'flex-end',marginBottom: -0.5, marginRight: -5  }}>
                     <Image 
-                      style={{ width: 24, height: 24, filter: 'brightness(0) saturate(100%) invert(39%) sepia(65%) saturate(1352%) hue-rotate(331deg) brightness(91%) contrast(92%)', alignItems: 'flex-end' }}
+                      style={{ width: 24, height: 24, tintColor: '#E24831', alignItems: 'flex-end' }}
                       source={require('../assets/images/delta.svg')} 
                     />
                     </View>

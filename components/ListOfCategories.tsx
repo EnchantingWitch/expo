@@ -58,7 +58,7 @@ const ListOfCategories = ({ post, onChange }: Props) => {
 
     const selectedLabel = value 
         ? data.find(item => item.value === value)?.label 
-        : 'Категория замечания';
+        : 'Не выбрано';
 
     return (
         <View style={{width: '96%'}}>
@@ -72,7 +72,7 @@ const ListOfCategories = ({ post, onChange }: Props) => {
                         <View style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
                             <View style={{width: '95%'}}>
                                 <Text style={[styles.selectedTextStyle, { fontSize: ts(14), alignSelf: 'center' }]}>
-                                    {value ? selectedLabel : 'Категория замечания'}
+                                    {value ? selectedLabel : 'Не выбрано'}
                                 </Text>
                             </View>
                             <View style={{width: '5%'}}>
@@ -104,7 +104,10 @@ const ListOfCategories = ({ post, onChange }: Props) => {
                                 Категория замечания
                             </Text>
                             <Text style={[styles.selectedTextStyle, { fontSize: ts(16), paddingBottom: 14, alignSelf: 'center' }]}>
-                                {value ? selectedLabel : 'Не выбрано'}
+                                {value ? selectedLabel : 
+                                                            <Text style={[styles.selectedTextStyle, { fontSize: ts(14), paddingBottom: 2,  alignSelf: 'center' }]}>
+                                                                Не выбрано
+                                                            </Text>}
                             </Text>
                             <TextInput
                                 placeholder="Поиск..."
