@@ -1,29 +1,39 @@
 import DateInputWithPicker2 from '@/components/Calendar+';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
-import DropdownComponent2 from '@/components/ListOfCategories';
+import ListOfSubobj from '@/components/ListOfOrganizations';
+import ListOfSystem from '@/components/ListOfSystem';
+import useDevice from '@/hooks/useDevice';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from "expo-document-picker";
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, Modal, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-//import { Video } from 'react-native-video';
-import ListOfSubobj from '@/components/ListOfSubobj';
-import ListOfSystem from '@/components/ListOfSystem';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { Structure } from '../(tabs)/structure';
-//import { setSeconds } from 'date-fns';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
-import { Image } from 'expo-image';
-import * as Sharing from 'expo-sharing';
+import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Animated, {
   clamp,
   useAnimatedStyle,
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
+import { Structure } from '../(tabs)/structure';
 
+
+const listCategories = [
+    { label: 'Влияет на ИИ', value: 'Влияет на ИИ' },
+    { label: 'Влияет на АИИ', value: 'Влияет на АИИ' },
+    { label: 'Влияет на КО', value: 'Влияет на КО' },
+    { label: 'Влияет на АКО', value: 'Влияет на АКО' },
+    { label: 'Влияет на под. ЭЭ', value: 'Влияет на под. ЭЭ' },
+    { label: 'Влияет на под. газа', value: 'Влияет на под. газа' },
+    { label: 'Влияет', value: 'Влияет' },
+    { label: 'Не влияет на ПНР', value: 'Не влияет на ПНР' },
+    { label: 'Не влияет', value: 'Не влияет' },
+];
 
 export type ListToDrop = {
   label: string;
@@ -32,15 +42,15 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const [listSubObj, setListSubObj] = useState<ListToDrop[]>([]);
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [upLoading, setUpLoading] = useState(false);
   const [array, setArray] = useState<Structure[]>([]);//данные по структуре
-  //const listSubObj = [];//список подобъектов из структуры
   const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
-  //const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
   const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
   const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
   const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
@@ -50,22 +60,19 @@ export default function CreateNote() {
   const [systemName, setSystemName] = useState(' ');
   const [description, setDescription] = useState('');
   const [execut, setExecut] = useState('');
-  const [userName, setUserName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [category, setCategory] = useState('');
   const [comExp, setComExp] = useState('');
   const [planDate, setPlanDate] = useState(' ');//добавить в json
-  //const [id, setId] = useState('0');
   const [inputHeight, setInputHeight] = useState(40);
-  const [bufsubobj, setBufsubobj] = useState('');
-  const [bufsubobjS, setBufsubobjS] = useState('');
   const [bufsystem, setBufsystem] = useState('');
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
-  const [click, setClick] = useState(false);//
   const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
 
   const [accessToken, setAccessToken] = useState<any>('');
-
+  const [organisationFrAsync, setOrganisationFrAsync] = useState<any>('');
+  const [fullNameFrAsync, setFullNameFrAsync] = useState<any>('');//поменяла на userID
+  const [disabled, setDisabled] = useState(false); //для кнопки
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -77,15 +84,12 @@ export default function CreateNote() {
   const {codeCCS} = useLocalSearchParams();//получение codeCCS объекта
   const {capitalCSName} = useLocalSearchParams();
   
-  const getToken = async () => {
+  const getToken = async (keyToken, setF) => {
     try {
-        const token = await AsyncStorage.getItem('accessToken');
-        //setAccessToken(token);
+        const token = await AsyncStorage.getItem(keyToken);
         if (token !== null) {
-            console.log('Retrieved token:', token);
-            setAccessToken(token);
-            //вызов getAuth для проверки актуальности токена
-            //authUserAfterLogin();
+            console.log('Retrieved token:', keyToken, '-', token);
+            setF(token);
         } else {
             console.log('No token found');
             router.push('/sign/sign_in');
@@ -95,7 +99,16 @@ export default function CreateNote() {
     }
 };
 
-  const [form, setForm] = useState({ video: null, image: null });
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setSubObject(selectedSubObject);
+    setSystemName(' '); // Явный сброс системы
+};
+
+
+console.log(JSON.stringify({
+          subObject: subObject,
+          system: systemName,
+        }))
 
   const TwoFunction = () => {
 
@@ -120,15 +133,9 @@ export default function CreateNote() {
   }, [singlePhoto]);
 
   const selectPhoto = async () => {
-    // Opening Document Picker to select one file
     try {
-   
       const res = await ImagePicker.launchImageLibraryAsync({
-
       });
-
-      // Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
         setSinglePhoto(res.assets[0].uri)
       }
@@ -153,11 +160,9 @@ export default function CreateNote() {
     try {
       const res = await ImagePicker.launchCameraAsync({
       });
-
-      // Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
         setSinglePhoto(res.assets[0].uri)
+        console.log(res.assets[0].uri)
       }
       // Setting the state to show single file attributes
 
@@ -181,8 +186,6 @@ export default function CreateNote() {
     setSinglePhoto('');
     setWayToGetPhoto(0);
   };
-  //console.log(noteListSystem);
- // console.log(noteListSystem);
   const getStructure = async () => {
         try {
           const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/commons/getStructureCommonInf/'+codeCCS,
@@ -195,8 +198,6 @@ export default function CreateNote() {
           const json = await response.json();
           setArray(json);
           console.log('ResponseSeeStructure:', response);
-          console.log(typeof(json));
-          console.log('array of subobj',array);
           if (response.status === 200){
             setStatusReq(true);//для выпадающего списка
           }
@@ -204,25 +205,51 @@ export default function CreateNote() {
         } catch (error) {
           console.error(error);
         } finally {
-          
-          {/*if(exit){Alert.alert('', 'Необходимо загрузить данные в структуру', [
-            {text: 'OK', onPress: () => console.log('OK Pressed')},
-         ]); 
-         router.replace({pathname: '/(tabs)/two', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
-        }*/}
         }
       };
-     
+
+ const selectFile = async () => {
+      // Opening Document Picker to select one file
+      try {
+        const res = await DocumentPicker.getDocumentAsync({
+          // Provide which type of file you want user to pick
+          //type: "*/*",
+          //Ограничение загружаемых типов файлов (mime type)
+          type: [
+            //'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' 
+            'image/*',// 'image/jpeg'
+          ],
+          copyToCacheDirectory: true, 
+          
+        });
+        // Printing the log realted to the file
+        console.log('res of DocumentPicker : ' + JSON.stringify(res));
+        // Setting the state to show single file attributes
+        if (!res.canceled) {
+        setSinglePhoto(res.assets[0].uri); }
+        console.log('RES PHOTO', res);
+      } catch (err) {
+        setSinglePhoto('');
+        // Handling any exception (If any)
+       if (DocumentPicker.Cancel(err)) {
+          // If user canceled the document selection
+          alert('Canceled');
+        } else {
+          // For Unknown Error
+          alert('Unknown Error: ' + JSON.stringify(err));
+          throw err;
+        }
+      }
+    };
   //console.log('noteListSubobj', noteListSubobj);
 
   useEffect(() => {
-    getToken();
+    getToken('accessToken', setAccessToken);
+    getToken('userID', setFullNameFrAsync);
+    getToken('organisation', setOrganisationFrAsync);
     //запрос на структура для получение данных на выпадающие списки и прочее
-    if(codeCCS && req&& accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    if(codeCCS && req&& accessToken){getStructure(); setReq(false); }//вызов происходит только один раз
     
-  /*  if (numberII && execut){
-      submitData();
-    }*/
     if (systemName){
       setBufsystem(systemName);
     }
@@ -231,14 +258,10 @@ export default function CreateNote() {
       
       if(systemName != bufsystem){
         setBufsystem(systemName);
-      console.log(systemName, 'systemName: use if(systemName )');
+     
       if (systemName != ' ' ){
         const filtered = array.filter(item => item.subObjectName === subObject);
-        console.log(filtered[0].data);
         const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
-       // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-        console.log(filteredS.length, 'filteredS.length');
-        console.log(filteredS, 'filteredS');
         if(filteredS.length != 0){
           console.log('1');
           setNumber(filteredS[0].numberII);
@@ -254,13 +277,6 @@ export default function CreateNote() {
         //}
       }
       }  
-
-     /* if (numberII != '' && execut != ''){
-        submitData();
-      }
-     
-    }*/
-        
   }, [accessToken, codeCCS, req, statusReq, noteListSubobj, subObject, systemName, numberII, execut]);
 
  // Формирование списка подобъектов
@@ -306,35 +322,36 @@ useEffect(() => {
   }
 }, [systemName, subObject, array]);
 
-console.log(JSON.stringify({
-  //iiNumber: '1',
-  iiNumber: numberII,
-  subObject: subObject,
-  //systemName: 'Сети связи',
-  systemName: systemName,
-  description: description,
-  commentStatus: "Не устранено",
-  executor: execut,
-  userName: 'userName',
-  startDate: startDate,
-  commentCategory: category,
-  commentExplanation: comExp,
-  codeCCS: codeCCS,
-  endDatePlan: planDate,
-  endDateFact: ' '
-}));
-
   const submitData = async () => {
+    console.log(JSON.stringify({
+      iiNumber: numberII,
+      subObject: subObject,
+      systemName: systemName,
+      description: description,
+      commentStatus: "Не устранено",
+      executor: execut,
+      userName: fullNameFrAsync.toString(),
+      startDate: startDate,
+      commentCategory: category,
+      commentExplanation: comExp,
+      codeCCS: codeCCS,
+      endDatePlan: planDate,
+      endDateFact: ' '
+  }));
+
+     setDisabled(true);
     if(subObject ==='' && systemName===' ' &&  description!=='' && category!==''){
       Alert.alert('', 'Заполните поля подобъекта, системы. Если выпадающий список пустой, загрузите структуру.', [
                               {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                 setDisabled(false);
                  return;
                }
 
     if(subObject ==='' && systemName===' ' &&  description==='' && category===''){
        Alert.alert('', 'Заполните поля подобъекта, системы, содержания замечания, категории', [
                                {text: 'OK', onPress: () => console.log('OK Pressed')}])
-                  return;
+                 setDisabled(false);
+                 return;
                 }
 
     try {
@@ -346,15 +363,13 @@ console.log(JSON.stringify({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          //iiNumber: '1',
           iiNumber: numberII,
           subObject: subObject,
-          //systemName: 'Сети связи',
           systemName: systemName,
           description: description,
           commentStatus: "Не устранено",
           executor: execut,
-          userName: 'userName',
+          userName: fullNameFrAsync.toString(),
           startDate: startDate,
           commentCategory: category,
           commentExplanation: comExp,
@@ -363,38 +378,37 @@ console.log(JSON.stringify({
           endDateFact: ' '
         }),
       });
+
+      if(response.status === 200){
+        Alert.alert('', 'Замечание добавлено', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ])
+      }
       
       const id = await response.text()
-
-      // Обработка ответа, если необходимо
-      console.log(id);
-      let numId = Number(id);
-      console.log(numId);
-      //setId(id);
-      //не выводится в консоль
       console.log('ResponseCreateNote:', response);
-      
-      //Тут добавила
-      const photoToUpload = singlePhoto;
-      const body = new FormData();
-      //data.append('name', 'Image Upload');
-      body.append("photo", {
-        uri: photoToUpload,
-        type: 'image/*',
-        name: 'photoToUpload'
-      })
-      console.log(body);
-      for (let [key, value] of body) {
-        console.log(key);
-        console.log(value);
-    }
-    console.log(singlePhoto.uri, 'singlePhoto');
-    console.log(photoToUpload.uri, 'photoToUpload');
-      //body.append("photo", photoToUpload);
-      // Please change file upload URL
-      //alert(id);
 
-      let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/files/uploadPhotos/' + id);
+    if(singlePhoto!=''){
+      const body = new FormData();
+  
+      const base64Data = singlePhoto.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteArrays = new Uint8Array(byteCharacters.length);
+
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays[i] = byteCharacters.charCodeAt(i);
+      }
+
+      const blob = new Blob([byteArrays], { type: 'image/jpeg' });
+      console.log('byteArrays', byteArrays)
+
+      // 2. Создаем File (если нужно имя файла)
+      const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
+
+      // 3. Добавляем в FormData
+      body.append('photo', file); // Ключевое отличие: передаем File, а не URL
+
+      let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/addPhoto/' + id);
       console.log(str);
 
       let res = await fetch(
@@ -404,34 +418,35 @@ console.log(JSON.stringify({
           body: body,
           headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
+            
           }
         }
       );
       console.log('ResponsePhoto:', res);
-      
-      //до сюда
+      }
+
       if(response.status === 200){
         Alert.alert('', 'Замечание добавлено', [
              {text: 'OK', onPress: () => console.log('OK Pressed')},
           ])
       }
+      if(response.status != 200){
+        Alert.alert('', 'Замечание не добавлено', [
+             {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ])
+      }
     } catch (error) {
-      console.error('Error:', error);
+      setDisabled(false);
+    /*  Alert.alert('', 'Произошла ошибка при создании замечания: ' + error, [
+                   {text: 'OK', onPress: () => console.log('OK Pressed')},
+                ])*/
     } finally {
+      setDisabled(false);
       setUpLoading(false);
       //  alert(id);
       router.replace({pathname: '/(tabs)/two', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
     }
   }
-
-  const chooseCameraOrPhoto =  () => {
-       Alert.alert('', 'С помощью чего хотите добавить фотографию?', [
-             //{text: 'Отмена', onPress: () => console.log('OK Pressed')},
-             {text: 'Камера', onPress: () => setWayToGetPhoto(1)}, 
-             {text: 'Альбом', onPress: () => setWayToGetPhoto(2)}
-          ],)
-  };
 
    //зумирование фото
 
@@ -473,55 +488,21 @@ console.log(JSON.stringify({
     ],
   }));
 
-   //перессылка фотографии
-    async function shareImage(imageUri: string) {
-      let tempUri = imageUri;
-    
-      try {
-        if (!(await Sharing.isAvailableAsync())) {
-          alert('Sharing не доступен');
-          return;
-        }
-    
-        // Обработка base64
-        if (imageUri.startsWith('data:')) {
-          const mimeType = imageUri.match(/^data:(image\/\w+);/)?.[1] || 'image/jpeg';
-          const ext = mimeType.split('/')[1] || 'jpg';
-          const base64Data = imageUri.split(',')[1];
-    
-          if (base64Data.length > 10 * 1024 * 1024) {
-            alert('Изображение должно быть меньше 10MB');
-            return;
-          }
-    
-          tempUri = `${FileSystem.cacheDirectory}image_${Date.now()}.${ext}`;
-          await FileSystem.writeAsStringAsync(tempUri, base64Data, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-        }
-    
-        await Sharing.shareAsync(tempUri, {
-          mimeType: 'image/*',
-          dialogTitle: 'Поделиться изображением',
-          UTI: 'public.image',
-        });
-    
-      } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось отправить');
-      } finally {
-        if (tempUri !== imageUri) {
-          await FileSystem.deleteAsync(tempUri).catch(console.warn);
-        }
-      }
-    }
-
-
   return (
-    <ScrollView style={styles.container}>
-      <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
-        <View style={{ flex: 1, alignItems: 'center' }}>
+    <KeyboardAwareScrollView
+          style={styles.container}
+          enableOnAndroid={true}
+          extraScrollHeight={100}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+      <View style={[styles.container, {
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center'
+      }]}>
+        <View style={{ flex: 1,  alignItems: 'center',
+        width: isDesktopWeb? '148%' :'98%'}}>
 
            {/*}   <View style={{flexDirection: 'row', width: '96%', alignSelf: 'center' }}>
         
@@ -540,10 +521,12 @@ console.log(JSON.stringify({
             <View style={{width: '100%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Подобъект</Text>
               <ListOfSubobj 
-                  list={listSubObj} 
+                  data={listSubObj} 
                   post={subObject} 
-                  statusreq={statusReq} 
-                  onChange={(subobj) => setSubObject(subobj)}
+                  status={statusReq}
+                  label='Подобъект'
+                  title = {subObject? subObject : 'Не выбрано'}
+                  onChange={(subobj) => handleSubObjectChange(subobj)}
               />
               {/*<ListOfSubobj post = {subObject} list={listSubObj} statusreq={statusReq} onChange = {(subObj) => setSubObject(subObj)}/>*/}
              
@@ -553,8 +536,11 @@ console.log(JSON.stringify({
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
           <ListOfSystem 
-            list={listSystem} 
-            buf={bufsystem} 
+            list={listSystem}
+            buf={bufsystem}
+            /*status={statusReq} 
+            label='Система'
+            title=''*/
             post={systemName} 
             onChange={(system) => setSystemName(system)}/>
 
@@ -563,42 +549,39 @@ console.log(JSON.stringify({
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
-            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight),fontSize: ts(14)}]} // Минимальная высота 40
+            //style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight),fontSize: ts(14)}]} // Минимальная высота 40
             multiline
             onContentSizeChange={e=>{
               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
               if(inputH>120) inputH =100
               setInputHeight(inputH)
           }}
+          style={[
+              styles.input, 
+              {
+                height: Math.max(42, inputHeight),
+               // minHeight: 42, // Минимальная высота
+               // maxHeight: 100, // Максимальная высота
+                fontSize: ts(14),
+                lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center',
+              }
+            ]}
             //placeholder="Содержание замечания"
+            maxLength={250}
             placeholderTextColor="#111"
             onChangeText={setDescription}
             value={description}
           />
-          {/* <Link href='/notes/add_photo' asChild>
-            <Text style={{ marginBottom: 20, color: '#0000CD' }}>Фото</Text>
-          </Link>
-          <TouchableOpacity>
-            {form.video ? (
-              <Video source={{ uri: form.video.uri }} />
-            ) : null}
-          </TouchableOpacity>
-          <TouchableOpacity>
-            {form.image ? (
-              <Image source={{ uri: form.image.uri }} />
-            ) : null}
-          </TouchableOpacity>*/}
-
-         {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель</Text>
-          <TextInput
-            style={styles.input}
-            //placeholder="Исполнитель"
-            placeholderTextColor="#111"
-            onChangeText={setExecut}
-            value={execut}
-            editable={false}
-          />*}
-
+          {description.length >=200? 
+                      <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
+                        Можете ввести еще {250-description.length}{' '}
+                        {(250-description.length) % 10 === 1? <Text>символ</Text>
+                        : (250-description.length) % 10 === 2 || (250-description.length) % 10 === 3 || (250-description.length) % 10 === 4? <Text>символа</Text>
+                        : <Text>символов</Text>}
+                      </Text>
+                    : '' }
           
           {/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
                 <View style={{flexDirection: 'row',width: '100%',}}>
@@ -611,98 +594,100 @@ console.log(JSON.stringify({
                 </View>
           </View>
 
-          <View style={{flexDirection: 'row',}}>
-          <DateInputWithPicker theme = 'min' onChange={(dateString) => setStartDate(dateString)}/>{/* Дата выдачи*/}
-          <DateInputWithPicker2 statusreq={true} post={planDate} theme = 'min' onChange={(dateString) => setPlanDate(dateString)}/>{/* Дата плановая устранения*/}
+           <View style={{flexDirection: 'row', width: '96%'}}>
+            <View style={{width: '50%',  alignItems: 'center'}}>
+              <DateInputWithPicker theme='min' onChange={(dateString) => setStartDate(dateString)}/>
+            </View>
+            <View style={{width: '50%', }}>
+              <DateInputWithPicker2 statusreq={true} post={planDate} theme='min' onChange={(dateString) => setPlanDate(dateString)}/>
+            </View>
           </View>
 
           
  
-            <View style={{width: '100%', }}>
-              {singlePhoto ? (
-                <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center'}}> 
-                  <View style={{width: '48%', alignSelf: 'center'}}>
-                    <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
-                  </View>
-                  <View style={{width: '33%'}}>
-                    <TouchableOpacity onPress={() => setModalVisible(true)}> 
-                      <Image
-                      source={{ uri: singlePhoto }}
-                      style={styles.image}
-                      />
-                    </TouchableOpacity>
-
-                    <Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={modalVisible}
-                      onRequestClose={() => setModalVisible(false)}
-                    >
-                      <GestureHandlerRootView style={{ flex: 1 }}>
-                        <View style={styles.modalContainer}>
-                          <View style={styles.modalContent}>
-
-                            <View style={{flexDirection: 'row', }}>
-
-
-                              <TouchableOpacity 
-                                onPress={() => shareImage(singlePhoto)}
-                                style={{alignItems: 'center', width: '50%' }}
-                              >
-                                 <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
-                              </TouchableOpacity>
-
-                              <TouchableOpacity 
-                                onPress={() => setModalVisible(false)} 
-                                style={{alignItems: 'center', width: '50%' }}
-                              >
-                                <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
-                              </TouchableOpacity>
+            <View style={{width: '100%'}}>
+                  {singlePhoto ? (
+                    <View style={{ marginBottom: 8, flexDirection: 'row', alignSelf: 'center', width: '100%'}}> 
+                      <View style={{width: '50%', alignSelf: 'center'}}>
+                        <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото выбрано</Text>
+                      </View>
+                      <View style={{width: '42%',justifyContent: 'flex-end',  flexDirection: 'row'}}>
+                      <View style={{ width: '78%', backgroundColor: 'red', alignContent: 'center'}}>
+                        <TouchableOpacity onPress={() => setModalVisible(true)}>
+                          <Image
+                            source={{ uri: singlePhoto }}
+                            style={styles.image}
+                          />
+                        </TouchableOpacity>
+                        
+                        <Modal
+                          animationType="slide"
+                          transparent={true}
+                          visible={modalVisible}
+                          onRequestClose={() => setModalVisible(false)}
+                        >
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                            <View style={styles.modalContainer}>
+                              <View style={styles.modalContent}>
+                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
+                         {/*}         <TouchableOpacity 
+                                    onPress={() => shareImage(singlePhoto)}
+                                    style={{alignItems: 'center', width: '50%' }}
+                                  >
+                                    <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
+                                  </TouchableOpacity>*/}
+                                  <TouchableOpacity 
+                                    onPress={() => setModalVisible(false)} 
+                                    style={{alignItems: 'center', width: '50%' }}
+                                  >
+                                    <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
+                                  </TouchableOpacity>
+                                </View>
+                                
+                                <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
+                                  <Animated.View style={animatedStyle}>
+                                    <Image
+                                      source={{uri: singlePhoto}}
+                                      style={styles.imageModal}
+                                      contentFit="contain"
+                                      transition={200}
+                                    />
+                                  </Animated.View>
+                                </GestureDetector>
+                              </View>
                             </View>
-                            
-                            <GestureDetector gesture={Gesture.Simultaneous(pinchGesture, panGesture)}>
-                              <Animated.View style={animatedStyle}>
-                                <Image
-                                  source={{uri: singlePhoto}}
-                                  style={styles.imageModal}
-                                  contentFit="contain"
-                                  transition={200}
-                                />
-                              </Animated.View>
-                            </GestureDetector>
-                          </View>
-                        </View>
-                      </GestureHandlerRootView>
-                    </Modal>
-
-                  </View>
-                  <View style={{width: '10%', alignSelf: 'center' }}>
-                    <TouchableOpacity onPress={cancelPhoto}  style = {{alignSelf: 'flex-end', width: '70%', }}>
-                      <Ionicons name='close-outline' size={30} />
-                    </TouchableOpacity>
-                  </View>
-                  
-              </View>
-              ) : (
-              <View style={{ marginBottom: 8,  flexDirection: 'row'}}>
-                <View style={{width: '50%'}}>
-                  <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
+                          </GestureHandlerRootView>
+                        </Modal>
+                      </View>
+                      <View style={{ alignSelf: 'center' }}>
+                        <TouchableOpacity onPress={cancelPhoto} style={{}}>
+                          <Ionicons name='close-outline' size={30} />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    </View>
+                  ) : (
+                    <View style={{ marginBottom: 8, flexDirection: 'row'}}>
+                      <View style={{width: '50%'}}>
+                        <Text style={{textAlign: 'center', fontSize: ts(14)}}>Фото не выбрано</Text>
+                      </View>
+                      <View style={{width: '48%'}}>
+                        <TouchableOpacity onPress={selectFile} style={{alignSelf: 'flex-end', width: '20%'}}>
+                          <Ionicons name='image-outline' size={30}></Ionicons>
+                        </TouchableOpacity> 
+                      </View>
+                    </View>
+                  )}
                 </View>
-                <View style={{width: '46%'}}>
-                  <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
-                    <Ionicons name='image-outline' size={30}></Ionicons>
-                  </TouchableOpacity> 
-                  </View>
-              </View>
-              )
-              }
-            </View>
 
-           
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Категория замечания</Text>
-          <DropdownComponent2 onChange ={(category) => setCategory(category)}/>
-
+           <ListOfSystem 
+            list={listCategories}
+            title='Категория замечания'
+            post={category} 
+            onChange={(category) => setCategory(category)}/>
+         
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
@@ -718,14 +703,14 @@ console.log(JSON.stringify({
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
             <CustomButton
+              disabled={disabled}
               title="Добавить замечание"
               handlePress={TwoFunction} // Вызов функции отправки данных
             // isLoading={upLoading} // Можно добавить индикатор загрузки, если нужно
             />
       </View>
       
-      </SafeAreaView>
-    </ScrollView>
+      </KeyboardAwareScrollView>
   );
 }
 

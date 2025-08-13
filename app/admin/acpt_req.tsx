@@ -1,4 +1,5 @@
 import CustomButton from '@/components/CustomButton';
+import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -25,12 +26,14 @@ type Req = {
 };
 
 export default function TabOneScreen() {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
   const [data, setData] = useState<Req[]>([]);
   const { idReq } = useLocalSearchParams();
    const [checkedItems, setCheckedItems] = useState({});
    const [accessToken, setAccessToken] = useState<any>('');
   const fontScale = useWindowDimensions().fontScale;
+  const [disabled, setDisabled] = useState(false); //для кнопки
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
@@ -80,24 +83,33 @@ export default function TabOneScreen() {
     }));
 };
 
+const chooseAllCheckbox = () => {
+  Object.values(data).forEach(item => {
+  const fieldValue = item.codeCCS;
+  toggleCheckbox(fieldValue);
+});
+}
+
 const handleSubmit = async ()  => {
+  setDisabled(true);
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
   console.log('Selected IDs:', selectedIds);
   console.log(JSON.stringify({
-    id : data.userId,
+    id : idReq,
     objects : selectedIds,
   }));
   try {
     //const id = await AsyncStorage.getItem('userID');
     const body = new FormData();
       //data.append('name', 'Image Upload');
-      body.append("id", data.userId);
+      body.append("id", idReq);
+      //body.append("id", data.userId);idReq
       body.append("objects", selectedIds);
     const response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/admin/set_objects',
       {method: 'POST',
         headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'multipart/form-data'
+        
         },
       body: body
     }
@@ -109,9 +121,14 @@ const handleSubmit = async ()  => {
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
     }
   } catch (error) {
+    Alert.alert('', 'Произошла ошибка при акцептовании: ' + error, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
     console.error(error);
+    setDisabled(false);
   } finally {
     router.push('/admin/requests');
+    setDisabled(false);
     //setLoading(false);
 
   }
@@ -124,23 +141,47 @@ const handleSubmit = async ()  => {
     if (idReq && accessToken) { getReq(); }
   }, [idReq, accessToken]);
 
-  const renderItem = ({ item }) => (
-    <View style={{ borderRadius: 5, backgroundColor: '#E0F2FE', flexDirection: 'row', height: 37, marginBottom: '5%',}}>
-                <Checkbox
-                    value={!!checkedItems[item.codeCCS]}
-                    onValueChange={() => toggleCheckbox(item.codeCCS)}
-                    color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
-                    style={{alignSelf: 'center'}}
-                />
-                
-                <Text style={[ { marginLeft: 8,fontSize: ts(14), alignSelf: 'center'}]}>{item.capitalCSName}</Text>
-            </View>
-  );
+   const renderItem = ({ item }) => (
+        <View style={{ 
+         
+          
+          flexDirection: 'row', 
+          width: '100%', 
+           // Заменяем height на minHeight
+          marginBottom: 15,
+          alignItems: 'center', // Центрируем элементы по вертикали
+        }}>
+          <Checkbox
+            style={{ marginRight: 8, }}// Добавляем отступы
+            value={!!checkedItems[item.codeCCS]}
+            onValueChange={() => toggleCheckbox(item.codeCCS)}
+            color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
+          />
+          <View style={{ 
+            flex: 1, // Занимает всё доступное пространство
+            justifyContent: 'center', 
+            paddingHorizontal: 8, // Добавляем отступы
+            backgroundColor: '#E0F2FE', minHeight: 42, borderRadius: 5, 
+          }}>
+            <Text 
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              style={{
+                fontSize: ts(14),
+                // textAlign: 'left', // Выравнивание текста (по умолчанию 'left')
+                flexShrink: 1, // Позволяет тексту сжиматься и переноситься
+              }}
+            >
+              {item.capitalCSName}
+            </Text>
+          </View>
+        </View>
+      );
 
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={styles.container}>
+      <View style={[styles.container, { width: isDesktopWeb && screenWidth>900? 900 : '100%', alignSelf: 'center'}]}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Пользователь</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
@@ -165,24 +206,24 @@ const handleSubmit = async ()  => {
       editable={false}
       value={data.organisation}
     />
-    {/*<Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
+    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Дата заявки</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
       placeholderTextColor="#111"
       editable={false}
-      value='{item.date}'
-    />*/}
-     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
-     
+      value={data.creationTime}
+    />
+     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: 15, textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
+    {/*} <TouchableOpacity onPress={chooseAllCheckbox}>Выбрать все</TouchableOpacity>*/}
         <FlatList
-          style={{ width: '96%' }}
+          style={{ width: '96%', flex: 1 }}
           data={data.objectsToAdd}
           keyExtractor={(item, index) => index.toString()} // Используйте уникальное значение для ключа
           renderItem={renderItem}
         />
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-      <CustomButton title='Акцептовать заявку' handlePress={handleSubmit}/>
+      <CustomButton disabled={disabled} title='Акцептовать заявку' handlePress={handleSubmit}/>
       </View>
     </SafeAreaView>
   );

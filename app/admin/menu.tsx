@@ -155,7 +155,11 @@ import { StyleSheet, TouchableOpacity, useWindowDimensions, View } from "react-n
                       handlePress={()=>{router.push('./objs')}} 
                   //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
         />
-
+        <CustomButton
+                      title="Справочник организаций"
+                      handlePress={()=>{router.push('./organizations')}} 
+                  //   isLoad={load} // Можно добавить индикатор загрузки, если нужно
+        />
     </View>
   );
 };

@@ -1,4 +1,5 @@
 import List from '@/components/SystemsForTwo';
+import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useNavigation } from 'expo-router';
@@ -11,6 +12,7 @@ type UserInfo = {
   organisation: string;
   fullName: string;
   phoneNumber: string;
+  registrationDate: string;
 };
 
 type Users = {
@@ -22,6 +24,7 @@ type Users = {
 };
 
 const DirectionLayout = () => {
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   //const router = useRouter();
   const [accessToken, setAccessToken] = useState<string>('');
   const [chooseOrg, setChooseOrg] = useState<string>('');
@@ -80,7 +83,7 @@ const DirectionLayout = () => {
       const json = await response.json();
       setData(json);
       setFilteredData(json); // Инициализируем отфильтрованные данные
-      
+      console.log(json);
       if(response.ok) {
         setStatusGetUsers(true);
         // Собираем уникальные организации
@@ -141,29 +144,44 @@ const DirectionLayout = () => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1, alignItems: 'center' }}>
+        <View style={{flex: 1, alignItems: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}}>
         <TextInput 
-            style={{ borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8,  width: '96%' }}
+            style={{ height: 42, // Фиксированная высота
+              minHeight: 42, // Минимальная высота
+              maxHeight: 42, // Максимальная высота
+              borderWidth: 1,
+              borderColor: '#D9D9D9',
+              borderRadius: 8,
+              paddingHorizontal: 15,
+              marginBottom: 8,
+              backgroundColor: '#fff',
+              includeFontPadding: false, // Убираем дополнительные отступы для шрифта
+              textAlignVertical: 'center', // Выравнивание текста по вертикали
+              width: '96%'
+              }}
             placeholder="Поиск по ФИО"
+            placeholderTextColor={'#B2B3B3'}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-        <View style={{ flexDirection: 'row', padding: 10, justifyContent: 'space-between',width: '96%'  }}>
+        
+        <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', width: '96%',  }}>
           
           <List 
             list={listOrg} 
             nameFilter='Организация' 
             onChange={setChooseOrg}
-            style={{ width: '30%', marginHorizontal: 5 }}
+             width={120}
           />
           <List 
             list={listAccess} 
             nameFilter='Всего' 
             onChange={setChooseAccess}
-            style={{ width: '30%' }}
+            width={120}
           />
         </View>
 
-        <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#D9D9D9', paddingVertical: 8 }}>
+        <View style={{ width: '96%', flexDirection: 'row',  paddingVertical: 8 }}>{/**borderBottomWidth: 1, borderBottomColor: '#D9D9D9', */}
           <View style={{ width: '40%' }}>
             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>ФИО пользователя</Text>
           </View>
@@ -175,12 +193,11 @@ const DirectionLayout = () => {
           </View>
         </View>
 
-        <View style={{ flex: 1, width: '96%', alignContent: 'center' }}>
+        <View style={{ flex: 1, width: '96%', alignContent: 'center', marginBottom: 12, }}>
           {isLoading ? (
             <ActivityIndicator size="large" style={{ marginTop: 20 }} />
           ) : (
             <FlatList
-            style={{width: '100%'}}
             data={filteredData}
             keyExtractor={({id}) => id}
             renderItem={({item}: {item: Users}) => (
@@ -197,11 +214,12 @@ const DirectionLayout = () => {
                organisation: userInfo.organisation!==''? userInfo.organisation : 'Не указано',  
                fullName: userInfo.fullName!==''? userInfo.fullName : 'Не указано',  
                id: item.id, 
-               role: item.role }})}  }>
-         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row',   height: 37, alignContent: 'center',  marginBottom: '5%', borderRadius: 8}}>
+               role: item.role, 
+               registrationDate: userInfo.registrationDate !==''? userInfo.registrationDate : 'Не указано'}})}  }>
+         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row',   height: 42, alignContent: 'center',  marginBottom: 15, borderRadius: 8}}>
  
              <View style={{width: '40%', justifyContent: 'center'}}>
-             <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 3  }}>{item.userInfo.fullName}</Text>
+             <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 5  }}>{item.userInfo.fullName}</Text>
              </View>
  
              <View style={{width: '45%', justifyContent: 'center'}}>
@@ -210,14 +228,15 @@ const DirectionLayout = () => {
      <Text key={organisation}>{detail.organisation}</Text>
    ))}
      */}
-     <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', marginStart: 3 }}> {item.userInfo.organisation}</Text>
+     <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center', marginStart: 3 }}  numberOfLines={2} // ограничивает 2 строками
+  ellipsizeMode="tail"> {item.userInfo.organisation}</Text>
         
             {/*} <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left', marginStart: 3 }}> {item.userInfo[parseInt(item.id, 10)]?.organisation || 'Не указано'}</Text>
         */}
        
              </View>    
 
-             <View style={{width: '15%', justifyContent: 'center', alignItems: 'flex-end'}}>
+             <View style={{width: '15%', justifyContent: 'center', alignItems: 'center' }}>
             
              {(item.isEnabled ===true) && ( <Ionicons name="checkbox" size={25} color="#0072C8" />)}
              {(item.isEnabled ===false) &&  <Ionicons name="square" size={25} color="#F0F9FF" />}
@@ -228,7 +247,7 @@ const DirectionLayout = () => {
      )}
      />
           )}
-        </View>
+        </View></View>
       </View>
     </SafeAreaView>
   );

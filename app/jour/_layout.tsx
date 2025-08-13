@@ -1,10 +1,15 @@
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { useColorScheme } from '@/components/useColorScheme';
 import { Stack } from 'expo-router';
 import React from 'react';
 import { useWindowDimensions } from 'react-native';
 import { getGlobalStyles } from '../../constants/globalStyles';
 
+
+// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
   const fontScale = useWindowDimensions().fontScale;
   const globalStyles = getGlobalStyles(fontScale);
 
@@ -12,13 +17,33 @@ export default function TabLayout() {
 
     <Stack
       screenOptions={{
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
       }}>
       
       <Stack.Screen
-        name="see_note"
+        name="jour"
+        options={{
+          title: 'Smthing checked',
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#FFFFFF',  },
+          headerTitleStyle: globalStyles.headerTitleStyle,
+        }}
+      />
+      <Stack.Screen
+        name="create_jour"
+        options={{
+          title: 'Краткое описание работ',
+          headerTitleAlign: 'center',
+          headerTintColor: '#1E1E1E',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#FFFFFF',  },
+          headerTitleStyle: globalStyles.headerTitleStyle,
+        }}
+      />
+      <Stack.Screen
+        name="see_jour"
         options={{
           title: 'Просмотр',
           headerTitleAlign: 'center',
@@ -29,9 +54,9 @@ export default function TabLayout() {
         }}
       />
       <Stack.Screen
-        name="change_note"
+        name="change_jour"
         options={{
-          title: 'Редактирование',
+          title: 'Краткое описание работ',
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
@@ -39,16 +64,6 @@ export default function TabLayout() {
           headerTitleStyle: globalStyles.headerTitleStyle,
         }}
       />
-      <Stack.Screen
-        name="create_note"
-        options={{
-          title: 'Создание замечания',
-          headerTitleAlign: 'center',
-          headerTintColor: '#1E1E1E',
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
-          headerTitleStyle: globalStyles.headerTitleStyle,
-        }}
-      />
+     
     </Stack>
   )}

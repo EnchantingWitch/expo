@@ -1,8 +1,10 @@
 import { } from '@/components/Themed';
+import useDevice from '@/hooks/useDevice';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalSearchParams, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Object = {
   capitalCSName: string;
@@ -10,6 +12,7 @@ type Object = {
 };
 
 export default function TabOneScreen() {
+const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
 const fontScale = useWindowDimensions().fontScale;
 const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
@@ -22,6 +25,17 @@ const [data, setData] = useState<Object[]>([]);
 const {token}=useGlobalSearchParams();
 
 //const [isGetTok, setIsGetTok] = useState(true);
+const navigation = useNavigation();
+    
+  useEffect(() => {
+        navigation.setOptions({
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.replace('/admin/menu')}>
+              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
+            </TouchableOpacity>
+          ),
+        });
+  }, [navigation]);
       
         useEffect(() => {
           if (token){setAccessToken(token);}
@@ -58,10 +72,11 @@ const {token}=useGlobalSearchParams();
           'Content-Type': 'application/json'
         }}
       );
-      console.log('responseGetAllowedObjects',response)
+      console.log('getAll',response)
+      
       const json = await response.json();
       setData(json);
-      
+      console.log('getAll json',json)
     } catch (error) {
       console.error(error);
     } finally {
@@ -72,7 +87,7 @@ const {token}=useGlobalSearchParams();
  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={styles.container}>
+    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
    
    
     <FlatList
@@ -80,14 +95,27 @@ const {token}=useGlobalSearchParams();
         data={data}
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,  justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
+          <TouchableOpacity onPress={() =>{router.push({pathname: '/admin/change_obj', params: 
+          { capitalCSId: item.capitalCSId, 
+            codeCCS: item.codeCCS, 
+            capitalCSName: item.capitalCSName, 
+            ciwexecutor: item.ciwexecutor, 
+            ciwsupervisor: item.ciwsupervisor, 
+            customer: item.customer,
+            customerSupervisor: item.customerSupervisor,
+            cwexecutor: item.cwexecutor,
+            cwsupervisor: item.cwsupervisor,
+            locationRegion: item.locationRegion,
+            objectType: item.objectType
+          }})}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 16, borderRadius: 8}}>
                 
                             <View style={{width: '98%', justifyContent: 'center',}}>
-                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
+                            <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
                             </View>
                                            
                         </View>
-                        
+          </TouchableOpacity>             
        )}
        /> 
     </View>
@@ -98,7 +126,7 @@ const {token}=useGlobalSearchParams();
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: '10%',
+    //paddingTop: '10%',
     flex: 1,
     alignSelf: 'center',
     width: '96%',
