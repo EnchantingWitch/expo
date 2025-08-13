@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 type Props = {
+    post?: string;
     onChange: (status: string) => void; // Функция для обновления статуса
 };
 
@@ -29,7 +30,7 @@ export const data = [
     { label: 'Терминал отгрузки конденсата', value: '20' },
 ];
 
-const ListTypeObj = ({ onChange }: Props) => {
+const ListTypeObj = ({ post, onChange }: Props) => {
     const [value, setValue] = useState<string >();
     const [isFocus, setIsFocus] = useState(false);
 
@@ -59,7 +60,7 @@ const ListTypeObj = ({ onChange }: Props) => {
                 valueField="value"
                 placeholder={!isFocus ? 'Тип ОКС' : 'Не выбрано'}
                 searchPlaceholder="Search..."
-                value={value}
+                value={post? post: value}
                 onFocus={() => setIsFocus(true)}
                 onBlur={() => setIsFocus(false)}
                 onChange={item => {

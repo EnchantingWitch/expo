@@ -1,192 +1,268 @@
-import React, { useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import useDevice from '@/hooks/useDevice';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useRef, useState } from 'react';
+import { Animated, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
-const data = [
-    { label: 'Сахалинская область', value: 'Сахалинская область' },
-    { label: 'Архангельская область', value: 'Архангельская область' },
-    { label: 'Ненецкий автономный округ', value: 'Ненецкий автономный округ' },
-    { label: 'Ямало-Ненецкий автономный округ', value: 'Ямало-Ненецкий автономный округ' },
-    { label: 'Красноярский край', value: 'Красноярский край' },
-    { label: 'Камчатский край', value: 'Камчатский край' },
-    { label: 'Чукотский Автономный Округ', value: 'Чукотский Автономный Округ' },
-    { label: 'Хабаровский край', value: 'Хабаровский край' },
-    { label: 'Республика Саха (Якутия)', value: 'Республика Саха (Якутия)' },
-    { label: 'Калининградская область', value: 'Калининградская область' },
-    { label: 'г. Севастополь', value: 'г. Севастополь' },
-    { label: 'Республика Крым', value: 'Республика Крым' },
-    { label: 'Краснодарский край', value: 'Краснодарский край' },
-    { label: 'Ставропольский край', value: 'Ставропольский край' },
-    { label: 'Республика Калмыкия', value: 'Республика Калмыкия' },
-    { label: 'Ростовская область', value: 'Ростовская область' },
-    { label: 'Волгоградская область', value: 'Волгоградская область' },
-    { label: 'Воронежская область', value: 'Воронежская область' },
-    { label: 'Тульская область', value: 'Тульская область' },
-    { label: 'Кабардино-Балкарская Республика', value: 'Кабардино-Балкарская Республика' },
-    { label: 'Московская область', value: 'Московская область' },
-    { label: 'г. Москва', value: 'г. Москва' },
-    { label: 'Карачаево-Черкесская Республика', value: 'Карачаево-Черкесская Республика' },
-    { label: 'Тамбовская область', value: 'Тамбовская область' },
-    { label: 'Саратовская область', value: 'Саратовская область' },
-    { label: 'Рязанская область', value: 'Рязанская область' },
-    { label: 'Пензенская область', value: 'Пензенская область' },
-    { label: 'Владимирская область', value: 'Владимирская область' },
-    { label: 'Самарская область', value: 'Самарская область' },
-    { label: 'Ярославская область', value: 'Ярославская область' },
-    { label: 'Ульяновская область', value: 'Ульяновская область' },
-    { label: 'Республика Мордовия', value: 'Республика Мордовия' },
-    { label: 'Ивановская область', value: 'Ивановская область' },
-    { label: 'Вологодская область', value: 'Вологодская область' },
-    { label: 'Костромская область', value: 'Костромская область' },
-    { label: 'Нижегородская область', value: 'Нижегородская область' },
-    { label: 'Республика Татарстан', value: 'Республика Татарстан' },
-    { label: 'Чувашская Республика', value: 'Чувашская Республика' },
-    { label: 'Республика Марий Эл', value: 'Республика Марий Эл' },
-    { label: 'Кировская область', value: 'Кировская область' },
-    { label: 'Оренбургская область', value: 'Оренбургская область' },
-    { label: 'Республика Башкортостан', value: 'Республика Башкортостан' },
-    { label: 'Курганская область', value: 'Курганская область' },
-    { label: 'Республика Коми', value: 'Республика Коми' },
-    { label: 'Удмуртская Республика', value: 'Удмуртская Республика' },
-    { label: 'Челябинская область', value: 'Челябинская область' },
-    { label: 'Пермский край', value: 'Пермский край' },
-    { label: 'Свердловская область', value: 'Свердловская область' },
-    { label: 'Омская область', value: 'Омская область' },
-    { label: 'Тюменская область', value: 'Тюменская область' },
-    { label: 'Ханты-Мансийский автономный округ - Югра', value: 'Ханты-Мансийский автономный округ - Югра' },
-    { label: 'Томская область', value: 'Томская область' },
-    { label: 'Алтайский край', value: 'Алтайский край' },
-    { label: 'Республика Алтай', value: 'Республика Алтай' },
-    { label: 'Кемеровская область', value: 'Кемеровская область' },
-    { label: 'Республика Хакасия', value: 'Республика Хакасия' },
-    { label: 'Республика Тыва', value: 'Республика Тыва' },
-    { label: 'Псковская область', value: 'Псковская область' },
-    { label: 'Мурманская область', value: 'Мурманская область' },
-    { label: 'Республика Карелия', value: 'Республика Карелия' },
-    { label: 'Республика Дагестан', value: 'Республика Дагестан' },
-    { label: 'Белгородская область', value: 'Белгородская область' },
-    { label: 'Еврейская автономная область', value: 'влияеЕврейская автономная областьт' },
-    { label: 'Астраханская область', value: 'Астраханская область' },
-    { label: 'Приморский край', value: 'Приморский край' },
-    { label: 'Чеченская Республика', value: 'Чеченская Республика' },
-    { label: 'Курская область', value: 'Курская область' },
-    { label: 'Ленинградская область', value: 'Ленинградская область' },
-    { label: 'г. Санкт-Петербург', value: 'г. Санкт-Петербург' },
-    { label: 'Амурская область', value: 'Амурская область' },
-    { label: 'Липецкая область', value: 'Липецкая область' },
-    { label: 'Калужская область', value: 'Калужская область' },
-    { label: 'Тверская область', value: 'Тверская область' },
-    { label: 'Республика Северная Осетия', value: 'Республика Северная Осетия' },
-    { label: 'Республика Адыгея', value: 'Республика Адыгея' },
-    { label: 'Смоленская область', value: 'Смоленская область' },
-    { label: 'Новгородская область', value: 'Новгородская область' },
-    { label: 'Республика Ингушетия', value: 'Республика Ингушетия' },
-    { label: 'Орловская область', value: 'Орловская область' },
-    { label: 'Забайкальский край', value: 'Забайкальский край' },
-    { label: 'Магаданская область', value: 'Магаданская область' },
-    { label: 'Иркутская область', value: 'Иркутская область' },
-    { label: 'Республика Бурятия', value: 'Республика Бурятия' },
-    { label: 'Луганская Народная Республика', value: 'Луганская Народная Республика' },
-    { label: 'Запорожская область', value: 'Запорожская область' },
-    { label: 'Донецкая Народная Республика', value: 'влиДонецкая Народная Республикаяет' },
-    { label: 'Херсонская область', value: 'Херсонская область' },
-  
-];
-
-type Props = {
-    post?: string;
-    onChange: (category: string) => void; // Функция для обновления категории
+export type DropdownItem = {
+  label: string;
+  value: string;
 };
 
-const ListOfRegion = ({ post, onChange }: Props) => {
-    const [value, setValue] = useState(null);
-    const [isFocus, setIsFocus] = useState(false);
+type DropdownProps = {
+  items?: DropdownItem[];
+  selectedValue: string;
+  onValueChange: (value: string) => void;
+  isEnabled: boolean;
+  placeholder?: string;
+  modalTitle?: string;
+};
 
-     const fontScale = useWindowDimensions().fontScale;
+const Dropdown = ({
+  items = [],
+  selectedValue,
+  onValueChange,
+  isEnabled,
+  placeholder = 'Не выбрано',
+  modalTitle = 'Выберите значение',
+}: DropdownProps) => {
+  const modalContentRef = useRef<View>(null);
+  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const dropdownRef = useRef<View>(null);
 
-  const ts = (fontSize: number) => {
-    return (fontSize / fontScale)};
+  const fontScale = useWindowDimensions().fontScale;
+  const ts = (fontSize: number) => fontSize / fontScale;
 
-    if (value){
-        onChange(value);
+  // Find selected item or use raw value if not found
+  const selectedItem = items.find(item => item.value === selectedValue);
+  const displayText = selectedItem ? selectedItem.label : selectedValue ;
+
+  // Filter items safely
+  const filteredItems = searchText
+    ? items.filter(item =>
+        item.label.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : items;
+
+  const handleSelect = (value: string) => {
+    // Find the selected item to get its label
+    //const selected = items.find(item => item.value === value);
+    // Send the label if found, otherwise send the original value
+    onValueChange(value ? value : selectedValue);
+    setIsOpen(false);
+    setSearchText('');
+  };
+
+  const handleOpen = () => {
+    if (!isEnabled) return;
+    setIsOpen(true);
+  };
+
+  const handleOverlayPress = (e: any) => {
+    if (modalContentRef.current) {
+      modalContentRef.current.measureInWindow((x, y, width, height) => {
+        const { pageX, pageY } = e.nativeEvent;
+        if (
+          pageX < x || 
+          pageX > x + width || 
+          pageY < y || 
+          pageY > y + height
+        ) {
+          setIsOpen(false);
+        }
+      });
     }
- 
-    return (
-       
-        <View style={styles.container}>
-            <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue',   }]}
-                placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14)}]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14)} ]}
-                inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14)}]}
-                iconStyle={styles.iconStyle}
-                data={data}
-                search
-                maxHeight={300}
-                itemTextStyle={{fontSize: ts(14)}}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? 'Регион' : 'Не выбрано'}
-                searchPlaceholder="Search..."
-                value={post? post: value}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                    setValue(item.value);
-                    setIsFocus(false);
-                }}
-            />
-        </View>
-            
-    );
-};
+  };
 
-export default ListOfRegion;
+  return (
+    <View style={{ width: '96%' }}>
+      <View style={styles.container}>
+        <View ref={dropdownRef}>
+          <TouchableOpacity
+            onPress={handleOpen}
+            style={[
+              styles.dropdown,
+              isOpen && { borderColor: 'blue' },
+            ]}
+            disabled={!isEnabled}
+          >
+            <View style={styles.dropdownContent}>
+              <View style={styles.textContainer}>
+                <Text 
+                  style={[
+                    styles.selectedText,
+                    { 
+                      fontSize: ts(14),
+                      color: '#B3B3B3',
+                    }
+                  ]}
+                >
+                  {displayText}
+                </Text>
+              </View>
+              <View style={styles.iconContainer}>
+                <Ionicons name='chevron-down' color='#B3B3B3' size={16} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          visible={isOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsOpen(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={handleOverlayPress}
+          >
+            <Animated.View
+              ref={modalContentRef}
+              style={[
+                styles.modalContent,
+                {
+                //  width: isMobileWeb ? '100%' : '40%',
+                  width: '40%',
+                  maxHeight: '100%',
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                },
+              ]}
+            >
+              <Text style={styles.modalHeaderText}>{modalTitle}</Text>
+              
+              <Text style={styles.selectedValueText}>
+                {selectedItem ? selectedItem.label : selectedValue || 
+                  <Text style={[ { fontSize: ts(14), paddingBottom: 2, alignSelf: 'center' }]}>
+                    {placeholder}
+                  </Text>}
+              </Text>
+
+              <TextInput
+                placeholder="Поиск..."
+                placeholderTextColor={'#B2B3B3'}
+                value={searchText}
+                onChangeText={setSearchText}
+                style={styles.searchInput}
+                autoFocus={isDesktopWeb}
+              />
+
+              {filteredItems.length > 0 ? (
+                <FlatList
+                  data={filteredItems}
+                  keyExtractor={item => item.value}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.listItem}
+                      onPress={() => handleSelect(item.label)}
+                    >
+                      <Text style={{ fontSize: ts(14) }}>{item.label}</Text>
+                    </TouchableOpacity>
+                  )}
+                  keyboardShouldPersistTaps="handled"
+                />
+              ) : (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyStateText}>Ничего не найдено</Text>
+                </View>
+              )}
+            </Animated.View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: 'white',
-        paddingBottom: 20,
-        width: '96%',
-    },
-    dropdown: {
-        height: 42,
-        borderColor: '#D9D9D9',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        
-
-    },
-    icon: {
-        marginRight: 5,
-    },
-    label: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        left: 22,
-        top: 8,
-        zIndex: 999,
-        paddingHorizontal: 8,
-      //  fontSize: 14,
-        
-    },
-    placeholderStyle: {
-       // fontSize: 16,
-       textAlign: 'center',
-       color: '#B3B3B3',
-    },
-    selectedTextStyle: {
-        //fontSize: 16,
-        textAlign: 'center',
-        color: '#B3B3B3',
-    },
-    iconStyle: {
-        width: 20,
-        height: 20,
-    },
-    inputSearchStyle: {
-        height: 40,
-       // fontSize: 16,
-    },
+  container: {
+    paddingBottom: 16,
+  },
+  disabled: {
+    //opacity: 0.5,
+  },
+  dropdown: {
+    height: 42,
+    borderColor: '#D9D9D9',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  dropdownContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  textContainer: {
+    width: '95%',
+  },
+  iconContainer: {
+    width: '5%',
+    alignItems: 'flex-end',
+  },
+  selectedText: {
+    textAlign: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 16,
+    position: 'absolute',
+  },
+  modalHeaderText: {
+    fontSize: 14,
+    paddingBottom: 2,
+    fontWeight: '500',
+    color: '#0072C8',
+    alignSelf: 'center',
+  },
+  selectedValueText: {
+    fontSize: 16,
+    paddingBottom: 14,
+    alignSelf: 'center',
+    color: '#B3B3B3',
+  },
+  searchInput: {
+    height: 42,
+    minHeight: 42,
+    maxHeight: 42,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    marginBottom: 8,
+    backgroundColor: '#fff',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+  listItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: '#B3B3B3',
+  },
 });
+
+export default Dropdown;

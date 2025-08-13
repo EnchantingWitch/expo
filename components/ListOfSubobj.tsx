@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 
 export type ListToDrop = {
@@ -42,7 +42,7 @@ const ListOfSubobj = ({ list, post, statusreq, onChange }: Props) => {
             <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                 placeholderStyle={[styles.placeholderStyle, { fontSize: ts(14), includeFontPadding: false, }]}
-                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14) , lineHeight: ts(20),includeFontPadding: false, textAlignVertical: 'center'}]}
+                selectedTextStyle={[styles.selectedTextStyle, { fontSize: ts(14) , lineHeight: ts(22),includeFontPadding: false, textAlignVertical: 'center'}]}
                 inputSearchStyle={[styles.inputSearchStyle, { fontSize: ts(14) }]}
                 iconStyle={styles.iconStyle}
                 data={list}
