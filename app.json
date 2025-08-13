@@ -2,7 +2,7 @@
   "expo": {
     "name": "pnr",
     "slug": "pr",
-    "version": "1.11",
+    "version": "1.14",
     "orientation": "portrait",
     "icon": "./assets/images/logo1.png",
     "scheme": "pr",
@@ -25,14 +25,6 @@
       "favicon": "./assets/images/logo1.png"
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/helioscondc.otf"
-          ]
-        }
-      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -43,13 +35,7 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-web-browser",
-      [
-        "expo-asset",
-        {
-          "assets": ["./assets/files/politika_konfidencialnosti.pdf", "./assets/files/soglasie_na_pnr.pdf"]
-        }
-      ]
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
