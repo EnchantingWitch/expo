@@ -211,10 +211,7 @@ const DirectionLayout = () => {
   //изменение статуса при закрытии модального окна
   useEffect(() => {
     if(!visibleCustomModal){
-    setStatusSystemModal(false);
-    setSubobj('');
-    setSystem('');
-    console.log('статус для системы поменялся на false')}
+    setStatusSystemModal(false);}
   }, [!visibleCustomModal]);
   
     const updateComment = async () => {
@@ -238,7 +235,10 @@ const DirectionLayout = () => {
         });
         console.log('updateComment', response);
       } catch (error) {
+        setStatus(true);
+        setVisibleCustomModal(false)
         setDisabled(false);
+        setStatusSystemModal(false)//для сброса выпадающего списка систем
         console.error('Ошибка при сохранении данных:', error);
       } finally{
         setStatus(true);
@@ -250,23 +250,39 @@ const DirectionLayout = () => {
   
     };
 
-  // Для систем
-  useEffect(() => {
-    if (subobj && structure.length > 0) {
-      const filtered = structure.find(item => item.subObjectName === subobj);
-      if (filtered) {
-        const systemList = filtered.data.map(system => ({
-          label: system.systemName,
-          value: system.systemName
-        }));
-        setListSystemFromSubobj(systemList);
-        setStatusSystemModal(true);
+    const deleteNote = async () => {
+        setDisabled(true);
+        try {
+          let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/journal/deleteEntry/'+number, {
+              method: "DELETE",
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+        console.log('ResponseDeleteEntry:', response);
+          setDisabled(false);
+        } finally {
+         setStatus(true);
+        setVisibleCustomModal(false)
+        setDisabled(false);
+        setStatusSystemModal(false)//для сброса выпадающего списка систем
+        }
       }
-    }
-  }, [subobj, structure]);
 
-  console.log('system', system)
-  console.log('subobj', subobj)
+  // Для систем
+useEffect(() => {
+  if (visibleCustomModal && subobj && structure.length > 0) {
+    const filtered = structure.find(item => item.subObjectName === subobj);
+    if (filtered) {
+      const systemList = filtered.data.map(system => ({
+        label: system.systemName,
+        value: system.systemName
+      }));
+      setListSystemFromSubobj(systemList);
+      setStatusSystemModal(true);
+    }
+  }
+}, [subobj, structure, visibleCustomModal]); // Добавили visibleCustomModal в зависимости
 
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -436,12 +452,11 @@ const DirectionLayout = () => {
               {
                 component: (
                   <ListOfSystem 
-                  list={listSystemFromSubobj} 
+                  list={statusSystemModal ? listSystemFromSubobj : []} 
                   post={system} 
                   onChange={(system) => setSystem(system)}
                   editable={!modalChange}
-                  statusreq={statusSystemModal}
-                  //statusreq={!modalChange}
+                  statusreq={!modalChange}
                   width={'100%'}
                   Title="Система"
                   />
@@ -469,7 +484,18 @@ const DirectionLayout = () => {
                   />
                 ),
                 key: 'SaveButton'
-              }] : [])
+              },
+              {
+                 component: (
+                  <CustomButton 
+                    title="Удалить" 
+                    handlePress={deleteNote} 
+                    disabled={disabled}
+                  />
+                ),
+                key: 'DelButton'
+              }
+              ] : [])
             ]}
             componentOrder={
               //modalChange ? [] :

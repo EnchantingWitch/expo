@@ -287,7 +287,7 @@ const LoginModal = () => {
             textAlign: "center",
           }}
         >
-          Версия 1.13
+          Версия 1.14
         </Text>
       </View>
     </View>
