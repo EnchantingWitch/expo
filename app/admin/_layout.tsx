@@ -4,7 +4,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack } from 'expo-router';
 import React from 'react';
 import { useWindowDimensions } from 'react-native';
-import { getGlobalStyles } from '../../constants/globalStyles';
 
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -12,7 +11,6 @@ import { getGlobalStyles } from '../../constants/globalStyles';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const fontScale = useWindowDimensions().fontScale;
-  const globalStyles = getGlobalStyles(fontScale);
 
   const ts = (fontSize: number) => {
     return (Math.round(fontSize / fontScale))};
@@ -43,7 +41,11 @@ function TabBarIcon(props: {
         headerTintColor: '#1E1E1E',
         headerShadowVisible: false,
         headerStyle: { backgroundColor: '#FFFFFF' },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
       }}
       />
       <Stack.Screen
@@ -55,7 +57,11 @@ function TabBarIcon(props: {
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          headerTitleStyle: globalStyles.headerTitleStyle,
+          headerTitleStyle: {
+            fontSize: ts(20),// Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
         }}
@@ -71,7 +77,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -85,7 +95,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -99,7 +113,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -113,7 +131,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -127,7 +149,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -141,7 +167,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -155,7 +185,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -169,7 +203,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -183,7 +221,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
       <Stack.Screen
@@ -197,7 +239,11 @@ function TabBarIcon(props: {
           headerShadowVisible: false,
          
         headerStyle: { backgroundColor: '#FFFFFF',  },
-        headerTitleStyle: globalStyles.headerTitleStyle,
+        headerTitleStyle: {
+          fontSize: ts(20), // Укажите нужный размер шрифта
+          //fontWeight: 'bold', // Опционально: можно добавить жирность
+          // Другие стили для заголовка, если нужно
+        },
         }}
       />
     </Stack>

@@ -1,21 +1,18 @@
 import CustomButton from "@/components/CustomButton";
+import HeaderForTabs from "@/components/HeaderForTabs";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-//import * as FileSystem from 'expo-file-system';
+import * as FileSystem from "expo-file-system";
 import { Image } from "expo-image";
-import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
-//import * as Sharing from 'expo-sharing';
-import HeaderForTabs from "@/components/HeaderForTabs";
-import useDevice from "@/hooks/useDevice";
+import { useGlobalSearchParams, useRouter } from "expo-router";
+import * as Sharing from 'expo-sharing';
 import { openBrowserAsync } from "expo-web-browser";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
-  //Linking, 
   Modal,
   Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -23,46 +20,34 @@ import {
   useWindowDimensions,
   View
 } from 'react-native';
+import RNFetchBlob from 'react-native-blob-util';
 
 
 export default function Docs() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();  
-  const BOTTOM_SAFE_AREA =
-    Platform.OS === "android" ? StatusBar.currentHeight : 0;
+  const { StorageAccessFramework } = FileSystem
 
   const router = useRouter();
   const { codeCCS } = useGlobalSearchParams(); //получение код ОКС
   const { capitalCSName } = useGlobalSearchParams(); //получение код ОКС
-
   const [accessToken, setAccessToken] = useState<any>("");
   const [nameLink, setNameLink] = useState<any>("");
   const [urlFetch, setUrlFetch] = useState<any>("");
   const [modalStatus, setModalStatus] = useState<boolean>(false);
-  
   const [urlWork, setUrlWork] = useState<any>("");
   const [urlOperate, setUrlOperate] = useState<any>("");
   const [urlExecute, setUrlExecute] = useState<any>("");
   const [urlPreporate, setUrlPreporate] = useState<any>("");
   const [urlBuffer, setUrlBuffer] = useState<any>("");
-  const [titleModal, setTileModal] = useState(''); //формирование строки для TouchableOpacity, чтобы не падало в вебе 
 
-  const [statusPressGetExcel, setStatusPressGetExcel] = useState<boolean>(false);
-  const [statusJournal, setStatusJournal] = useState<boolean>(false);
-  const navigation = useNavigation();
+  const [statusPressGetExcel, setStatusPressGetExcel] = useState<boolean>(false);//для мониторинга
+  const [statusPressGetJournal, setStatusPressGeJournal] = useState<boolean>(false);//для журнала
 
-  const scrollRef = useRef(null); //для скрола заголовка
-  const [lineCount, setLineCount] = useState(1);//количество строк в заголовке 
-  const textRef = useRef(null); //для скрола заголовка
-  
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem("accessToken");
-      //setAccessToken(token);
       if (token !== null) {
         console.log("Retrieved token:", token);
         setAccessToken(token);
-        //вызов getAuth для проверки актуальности токена
-        //authUserAfterLogin();
       } else {
         console.log("No token found");
         router.push("/sign/sign_in");
@@ -138,7 +123,7 @@ export default function Docs() {
       setModalStatus(true);
     }
   }, [urlFetch, nameLink]);
-  console.log(urlFetch !== "", "urlFetch");
+  //console.log(urlFetch !== "", "urlFetch");
 
   const fontScale = useWindowDimensions().fontScale;
 
@@ -244,13 +229,10 @@ export default function Docs() {
 
   const openModalWithCurrentLink = (linkType) => {
     setNameLink(linkType);
-    console.log(nameLink);
-    setTileModal(`Ссылка для ${linkType} документации `)
     // Устанавливаем текущее значение ссылки в буфер
     switch (linkType) {
       case "рабочей":
         setUrlBuffer(urlWork);
-       // setTileModal(`Ссылка для ${nameLink} документации `)
         break;
       case "заводской":
         setUrlBuffer(urlOperate);
@@ -267,42 +249,123 @@ export default function Docs() {
     setModalStatus(true);
   };
 
-const handleDownload = async (toFetch: string, fileName: string, extands: string, setF) => {
+  // Функция для конвертации Blob в base64
+const blobToBase64 = (blob) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result.split(',')[1];
+      resolve(base64data);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+const saveF = async (toFetch: string, fileName: string, extands: string, mimeType: string, toUTI: string, setF) => {
+  //toFetch - /.../.../ со слешом до кода окс
+  //fileName - имя файла для сохранения ''
+  //extands - расширение без точки например: 'xlsx'
   setF(true);
+  try {
+    // 1. Запрашиваем разрешение на доступ к директории
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+    if (!permissions.granted) {
+      Alert.alert('',"Вы должны предоставить разрешение для сохранения файла.",
+      [
+        { text: 'OK' }
+      ]
+       );
+      return;
+    }
+
+    const directoryUri = permissions.directoryUri;
+    console.log('const directoryUri ',directoryUri)
+
+    // Проверяем возможность записи тестовым файлом
     try {
-       const response = await fetch(
+      const testFileUri = await StorageAccessFramework.createFileAsync(
+        directoryUri,
+        "test_write_check",
+        "text/plain"
+      );
+      
+      await FileSystem.writeAsStringAsync(testFileUri, "test", {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      await FileSystem.deleteAsync(testFileUri);
+    } catch (testError) {
+       Alert.alert('',"Выбранная директория недоступна для записи. Пожалуйста, выберите другую.",
+      [
+        { text: 'OK' }
+      ]
+       );
+      return;
+    }
+   
+    // 2. Получаем данные с сервера
+    const response = await fetch(
       `https://xn----7sbpwlcifkq8d.xn--p1ai:8443${toFetch}${codeCCS}`,
       {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
+        //  Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
         },
       }
     );
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob); 
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download =  `${fileName} ${capitalCSName}.${extands}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-
-    } catch (error) {
-      console.error('Ошибка при скачивании файла:', error);
-    } finally {
-      setF(false);
+    if (!response.ok) {
+      throw new Error(`Ошибка сервера: ${response.status}`);
     }
-  };
+    
+    // 3. Получаем бинарные данные
+    const blob = await response.blob();
+  //  console.log(blob);
+    const base64data = await blobToBase64(blob);
+
+    // 4. Создаем файл с правильным расширением
+    const fileUri = await StorageAccessFramework.createFileAsync(
+      directoryUri,
+      `${fileName} ${capitalCSName}.${extands}`, // имя файла с расширением
+      mimeType // MIME тип для Excel
+    );
+
+    await FileSystem.writeAsStringAsync(fileUri, base64data, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+    console.log("Файл успешно сохранен:", fileUri);
+    if (Platform.OS === 'android') {
+          await RNFetchBlob.android.actionViewIntent( fileUri, mimeType);
+        } else {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: mimeType,
+            dialogTitle: 'Открыть файл',
+            UTI: toUTI // или 'com.microsoft.excel.xlsx'
+          });
+        }
+  } catch (err) {
+    console.error("Ошибка при сохранении файла:", err);
+    Alert.alert(
+      '','"Произошла ошибка:' + err,
+      [
+        { text: 'OK' }
+      ]
+    );
+  } finally {
+    setF(false);
+  }
+};
+   
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white",  }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <HeaderForTabs nameTab="Документация" capitalCSName={capitalCSName}/>
-      <View style={{width: isDesktopWeb&& screenWidth>900? 900 : '100%', alignSelf: 'center',}}>
+
       <ScrollView>
-        {isMobile? 
         <View style={styles.container}>
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity
@@ -313,9 +376,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
+                  style={{ width: 120, height: 120, marginLeft: "15%", tintColor: "#0072C8" }}
                   source={require("../../assets/images/WorkDocs.svg")}
                 />
                 <TouchableOpacity
@@ -351,9 +412,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
+                  style={{ width: 120, height: 120, marginLeft: "15%", tintColor: "#0072C8", }}
                   source={require("../../assets/images/factoryDocs.svg")}
                 />
                 <TouchableOpacity
@@ -391,9 +450,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
+                  style={{ width: 120, height: 120, marginLeft: "15%", tintColor: "#0072C8", }}
                   source={require("../../assets/images/preparationDocs.svg")}
                 />
                 <TouchableOpacity
@@ -430,9 +487,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
+                  style={{ width: 120, height: 120, marginLeft: "15%", tintColor: "#0072C8", }}
                   source={require("../../assets/images/executionDocs.svg")}
                 />
                 <TouchableOpacity
@@ -471,9 +526,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7,
-                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                 }}
+                style={{ width: 120, height: 120, marginLeft: -7, tintColor: "#0072C8", }}
                 source={require("../../assets/images/standartDocs.svg")}
               />
 
@@ -493,18 +546,18 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
           {statusPressGetExcel===false? 
             <TouchableOpacity
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[handleDownload(
+              onPress={()=>[saveF(
                 '/excelForms/getMonitoring/', 
                 'Мониторинг ПНР по объекту', 
                 'xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'org.openxmlformats.spreadsheetml.sheet',
                 setStatusPressGetExcel
               )
               ]}
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7,
-                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                 }}
+                style={{ width: 120, height: 120, marginLeft: -7, tintColor: "#0072C8", }}
                 source={require("../../assets/images/monitoring.svg")}
               />
               <Text
@@ -523,9 +576,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             <View
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}>
               <Image
-                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5,
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                  }}
+                  style={{ width: 120, height: 120, marginLeft: -7,  opacity: 0.5, tintColor: "#0072C8",}}
                   source={require("../../assets/images/monitoring.svg")}
                 />
                 <Text
@@ -544,31 +595,26 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             
           </View>
           <View style={{ flexDirection: "row" }}>
-          {statusJournal===false?
+          {statusPressGetJournal===false? 
             <TouchableOpacity
-              onPress={(event) => {
-             handleDownload(
-              '/excelForms/getJournal/', 
+              onPress={(event) => { //reqForJournal()
+             saveF(
+                '/excelForms/getJournal/', //'/journal/getJournal/', 
                 'Журнал ПНР по объекту', 
                 'xlsx',
-                 /*  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'org.openxmlformats.spreadsheetml.sheet', 
-             '/journal/getJournal/', 
-                'Журнал ПНР по объекту', 
-                'docx',*/
-                setStatusJournal
-                );
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'org.openxmlformats.spreadsheetml.sheet',
+                /*'docx',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'org.openxmlformats.wordprocessingml.document',*/
+                setStatusPressGeJournal
+              )
               }}
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
             >
               <Image
               
-                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",
-                  filter: Platform.select({
-                  web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-                  default: undefined
-                })
-                }}
+                style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",}}
                 source={require("../../assets/images/journal.svg")}
               />
 
@@ -586,356 +632,37 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             </TouchableOpacity>
             :
             <View
-              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
-            >
+              style={{ width: "50%", alignItems: "center", marginBottom: 15 }}>
               <Image
-              
-                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",  opacity: 0.5,
-                  filter: Platform.select({
-                  web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-                  default: undefined
-                })
-                }}
-                source={require("../../assets/images/journal.svg")}
-              />
-
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "400",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Журнал ПНР
-              </Text>
-            </View>
-            }
-            </View>
-        </View>
-        :
-        <View style={styles.container}>
-          <View style={{ flexDirection: "row",  }}>
-            <TouchableOpacity
-              onPress={(event) => {
-                handleLink(event, urlWork);
-              }}
-              style={{ width: "33.3%",  alignItems: "center", marginBottom: 15 }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  style={{ width: 120, height: 120, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
-                  source={require("../../assets/images/WorkDocs.svg")}
-                />
-                <TouchableOpacity
-                  style={{ alignItems: "flex-end", width: 35 }}
-                  onPress={() => openModalWithCurrentLink("рабочей")}
-                >
-                  <Ionicons
-                    name="link-outline"
-                    size={24}
-                    color="#0072C8"
-                    style={{ alignSelf: "center" }}
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Рабочая
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={(event) => {
-                handleLink(event, urlOperate);
-              }}
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  style={{ width: 120, height: 120, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
-                  source={require("../../assets/images/factoryDocs.svg")}
-                />
-                <TouchableOpacity
-                  style={{ alignItems: "flex-end", width: 35 }}
-                  onPress={() => openModalWithCurrentLink("заводской")}
-                >
-                  <Ionicons
-                    name="link-outline"
-                    size={24}
-                    color="#0072C8"
-                    style={{ alignSelf: "center" }}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Заводская
-              </Text>
-            </TouchableOpacity>
-            
-            {statusPressGetExcel===false? 
-            <TouchableOpacity
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-              onPress={()=>[handleDownload(
-                '/excelForms/getMonitoring/', 
-                'Мониторинг ПНР по объекту', 
-                'xlsx',
-                setStatusPressGetExcel
-              )]}
-            >
-              <Image
-                style={{ width: 120, height: 120, marginLeft: -7,
-                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                 }}
-                source={require("../../assets/images/monitoring.svg")}
-              />
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Мониторинг ПНР
-              </Text>
-            </TouchableOpacity>
-          :
-            <View
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}>
-              <Image
-                  style={{ width: 120, height: 120, marginLeft: -7,  opacity: 0.5,
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                  }}
-                  source={require("../../assets/images/monitoring.svg")}
+                  style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",  opacity: 0.5}}
+                  source={require("../../assets/images/journal.svg")}
                 />
                 <Text
                   style={{
                     fontSize: ts(14),
                     color: "#0072C8",
-                    fontWeight: "500",
+                    fontWeight: "400",
                     textAlign: "center",
                     marginLeft: -7,
                   }}
                 >
-                  Мониторинг ПНР
+                  Журнал ПНР
                 </Text>
             </View>
           }
-            
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <TouchableOpacity
-              onPress={(event) => {
-                handleLink(event, urlPreporate);
-              }}
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  style={{ width: 120, height: 120, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
-                  source={require("../../assets/images/preparationDocs.svg")}
-                />
-                <TouchableOpacity
-                  style={{ alignItems: "flex-end", width: 35 }}
-                  onPress={() => openModalWithCurrentLink("подготовительной")}
-                >
-                  <Ionicons
-                    name="link-outline"
-                    size={24}
-                    color="#0072C8"
-                    style={{ alignSelf: "center" }}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Подготовительная
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={(event) => {
-                handleLink(event, urlExecute);
-              }}
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <Image
-                  style={{ width: 120, height: 120, marginLeft: "15%",
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                   }}
-                  source={require("../../assets/images/executionDocs.svg")}
-                />
-                <TouchableOpacity
-                  style={{ alignItems: "flex-end", width: 35 }}
-                  onPress={() => openModalWithCurrentLink("исполнительной")}
-                >
-                  <Ionicons
-                    name="link-outline"
-                    size={24}
-                    color="#0072C8"
-                    style={{ alignSelf: "center" }}
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Исполнительная
-              </Text>
-            </TouchableOpacity>
-            {statusJournal===false?
-              <TouchableOpacity
-                onPress={(event) => {
-              handleDownload(
-                '/excelForms/getJournal/', 
-                'Журнал ПНР по объекту', 
-                'xlsx',
-                 /*  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'org.openxmlformats.spreadsheetml.sheet', 
-             '/journal/getJournal/', 
-                'Журнал ПНР по объекту', 
-                'docx',*/
-                setStatusJournal
-                  );
-                }}
-                style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-              >
-                <Image
-                
-                  style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",  
-                    filter: Platform.select({
-                    web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-                    default: undefined
-                  }),}}
-                  source={require("../../assets/images/journal.svg")}
-                />
-
-                <Text
-                  style={{
-                    fontSize: ts(14),
-                    color: "#0072C8",
-                    fontWeight: "500",
-                    textAlign: "center",
-                    marginLeft: -7,
-                  }}
-                >
-                  Журнал ПНР
-                </Text>
-              </TouchableOpacity>
-            :
-              <View
-                style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}>
-                <Image
-                
-                  style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",  opacity: 0.5, 
-                    filter: Platform.select({
-                      web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-                      default: undefined
-                    }),}}
-                  source={require("../../assets/images/journal.svg")}
-                />
-
-                <Text
-                  style={{
-                    fontSize: ts(14),
-                    color: "#0072C8",
-                    fontWeight: "500",
-                    textAlign: "center",
-                    marginLeft: -7,
-                  }}
-                >
-                  Журнал ПНР
-                </Text>
-              </View>
-            }
-          </View>
-          <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity
-              onPress={(event) => {
-                handleLink(
-                  event,
-                  "https://drive.google.com/drive/folders/14d62EIGcNx4Qre6TYaJ4nDBad9f7ItZq"
-                );
-              }}
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <Image
-                style={{ width: 120, height: 120, marginLeft: -7,  
-                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
-                }}
-                
-                source={require("../../assets/images/standartDocs.svg")}
-              />
-
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Нормативная
-              </Text>
-            </TouchableOpacity>
-
-            
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            
             </View>
-        </View> }
+        </View>
       </ScrollView>
-   
-</View>
-<TouchableOpacity onPress={()=> setModalStatus(false)}>
+
       <Modal
         animationType="fade" // Можно использовать 'slide', 'fade' или 'none'
         transparent={true} // Установите true, чтобы сделать фон полупрозрачным
         visible={modalStatus}
         onRequestClose={() => setModalStatus(false)} // Для Android
       >
+        <TouchableOpacity activeOpacity={1} style={{flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    justifyContent: 'flex-end',}} onPress={()=> setModalStatus(false)}>
         <View
           style={{
             flex: 1,
@@ -963,7 +690,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
               style={{ alignSelf: "flex-end" }}
             >
               <Ionicons name="close-outline" size={30} />
-            </TouchableOpacity>
+            </TouchableOpacity >
             <View style={{ justifyContent: "center" }}>
               <View
                 style={{
@@ -978,13 +705,13 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                     textAlign: "center",
                     includeFontPadding: false,
                     textAlignVertical: "center",
-                    lineHeight: ts(19),
+                    lineHeight: ts(12),
                     fontSize: ts(14),
                     color: "#1A4072",
                   }}
                   editable={false}
                 >
-                  {titleModal}
+                  Ссылка для {nameLink} документации{" "}
                 </TextInput>
               </View>
 
@@ -1019,8 +746,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             </View>
           </View>
         </View>
-      </Modal>
       </TouchableOpacity>
+      </Modal>
+      
     </View>
   );
 }

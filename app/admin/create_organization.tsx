@@ -1,14 +1,12 @@
 import CustomButton from "@/components/CustomButton";
 import FormField from '@/components/FormField';
-import useDevice from "@/hooks/useDevice";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 
-
+//const UploadFile =  ()  => {
   export default function UploadFile (){
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const [singleFile, setSingleFile] = useState<any>('');
   const [load, setLoad]= useState<boolean>(false);
   const [accessToken, setAccessToken] = useState('');
@@ -75,11 +73,10 @@ import { StyleSheet, useWindowDimensions, View } from "react-native";
 
   return (
     <View style={styles.background}>
-      <View style={{alignItems: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}}>
         <FormField title='Организация' onChange={(value) => setOrg(value)}/>{/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
 
 
-</View>
+
         <CustomButton
                       title="Добавить организацию"
                       handlePress={()=>createOrg()} 

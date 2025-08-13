@@ -3,7 +3,6 @@ import HeaderForTabs from '@/components/HeaderForTabs';
 import Linechart from '@/components/Linechart';
 import PiechartBig from '@/components/PiechartBig';
 import PiechartSmall from '@/components/PiechartSmall';
-import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -28,23 +27,21 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-  const { screenHeight, isDesktopWeb, screenWidth } = useDevice();
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение код ОКС
   const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
-
-  console.log(codeCCS, 'codeCCS object');
   const [accessToken, setAccessToken] = useState<any>('');
   const [submitPNR, setSubmitPNR] = useState<number>(0);//предъвлено в ПНР
   const [submitII, setSubmitII] = useState<number>(0);//проведено ИИ или акт ИИ на подписи
   const [submitKO, setSubmitKO] = useState<number>(0);//проведено КО или акт КО на подписи
 
   const [finishedGetStructure, setFinishedGetStructure] = useState<boolean>(false);
-   const [structure, setStructure] = useState<Structure[]>([]);
+  const [structure, setStructure] = useState<Structure[]>([]);
 
   const getToken = async () => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
+        //setAccessToken(token);
         if (token !== null) {
             console.log('Retrieved token:', token);
             setAccessToken(token);
@@ -73,10 +70,8 @@ const getStructure = async () => {
       } catch (error) {
         console.error(error);
       } finally {
-        //setLoading(false);
       }
     };
-  
 
   const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState<Object[]>([]);
@@ -123,7 +118,8 @@ const getStructure = async () => {
   } 
 }, [finishedGetStructure]);
 
-  const fontScale = useWindowDimensions().fontScale;
+
+      const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
@@ -158,89 +154,37 @@ const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuse
   return count;
 };
 
-  //отображение дашборда для десктопа, широкого экрана
-  const DashDesk = () => {
-    return(
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-          <View style={[styles.container]}>
-            <View style={{width: '95%', alignSelf: 'center'}}>
-              <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', width: '95%', alignSelf: 'center'}}>
-
-              <View style={{width: '49.5%'}}>
-                <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
-              </View>
-              
-              <View style={{width: '49.5%'}}>
-                {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
-                */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
-              </View>
-            </View>
-          </View>
-          <View style={[styles.container, ]}>
-            <View style={{width: '95%', alignSelf: 'center'}}>
-              <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
-            </View>
-            <View style={{paddingTop: 11, width: '95%', alignSelf: 'center'}}>
-              <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
-            </View>
-            <View style={{paddingTop: 11, width: '95%', alignSelf: 'center'}}>
-              <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
-            </View>
-          </View>
-        </View>
-    );
-  }
-  
-
   return (
    <View style={{ flex: 1, backgroundColor: 'white' }}>
     <HeaderForTabs capitalCSName={capitalCSName}/>
-    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
-      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
-    </View>
-    {isDesktopWeb&& screenWidth>1100? 
-    /* для десктопа широкий */
-    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>1100? 1100 :'98%'}}>
-      {screenHeight<530? <ScrollView> {/* если высота экрана меньше, оборачиваем в скрол */}
-          {DashDesk()}
-        </ScrollView>
-        : <></>}
-        {DashDesk()}
-     
-    </View>
-    : /* для мобильной версии или узкого экрана десктопа */
-    <View style={{alignSelf: 'center', width: isDesktopWeb&& screenWidth>900? 900 :'98%'}}>
-      <ScrollView style={{ }}>
-        <View style={styles.container}>
-          <View style={{paddingTop: 11}}>
-            <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
-          </View>
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
+    <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 500, marginBottom: 8, textAlign: 'right', marginRight: 5 }}>{codeCCS}</Text>
+    <ScrollView >
+      <View style={styles.container}>
 
-            <View style={{width: '49.5%'}}>
-              <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
-            </View>
-            
-            <View style={{width: '49.5%'}}>
-              {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
-              */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
-            </View>
+        <PiechartSmall title='Принято в ПНР' submitted={submitPNR} totalQuantity={data.systemsPNRTotalQuantity===''? 0 : data.systemsPNRTotalQuantity} blueQuantity={data.systemsPNRQuantityAccepted} greenQuantity={data.systemsPNRDynamic} redQuantity={Math.abs(data.systemsLag)}/>
+    
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
 
+          <View style={{width: '49.5%'}}>
+            <PiechartBig title={'Акты ИИ'} submitted={submitII} totalQuantity={data.actsIITotalQuantity===''? 0 :data.actsIITotalQuantity} blueQuantity={data.actsIISignedQuantity} greenQuantity={data.actsIIDynamic} redQuantity={data.actsIILag}/>
           </View>
-          <View style={{}}>
-            <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
-          </View>
-          <View style={{paddingTop: 11}}>
-            <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
-          </View>
-          <View style={{paddingTop: 11}}>
-            <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
-          </View>
+          
+          <View style={{width: '49.5%'}}>
+            {/*<PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={32} blueQuantity={24} greenQuantity={2} redQuantity={1}/>
+            */} <PiechartBig title={'Акты КО'} submitted={submitKO} totalQuantity={data.actsKOTotalQuantity===''? 0 :data.actsKOTotalQuantity} blueQuantity={data.actsKOSignedQuantity} greenQuantity={data.actsKODynamic} redQuantity={data.actsKOLag}/>
+         </View>
+
         </View>
-      </ScrollView>
-    </View>}
+
+        <Barchart totalQuantity={data.commentsTotalQuantity} blueQuantity={data.commentsTotalQuantity-data.commentsNotResolvedQuantity} greenQuantity={data.commentsDynamic} redQuantity={Math.abs(data.commentsLag)} submitted={0} title="Замечания к СМР"/>
+        <View style={{paddingTop: 11}}>
+          <Barchart totalQuantity={data.defectiveActsTotalQuantity} blueQuantity={data.defectiveActsTotalQuantity-data.defectiveActsNotResolvedQuantity} greenQuantity={data.defectiveActsDynamic} redQuantity={data.defectiveActsNotResolvedQuantity} submitted={0} title="Дефекты оборудования"/>
+        </View>
+        <View style={{paddingTop: 11}}>
+          <Linechart blueQuantity={data.busyStaff} dinamic={0} title='Персонал' codeCCS={codeCCS} accessToken={accessToken}/>
+        </View>
+      </View>
+    </ScrollView>
   </View>
   ); 
 }
@@ -248,14 +192,14 @@ const countPresentedInPNR = (forWhat: string, dataArray: Structure[], ...statuse
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '98%',
+    alignSelf: 'center',
+    width: '96%',
     justifyContent: 'center',
     paddingBottom: 12,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-
   },
   separator: {
     marginVertical: 30,

@@ -1,5 +1,4 @@
 import CustomButton from "@/components/CustomButton";
-import useDevice from "@/hooks/useDevice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { useRouter } from "expo-router";
@@ -24,7 +23,6 @@ type token = {
 };
 
 const LoginModal = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
@@ -193,6 +191,7 @@ const LoginModal = () => {
         alignContent: "center",
         alignItems: 'center',
         backgroundColor: "white",
+        width: '100%'
       }}
     >
       <View style={{ alignSelf: "center", paddingTop: BOTTOM_SAFE_AREA + 15 }}>
@@ -299,7 +298,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+   // paddingHorizontal: 20,
     backgroundColor: "white",
   },
   image: {
@@ -315,7 +314,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#D9D9D9",
-    width: "96%",
+    width: "91%",
     height: 42,
     paddingVertical: "auto",
     color: "#B3B3B3",

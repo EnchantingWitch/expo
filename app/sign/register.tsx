@@ -4,12 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Modal, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 //import Pdf from 'react-native-pdf';
 import { Ionicons } from '@expo/vector-icons';
+import { Asset } from 'expo-asset';
 import Checkbox from 'expo-checkbox/build/ExpoCheckbox';
 //import * as FileSystem from 'expo-file-system';
 //import * as MediaLibrary from 'expo-media-library';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
-import useDevice from '@/hooks/useDevice';
 import * as FileSystem from "expo-file-system";
+import * as Sharing from 'expo-sharing';
+import RNFetchBlob from 'react-native-blob-util';
+
+
 
 
 type RegisterResponse = {
@@ -19,7 +23,6 @@ type RegisterResponse = {
 
 const RegistrationModal = () => {
   const { StorageAccessFramework } = FileSystem
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
     const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     const [isVisible, setIsVisible] = useState(false);
@@ -59,26 +62,22 @@ console.log(JSON.stringify({
             Alert.alert('', 'Заполните все поля регистрации.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
             setDisabled(false);
-            console.log('Заполните все поля регистрации.')
                   return;
         }
         if (password !== confirmPassword) {
              Alert.alert('', 'Пароли не совпадают.', [
                          {text: 'OK', onPress: () => console.log('OK Pressed')}])
             setDisabled(false);
-            console.log('Пароли не совпадают')
                   return;
         }
         if (isSelected === false){
             Alert.alert('', 'Подтвердите согласие с политикой конфиденциальности и обработки персональных данных.', [
                 {text: 'OK', onPress: () => console.log('OK Pressed')}])
             setDisabled(false);
-            console.log('Подтвердите согласие с политикой конфиденциальности и обработки персональных данных')
                   return;
         }
 
       try{
-        console.log('Начало запроса')
         let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/registration', {
              method: 'POST',
              headers: {
@@ -112,6 +111,22 @@ console.log(JSON.stringify({
             setDisabled(false);
           } finally{setDisabled(false);}
     };
+
+     // Путь к вашему PDF-файлу
+
+    {/*const openPDF = async () => {
+        const sourcePath = '../assets/file.pdf'; // Путь к файлу в assets
+        const destPath =RNFS.DocumentDirectoryPath + '/myfile.pdf'; // Путь, куда вы хотите скопировать файл
+        
+            const path = RNFS.MainBundlePath + '../assets/file.pdf'; // Путь к вашему PDF-файлу
+    
+            try {
+                await FileViewer.open(path);
+            } catch (error) {
+                console.error('Error opening file:', error);
+            }
+        
+      };*/}
 
       const [listOrganization, setListOrganization] = useState<[]>();
       const [statusOrg, setStatusOrg] = useState<boolean>(false);
@@ -151,22 +166,88 @@ console.log(JSON.stringify({
   try {
     // 1. Определяем какой PDF загружать
     const pdfAssetModule = pdfType === 'policy' 
-      ? require('../../assets/files/politika_konfidencialnosti.pdf')
-      : require('../../assets/files/soglasie_na_pnr.pdf');
+      ? require('../../assets/files/Политика_конфиденциальности_Планшет_ПНР.pdf')
+      : require('../../assets/files/Согласие_на_обработку_ПД_в_Планшет_ПНР.pdf');
 
     const safeFileName = pdfType === 'policy' 
       ? 'Политика конфиденциальности Планшет ПНР.pdf' 
       : 'Согласие на обработку ПД в Планшет ПНР.pdf';
-    
-      const link = document.createElement('a');
-      link.href = pdfAssetModule;
-      link.download =  safeFileName;
-      link.target = '_blank'; // Открыть в новой вкладке, если скачивание не сработает
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(pdfAssetModule);
 
+    // 2. Загружаем ассет (Expo way)
+    const asset = Asset.fromModule(pdfAssetModule);
+    await asset.downloadAsync();
+
+    if (!asset.localUri) {
+      throw new Error('Не удалось загрузить файл');
+    }
+
+    // 3. Получаем содержимое файла как base64
+    const fileContent = await FileSystem.readAsStringAsync(asset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+    if (!permissions.granted) {
+      Alert.alert('',"Вы должны предоставить разрешение для сохранения файла.",
+            [
+              { text: 'OK' }
+            ]
+             );
+      return;
+    }
+    
+    const directoryUri = permissions.directoryUri;
+    console.log('const directoryUri ', directoryUri);
+    
+    // Проверяем возможность записи тестовым файлом
+    try {
+      const testFileUri = await StorageAccessFramework.createFileAsync(
+        directoryUri,
+        "test_write_check",
+        "text/plain"
+      );
+      
+      await FileSystem.writeAsStringAsync(testFileUri, "test", {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      
+      await FileSystem.deleteAsync(testFileUri);
+    } catch (testError) {
+      Alert.alert('', "Выбранная директория недоступна для записи. Пожалуйста, выберите другую.",
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // 4. Создаем файл и записываем данные
+    const fileUri = await StorageAccessFramework.createFileAsync(
+      directoryUri,
+      safeFileName,
+      "application/pdf"
+    );
+
+    // Записываем содержимое файла в base64
+    await FileSystem.writeAsStringAsync(fileUri, fileContent, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // 5. Открываем файл
+    if (Platform.OS === 'android') {
+      await RNFetchBlob.android.actionViewIntent( fileUri, 'application/pdf');
+    } else {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Открыть PDF',
+        UTI: 'com.adobe.pdf'
+      });
+    }
+
+    Alert.alert(
+      'Файл сохранён',
+      `Файл сохранён по пути: ${fileUri}`,
+      [{ text: 'OK' }]
+    );
 
   } catch (error) {
     console.error('Ошибка при сохранении файла:', error);
@@ -178,11 +259,52 @@ console.log(JSON.stringify({
   }
 }
 
+/* //Это вариант, в котором у Антона только поделиться, у меня с возможностью выбора проводника
+async function saveFile(pdfType: 'policy' | 'consent') {
+  try {
+    // Determine which PDF to load based on the parameter
+    const pdfAsset = pdfType === 'policy' 
+      ? require('../../assets/files/Политика_конфиденциальности_Планшет_ПНР.pdf')
+      : require('../../assets/files/Согласие_на_обработку_ПД_в_Планшет_ПНР.pdf');
+
+    const asset = Asset.fromModule(pdfAsset);
+    await asset.downloadAsync();
+
+    const safeFileName = pdfType === 'policy' 
+      ? 'Политика_конфиденциальности_Планшет_ПНР.pdf' 
+      : 'Согласие_на_обработку_ПД_в_Планшет_ПНР.pdf';
+      
+    const localUri = `${FileSystem.cacheDirectory}${safeFileName}`;
+
+    const fileContent = await FileSystem.readAsStringAsync(asset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    await FileSystem.writeAsStringAsync(localUri, fileContent, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(localUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Сохранить PDF',
+        UTI: 'com.adobe.pdf',
+      });
+    } else {
+      const fileUri = `${FileSystem.documentDirectory}${safeFileName}`;
+      await FileSystem.copyAsync({ from: localUri, to: fileUri });
+      Alert.alert('Файл сохранён', `Файл доступен по пути: ${fileUri}`);
+    }
+  } catch (error) {
+    console.error('Ошибка при сохранении файла:', error);
+    Alert.alert('Ошибка', 'Не удалось сохранить файл.');
+  }
+}*/
     return (
-<View style={{backgroundColor: 'white', height: screenHeight-BOTTOM_SAFE_AREA-44.5}}>
-        <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center', width: isDesktopWeb && screenWidth>900? 900 : '98%',  alignSelf: 'center',}}>
+
+        <View style={{flex: 1, backgroundColor: 'white', justifyContent: 'center',}}>
             <ScrollView >
-            <View style={[styles.modalContainer, {width: '100%'}]}>
+            <View style={[styles.modalContainer]}>
 
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>ФИО (полностью)</Text>
             <TextInput
@@ -198,9 +320,9 @@ console.log(JSON.stringify({
                 onChangeText={setEmail}
             />
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
-            <View style={{width: '104%', alignItems: 'center'}}>
-            <ListOfOrganizations data = {listOrganization} title='' label='Организация' post='' status={statusOrg} onChange={(value) => setOrganization(value)}/>
-           </View> 
+            <View style={{width: '100%', alignItems: 'center'}}>
+            <ListOfOrganizations label='Организация' data = {listOrganization} title='' post={organization} status={statusOrg} onChange={(value) => setOrganization(value)}/>
+           </View>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Пароль</Text>
             <TextInput
                 style={[styles.input, {fontSize: ts(14)}]}
@@ -219,8 +341,7 @@ console.log(JSON.stringify({
             </View>
 
     </ScrollView>
-  
-            <View style={{flexDirection: 'row', width: '100%', alignContent: 'center', paddingBottom: '2%',alignSelf: 'center',}}>
+            <View style={{flexDirection: 'row', width: '100%', alignContent: 'center', paddingBottom: '2%'}}>
                 <View style={{ width: '10%',  alignSelf: 'center'}}>
                 <Checkbox
                                 value={isSelected}
@@ -247,7 +368,7 @@ console.log(JSON.stringify({
                 </Text>
                 
              </View>   
-             <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+             <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 8.5 }}>
                 <CustomButton
                 disabled={disabled}
                     title="Зарегистрироваться"
@@ -259,7 +380,7 @@ console.log(JSON.stringify({
                           <Ionicons name='close-outline' size={30} />
                         </TouchableOpacity>
                         <ScrollView>
-                    <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%', alignSelf: 'center'}]}>
+                    <View style={[styles.container, {width: '96%', alignSelf: 'center'}]}>
                         <Text style={{ fontSize: ts(16), fontWeight: 500, textAlign: 'center'  }}>
                         Политика конфиденциальности
  в отношении обработки персональных данных
@@ -441,7 +562,7 @@ console.log(JSON.stringify({
                           <Ionicons name='close-outline' size={30} />
                         </TouchableOpacity>
                         <ScrollView>
-                    <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%', alignSelf: 'center'}]}>
+                    <View style={[styles.container, {width: '96%', alignSelf: 'center'}]}>
                         <Text style={{ fontSize: ts(16), fontWeight: 500, textAlign: 'center'  }}>
                         СОГЛАСИЕ
 на обработку персональных данных
@@ -475,7 +596,7 @@ console.log(JSON.stringify({
                     </Modal>) : ''}
          
         </View>
-        </View>
+        
     );
 };
 
@@ -492,7 +613,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
+       // paddingHorizontal: 20,
         backgroundColor: '#fff'
     },
     image: {
@@ -508,9 +629,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         borderWidth: 1,
         borderColor: '#D9D9D9',
-        width: '100%',
+        width: '96%',
         height: 42,
-        paddingVertical: 'auto',
+       // paddingVertical: 'auto',
         color: '#B3B3B3',
         textAlign: 'center',
         marginBottom: 20,

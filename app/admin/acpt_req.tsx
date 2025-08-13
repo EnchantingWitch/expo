@@ -1,10 +1,10 @@
 import CustomButton from '@/components/CustomButton';
-import useDevice from '@/hooks/useDevice';
+import Scroll from '@/components/Scroll';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Animated, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 type Req = {
   id: number;
@@ -17,7 +17,7 @@ type Req = {
     locationRegion: string;
     objectType: string;
     customer: string; // заказчик
-    CIWExecutor: string; // исполнитель СМР
+    CIWExecutor: string; // исполнитель СМР 
     CWExecutor: string; // исполнитель ПНР
     customerSupervisor: string; // Куратор заказчика
     CWSupervisor: string; // Куратор ПНР
@@ -26,7 +26,6 @@ type Req = {
 };
 
 export default function TabOneScreen() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
   const [data, setData] = useState<Req[]>([]);
   const { idReq } = useLocalSearchParams();
@@ -37,6 +36,12 @@ export default function TabOneScreen() {
   const ts = (fontSize: number) => {
     return (fontSize / fontScale);
   };
+
+  const [completeScrollBarHeight, setCompleteScrollBarHeight] = useState(1);
+  const [visibleScrollBarHeight, setVisibleScrollBarHeight] = useState(0);
+  const [isScrollable, setIsScrollable] = React.useState(false);
+
+  const scrollIndicator = useRef(new Animated.Value(0)).current;
 
   const getToken = async () => {
     try {
@@ -83,13 +88,6 @@ export default function TabOneScreen() {
     }));
 };
 
-const chooseAllCheckbox = () => {
-  Object.values(data).forEach(item => {
-  const fieldValue = item.codeCCS;
-  toggleCheckbox(fieldValue);
-});
-}
-
 const handleSubmit = async ()  => {
   setDisabled(true);
   const selectedIds = Object.keys(checkedItems).filter((id) => checkedItems[id]);
@@ -109,7 +107,7 @@ const handleSubmit = async ()  => {
       {method: 'POST',
         headers: {
         'Authorization': `Bearer ${accessToken}`,
-        
+        'Content-Type': 'multipart/form-data'
         },
       body: body
     }
@@ -141,7 +139,7 @@ const handleSubmit = async ()  => {
     if (idReq && accessToken) { getReq(); }
   }, [idReq, accessToken]);
 
-   const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => (
         <View style={{ 
          
           
@@ -152,7 +150,7 @@ const handleSubmit = async ()  => {
           alignItems: 'center', // Центрируем элементы по вертикали
         }}>
           <Checkbox
-            style={{ marginRight: 8, }}// Добавляем отступы
+          style={{ marginRight: 8, }}// Добавляем отступы
             value={!!checkedItems[item.codeCCS]}
             onValueChange={() => toggleCheckbox(item.codeCCS)}
             color={checkedItems[item.codeCCS] ? '#0072C8' : undefined}
@@ -161,7 +159,7 @@ const handleSubmit = async ()  => {
             flex: 1, // Занимает всё доступное пространство
             justifyContent: 'center', 
             paddingHorizontal: 8, // Добавляем отступы
-            backgroundColor: '#E0F2FE', minHeight: 42, borderRadius: 5, 
+            backgroundColor: '#E0F2FE', minHeight: 40, borderRadius: 8, 
           }}>
             <Text 
               numberOfLines={2}
@@ -181,7 +179,7 @@ const handleSubmit = async ()  => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={[styles.container, { width: isDesktopWeb && screenWidth>900? 900 : '100%', alignSelf: 'center'}]}>
+      <View style={styles.container}>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Пользователь</Text>
       <TextInput
       style={{width: '96%',fontSize: ts(14),backgroundColor: '#FFFFFF',borderRadius: 8,borderWidth: 1,borderColor: '#D9D9D9',height: 42,color: '#B3B3B3',textAlign: 'center',marginBottom: 20,}}
@@ -213,14 +211,39 @@ const handleSubmit = async ()  => {
       editable={false}
       value={data.creationTime}
     />
-     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: 15, textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
-    {/*} <TouchableOpacity onPress={chooseAllCheckbox}>Выбрать все</TouchableOpacity>*/}
-        <FlatList
-          style={{ width: '96%', flex: 1 }}
-          data={data.objectsToAdd}
-          keyExtractor={(item, index) => index.toString()} // Используйте уникальное значение для ключа
-          renderItem={renderItem}
-        />
+     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', paddingBottom: '4%', textAlign: 'center' }}>Запрашиваемые объекты на доступ</Text>
+     <View style={{ flexDirection: "row", flex: 1, width: "96%" }}>
+  {/* FlatList (занимает 96% ширины) */}
+  <FlatList
+    style={{  }}
+    data={data.objectsToAdd}
+    renderItem={renderItem}
+    keyExtractor={(item, index) => index.toString()}
+    showsVerticalScrollIndicator={false}
+    scrollEventThrottle={16}
+    onContentSizeChange={(_, height) => {
+      setCompleteScrollBarHeight(height);
+      setIsScrollable(height > visibleScrollBarHeight);
+    }}
+    onLayout={({ nativeEvent }) => {
+      const height = nativeEvent.layout.height;
+      setVisibleScrollBarHeight(height);
+      setIsScrollable(completeScrollBarHeight > height);
+    }}
+    onScroll={Animated.event(
+      [{ nativeEvent: { contentOffset: { y: scrollIndicator } } }],
+      { useNativeDriver: false }
+    )}
+  />
+
+  {isScrollable && (
+  <Scroll
+    completeScrollBarHeight={completeScrollBarHeight}
+    visibleScrollBarHeight={visibleScrollBarHeight}
+    scrollIndicator={scrollIndicator}
+  />
+  )}
+</View>
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
       <CustomButton disabled={disabled} title='Акцептовать заявку' handlePress={handleSubmit}/>

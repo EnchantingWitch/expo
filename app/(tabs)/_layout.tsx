@@ -93,7 +93,7 @@ export default function TabLayout() {
           tabBarStyle: { display: 'none' },
         }}
       >
-        {/* Tabs.Screen */}
+        {/* Ваши Tabs.Screen */}
       </Tabs>
 
       {/* Кастомный TabBar */}
@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
     color: '#888',
-    //fontFamily: 'HeliosCondC',
   },
   activeTab: {
     borderBottomWidth: 2,

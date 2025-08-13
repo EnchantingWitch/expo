@@ -1,12 +1,10 @@
 import CustomButton from '@/components/CustomButton';
 import { } from '@/components/Themed';
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRouter } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
 import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
-import { getGlobalStyles } from '../../constants/globalStyles';
 
 type Object = {
   capitalCSName: string;
@@ -22,11 +20,11 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
 const fontScale = useWindowDimensions().fontScale;
-const globalStyles = getGlobalStyles(fontScale);
+const ts = (fontSize: number) => {
+        return (fontSize / fontScale)};
 
 const router = useRouter();
 const [filteredData, setFilteredData] = useState([]);
@@ -82,10 +80,9 @@ const [data, setData] = useState<Object[]>([]);
                   console.log('Retrieved token from objects.tsx:', token);
               } else {
                   console.log('No token found');
-                  
               }
           } catch (error) {
-
+              console.error('Error retrieving token:', error);
           }
       };
 
@@ -115,21 +112,17 @@ const [data, setData] = useState<Object[]>([]);
                  });
                  
                  console.log('ResponseLogout:', response);
-              /*   if(response.status === 200){
+                 if(response.status === 200){
                   removeToken('accessToken');
                   removeToken('refreshToken');
                   removeToken('userID');
                   router.push('/sign/sign_in');
                  }
-  */
+  
               }}catch (error) {
                   console.error('Error:', error);
               }finally{  
-                  removeToken('accessToken');
-                  removeToken('refreshToken');
-                  removeToken('userID');
-                  
-                  router.push('/sign/sign_in');
+  
               }
   
       };
@@ -192,7 +185,7 @@ const [data, setData] = useState<Object[]>([]);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       {/*<Text style={{textAlign: 'center', fontSize: ts(14), paddingVertical: '4%'}}>Доступные объекты КС</Text>*/}
-    <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
+    <View style={styles.container}>
     {/*<TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: '051-2004430.008', capitalCSName: 'Тестовый объект'}})}}>
                         <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 32, paddingTop: 6, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
@@ -204,8 +197,7 @@ const [data, setData] = useState<Object[]>([]);
                         </TouchableWithoutFeedback>*/}
    
           <TextInput 
-          style={globalStyles.search}
-            //style={{ height: 45, marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8, paddingHorizontal: 12 }}
+            style={{ marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8, fontSize: ts(14)  }}
             placeholder="Поиск по объекту строительства"
             placeholderTextColor={'#B2B3B3'}
             value={searchQuery}
@@ -217,10 +209,10 @@ const [data, setData] = useState<Object[]>([]);
         keyExtractor={({codeCCS}) => codeCCS}
         renderItem={({item}) => (
                         <TouchableWithoutFeedback onPress={() =>{router.push({pathname: '/(tabs)/object', params: { codeCCS: item.codeCCS, capitalCSName: item.capitalCSName}})}}>
-                        <View style={globalStyles.view}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,  justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', justifyContent: 'center',}}>
-                            <Text numberOfLines={2} ellipsizeMode="tail" style={[globalStyles.text]}>{item.capitalCSName}</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
                             </View>
                                            
                         </View>
@@ -242,7 +234,7 @@ const [data, setData] = useState<Object[]>([]);
   );
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     paddingTop: 6,
     flex: 1,

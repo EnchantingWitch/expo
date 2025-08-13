@@ -1,19 +1,31 @@
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useGlobalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { getGlobalStyles } from '../../constants/globalStyles';
+
+
+// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>['name'];
+  color: string;
+}) {
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+}
 
 export default function TabLayout() {
+  //const colorScheme = useColorScheme();
   const {systemName} = useGlobalSearchParams();//получение кода ОКС 
   const {ii} = useGlobalSearchParams();//получение кода ОКС 
   console.log(systemName, 'systemName');
   const [system, setSystem] = useState(' ');
   const [syst, setSyst] = useState(' ');
   const [ai, setAi] = useState(' ');
-  const fontScale = useWindowDimensions().fontScale;
-  const globalStyles = getGlobalStyles(fontScale);
-   
+   const fontScale = useWindowDimensions().fontScale;
+
+   const ts = (fontSize: number) => {
+    return (Math.round(fontSize / fontScale))};
+
   useEffect(() => {
     if (systemName!== undefined){setSyst(systemName);};
 
@@ -44,10 +56,11 @@ export default function TabLayout() {
         name="load_registry"
         options={{
           title: 'Загрузка реестра',
+          
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          headerTitleStyle: globalStyles.headerTitleStyle,
+
           headerStyle: { backgroundColor: '#FFFFFF' },
         }}
       />
@@ -56,24 +69,33 @@ export default function TabLayout() {
         options={{
           title: system? system : ' ',
           headerTitleAlign: 'center',
+          
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
+          //headerTitle: systemName, 
           headerStyle: { backgroundColor: '#FFFFFF',  },
-          headerTitleStyle: globalStyles.headerTitleStyle,
+          headerTitleStyle: {
+            fontSize: ts(20), // Укажите нужный размер шрифта
+            //fontWeight: 'bold', // Опционально: можно добавить жирность
+            // Другие стили для заголовка, если нужно
+          },
+          
         }}
       />
       <Stack.Screen
         name="structure_search"
         options={{
           title: 'Структура',
+
           headerTitleAlign: 'center',
           headerTintColor: '#1E1E1E',
           headerShadowVisible: false,
-          headerTitleStyle: globalStyles.headerTitleStyle,
+
           headerStyle: { backgroundColor: '#FFFFFF' 
           },
         }}
       />
+
     </Stack>
   )
 }

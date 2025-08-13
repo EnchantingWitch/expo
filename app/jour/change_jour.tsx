@@ -16,8 +16,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
 import { Alert, Dimensions, Platform, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 //import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-//import DateInputWithPicker from '@/components/Calendar+';
-import useDevice from '@/hooks/useDevice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Structure } from '../(tabs)/structure';
 import { styles } from '../notes/create_note';
@@ -41,8 +39,6 @@ interface Data {
 }
 
 const EditDataScreen: React.FC = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-  
     const {serialNumb} = useLocalSearchParams();
     const {subobj} = useLocalSearchParams();
     const {system} = useLocalSearchParams();
@@ -86,7 +82,7 @@ const EditDataScreen: React.FC = () => {
 
   const [organisation, setOrganisation] = useState<string>('');//organisation где работает сотрудник
   const [fullName, setFullName] = useState<string>('');//фио сотрудника
-  
+
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -107,7 +103,6 @@ const EditDataScreen: React.FC = () => {
           setFullName(name);
       }
   }, [codeCCS]);
-
    useEffect(() => {
       if (editedDate) {
           setStatus(true)//для передачи даты
@@ -132,11 +127,16 @@ const EditDataScreen: React.FC = () => {
     }
 };
 
-/*
+
+  const handleSubObjectChange = (selectedSubObject: string) => {
+    setEditedSubObject(selectedSubObject);
+    setEditedSystemName(' '); // Явный сброс системы
+  }
+
 console.log(JSON.stringify({
           subObject: editedSubObject,
           system: editedSystemName,
-        }))*/
+        }))
 
   const updateComment = async () => {
     setDisabled(true);
@@ -225,49 +225,60 @@ console.log(JSON.stringify({
     if (response.status === 200) {
       Alert.alert('', 'Запись удалена.', [
         {text: 'OK', onPress: () => console.log('OK Pressed')}])
-      }
-    } catch (err) {
-      Alert.alert('', 'Произошла ошибка при удалении записи: ' + err, [
-                  {text: 'OK', onPress: () => console.log('OK Pressed')},
-                ])
-      setDisabled(false);
-    } finally {
-      setDisabled(false);
-      router.replace({pathname: '/(tabs)/jour', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
     }
+  } catch (err) {
+    Alert.alert('', 'Произошла ошибка при удалении записи: ' + err, [
+                 {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ])
+    setDisabled(false);
+  } finally {
+    setDisabled(false);
+    router.replace({pathname: '/(tabs)/jour', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
   }
+  }
+
   useEffect(() => {
     getToken();
-  }, []);
-
-  useEffect(() => {
     //запрос на структура для получение данных на выпадающие списки и прочее
-    if(codeCCS && req && accessToken){getStructure(); setReq(false);}//вызов происходит только один раз
-  }, [ accessToken, codeCCS, req]);
-
- useEffect(() => {
+    if(codeCCS && req && accessToken){getStructure(); setReq(false); console.log('8'); }//вызов происходит только один раз
+    
+    
     if (updateCom){
       updateComment();
     }
-  }, [updateCom]);
-
-   useEffect(() => {
     if(editedSystemName){
       setBufsystem(editedSystemName);
     }
-  }, [editedSystemName]);
  
- useEffect(() => {
-   if (editedSubObject && array.length > 0) {
-     const filtered = array.find(item => item.subObjectName === editedSubObject);
-     setListSystem(filtered?.data.map(system => ({
-       label: system.systemName,
-       value: system.systemName
-     })) || []);
-   } else {
-     setListSystem([]);
-   }
- }, [editedSubObject, array]);
+    if(editedSystemName!= ' ' && editedSubObject!= '' ){
+      
+      if(editedSystemName != bufsystem){
+        setBufsystem(editedSystemName);
+      console.log(editedSystemName, 'systemName: use if(systemName )');
+      if (editedSystemName != ' ' ){
+        const filtered = array.filter(item => item.subObjectName === editedSubObject);
+        //console.log(filtered[0].data);
+        if(filtered.length != 0){
+          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
+        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+          console.log(filteredS.length, 'filteredS.length');
+          console.log(filteredS, 'filteredS');
+          if(filteredS.length != 0){
+            console.log('1');
+            setEditedIinumber(filteredS[0].numberII);
+          }
+          else{
+            setEditedIinumber('');
+            setEditedSystemName(' ');
+            setEditedSubObject('');
+          }
+          setNoteListSystem(false);
+      }
+      }
+      }  
+     
+    }
+      }, [ accessToken, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
 
    // Для подобъектов
 useEffect(() => {
@@ -292,23 +303,6 @@ useEffect(() => {
   }
 }, [editedSubObject, array]);
 
-  const handleSubObjectChange = (selectedSubObject: string) => {
-    setEditedSubObject(selectedSubObject);
-    setEditedSystemName(' '); // Явный сброс системы
-  }
-
-  const handleSystemChange = (selectedSystem: string) => {
-  setEditedSystemName(selectedSystem);
-  // Обновляем номер ИИ сразу при выборе системы
-  if (selectedSystem && editedSubObject) {
-    const filtered = array.find(item => item.subObjectName === editedSubObject);
-    if (filtered) {
-      const systemData = filtered.data.find(item => item.systemName === selectedSystem);
-      setEditedIinumber(systemData?.numberII || '');
-    }
-  }
-};
-
   return (
      <KeyboardAwareScrollView
       style={styles.container}
@@ -317,52 +311,19 @@ useEffect(() => {
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}
     >
-      <View style={[styles.container, {alignItems: 'center',
-          justifyContent: 'center',
-         // width: '50%',
-          alignSelf: 'center'
-          }]}>
-              <View style={{ flex: 1, alignItems: 'center',
-                //height: 1,
-               width: isDesktopWeb? '188%' :'100%'
-               }}>
+      <View style={[styles.container]}>
+
+        <View style={{ flex: 1, alignItems: 'center' }}> 
 
           <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
             <View style={{width: '40%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>№</Text>
             </View>
-
-         
-
             <View style={{width: '60%', alignItems: 'center'}}>
               <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center'}}>Дата работы</Text>
             </View>
           </View>
 
-
-          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
-
-            <View style={{width: '40%', alignItems: 'center', paddingTop: 4.5}}>
-              <TextInput
-              style={[styles.input, {fontSize: ts(14),  width: '50%'}]}
-              //placeholder="№ акта ИИ"
-              placeholderTextColor="#111"
-              value={editedSerialNumber.toString()}
-              editable={false}
-              />
-            </View>
-             
-            <View style={{width: '60%', alignItems: 'center'}}>
-            <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6, width: '50%'}]}
-            //placeholder="№ акта ИИ"
-            placeholderTextColor="#111"
-            value={editedDate}
-            editable={false}
-            />
-            </View>
- </View>
-{/*}
           <View style={{flexDirection: 'row', width: '96%', justifyContent: 'space-between' }}>
              
             <View style={{width: '40%', alignItems: 'center', paddingTop: 4.5}}>
@@ -376,11 +337,18 @@ useEffect(() => {
             </View>
 
             <View style={{width: '60%',}}>
-              <DateInputWithPicker theme='min' diseditable={true} statusReq={true} post={editedDate} onChange={(value)=>setEditedDate(value)}/>
+               <TextInput
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, width: '100%'}]}
+            //placeholder="№ акта ИИ"
+            placeholderTextColor="#111"
+            value={editedDate}
+            editable={false}
+            />
+          {/*}    <DateInputWithPicker diseditable={true} statusReq={status} post={editedDate} onChange={(value)=>setEditedDate(value)}/>*/}
+
             </View>
 
           </View>  
-          */}
 
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8 }}>Подобъект</Text>
           <ListOfSubobj 
@@ -400,7 +368,7 @@ useEffect(() => {
               status={statusReq} */
               buf={bufsystem}
               post={editedSystemName} 
-              onChange={(system) => handleSystemChange(system)}
+              onChange={(system) => setEditedSystemName(system)}
           />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Краткое описание и условия выполнения работ</Text>
           {/*}  <TextInput
@@ -413,16 +381,12 @@ useEffect(() => {
             onContentSizeChange={e=>{
               setInputHeight(e.nativeEvent.contentSize.height);}}
           />*/}  
-          
           <TextInput
             style={[styles.input, { 
                 fontSize: ts(14),
                 minHeight: 42, // минимальная высота
                 //maxHeight: 100, // максимальная высота (можно увеличить при необходимости)
-                height: inputHeight, // динамическая высота
-                lineHeight: ts(22),
-                alignContent: 'center',
-                textAlignVertical: 'center'
+                height: inputHeight // динамическая высота
             }]}
             maxLength={1000}
             placeholderTextColor="#111"
@@ -431,12 +395,8 @@ useEffect(() => {
             multiline
             onContentSizeChange={(e) => {
                 // Добавляем небольшой отступ к высоте контента
-             /*   const newHeight = e.nativeEvent.contentSize.height + 10;
+                const newHeight = e.nativeEvent.contentSize.height ;
                 setInputHeight(Math.min(Math.max(newHeight, 42), ));
-                */
-               let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-              if(inputH>1000) inputH =1000
-              setInputHeight(inputH)
             }}
             />
             {editedDescription.length >=900? 
@@ -447,6 +407,7 @@ useEffect(() => {
                           : <Text>символов</Text>}
                         </Text>
                       : '' }
+
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Ответственное лицо</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
@@ -467,7 +428,6 @@ useEffect(() => {
             multiline
             editable={false}
           />  
-          
         </View>
       </View>
             <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>

@@ -1,10 +1,9 @@
 import { } from '@/components/Themed';
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 
 type Object = {
   capitalCSName: string;
@@ -12,7 +11,8 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+  const BOTTOM_SAFE_AREA =
+    Platform.OS === "android" ? StatusBar.currentHeight : 0;
 const fontScale = useWindowDimensions().fontScale;
 const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
@@ -87,9 +87,9 @@ const navigation = useNavigation();
  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
+    <View style={styles.container}>
    
-   
+   <View style={{paddingBottom: BOTTOM_SAFE_AREA + 20, alignItems: 'center'}}>
     <FlatList
         style={{width: '100%'}}
         data={data}
@@ -108,10 +108,10 @@ const navigation = useNavigation();
             locationRegion: item.locationRegion,
             objectType: item.objectType
           }})}}>
-                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42,  justifyContent: 'center', marginBottom: 16, borderRadius: 8}}>
+                        <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37,  justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
                 
                             <View style={{width: '98%', justifyContent: 'center',}}>
-                            <Text numberOfLines={2} ellipsizeMode="tail" style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
+                            <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.capitalCSName}</Text>
                             </View>
                                            
                         </View>
@@ -119,14 +119,14 @@ const navigation = useNavigation();
        )}
        /> 
     </View>
-   
+   </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    //paddingTop: '10%',
+    paddingTop: '10%',
     flex: 1,
     alignSelf: 'center',
     width: '96%',

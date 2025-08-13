@@ -1,11 +1,10 @@
 import Calendar from '@/components/Calendar+';
 import CalendarWithoutDel from '@/components/CalendarWithoutDel';
 import CustomButton from '@/components/CustomButton';
+import DropdownComponent2 from '@/components/ListOfCategories';
 import ListOfSubobj from '@/components/ListOfOrganizations';
-import * as DocumentPicker from "expo-document-picker";
 //import ListOfSubobj from '@/components/ListOfSubobj';
 import ListOfSystem from '@/components/ListOfSystem';
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
@@ -27,18 +26,6 @@ import Animated, {
 import { Structure } from '../(tabs)/structure';
 import { styles } from './create_note';
 
-const listCategories = [
-    { label: 'Влияет на ИИ', value: 'Влияет на ИИ' },
-    { label: 'Влияет на АИИ', value: 'Влияет на АИИ' },
-    { label: 'Влияет на КО', value: 'Влияет на КО' },
-    { label: 'Влияет на АКО', value: 'Влияет на АКО' },
-    { label: 'Влияет на под. ЭЭ', value: 'Влияет на под. ЭЭ' },
-    { label: 'Влияет на под. газа', value: 'Влияет на под. газа' },
-    { label: 'Влияет', value: 'Влияет' },
-    { label: 'Не влияет на ПНР', value: 'Не влияет на ПНР' },
-    { label: 'Не влияет', value: 'Не влияет' },
-];
-
 const { width, height } = Dimensions.get('window');
 
 interface Data {
@@ -58,8 +45,6 @@ interface Data {
 }
 
 const EditDataScreen: React.FC = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-  
     const {serialNumb} = useLocalSearchParams();
     const {numberii} = useLocalSearchParams();
     const {subobj} = useLocalSearchParams();
@@ -143,15 +128,13 @@ const EditDataScreen: React.FC = () => {
           setEditedEndDateFact(factD);
           setEditedCommentCategory(category);
           setEditedCommentExplanation(explan);
+          // ... остальные setState
       }
   }, [codeCCS]);
 
   console.log('startD дата выдачи',startD)
   console.log('editedStartDate дата выдачи',editedStartDate)
-console.log(JSON.stringify({
-          subObject: editedSubObject,
-          system: editedSystemName,
-        }))
+
  
   const [singlePhoto, setSinglePhoto] = useState<any>('');
 
@@ -208,39 +191,25 @@ console.log(JSON.stringify({
     }
   };
 
-  
-    const selectFile = async () => {
+  const selectCamera = async () => {
       // Opening Document Picker to select one file
       try {
-        const res = await DocumentPicker.getDocumentAsync({
-          // Provide which type of file you want user to pick
-          //type: "*/*",
-          //Ограничение загружаемых типов файлов (mime type)
-          type: [
-            //'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel' 
-            'image/*',// 'image/jpeg'
-          ],
-          // There can me more options as well
-          // DocumentPicker.types.allFiles
-          // DocumentPicker.types.images
-          // DocumentPicker.types.plainText
-          // DocumentPicker.types.audio
-          // DocumentPicker.types.pdf
-          copyToCacheDirectory: true, 
-          
+        const res = await ImagePicker.launchCameraAsync({
         });
+  
         // Printing the log realted to the file
-        console.log('res of DocumentPicker : ' + JSON.stringify(res));
+        console.log('res : ' + JSON.stringify(res));
+        if (res.assets && res.assets[0].uri) {
+          setSinglePhoto(res.assets[0].uri)
+          setChangePhoto(true);
+        }
         // Setting the state to show single file attributes
-        if (!res.canceled) {
-        setSinglePhoto(res.assets[0].uri); }
-        setChangePhoto(true);
-        console.log('RES PHOTO', res);
+  
       } catch (err) {
         setSinglePhoto('');
         setChangePhoto(false);
         // Handling any exception (If any)
-       if (DocumentPicker.Cancel(err)) {
+        if (ImagePicker.Cancel(err)) {
           // If user canceled the document selection
           alert('Canceled');
         } else {
@@ -249,6 +218,8 @@ console.log(JSON.stringify({
           throw err;
         }
       }
+  
+  
     };
 
   const cancelPhoto = async () => {
@@ -274,15 +245,14 @@ console.log(JSON.stringify({
   console.log(changePhoto, 'changePhoto');
 
   const handleSaveClick = async () => {
-    try{
-    if (statusReqPhoto === false && singlePhoto != ''){postPhoto(); console.log('фото отправили')}
-    if (statusReqPhoto === true && singlePhoto === ''){deletePhoto(); console.log('фото удалили')}
-    if (changePhoto === true && statusReqPhoto === true){
-        deletePhoto(); console.log('фото удалили')
-        //if (statusDel === true){postPhoto;}//скорее всего надо в useEffect перенести
-    }}
-    finally{updateComment(); console.log('замечание обновили')}
     
+    if (statusReqPhoto === false && singlePhoto != ''){postPhoto();}
+    if (statusReqPhoto === true && singlePhoto === ''){deletePhoto();}
+    if (changePhoto === true && statusReqPhoto === true){
+        deletePhoto();
+        //if (statusDel === true){postPhoto;}//скорее всего надо в useEffect перенести
+    }
+    updateComment();
   }
 
 const json = JSON.stringify({
@@ -302,13 +272,17 @@ const json = JSON.stringify({
       });
       console.log(json);
 
+console.log('if',editedSubObject ==='' || (editedSystemName===''|| editedSystemName===' ') ||  editedDescription==='' || category==='')
   const updateComment = async () => {
- /*   if(system==='' && subobj===''){
-       Alert.alert('', 'Данные по замечанию не обновлены. Выберите подобъект и систему, чтобы продолжить.', [
-                                      {text: 'OK', onPress: () => console.log('OK Pressed')}]);
-        return;
-    }*/
+
     setDisabled(true);
+    if(editedSubObject ==='' || (editedSystemName===''|| editedSystemName===' ') ||  editedDescription==='' || category===''){
+          Alert.alert('', 'Заполните поля подобъекта, системы, содержания замечания, категории.', [
+                                  {text: 'OK', onPress: () => console.log('OK Pressed')}])
+                     setDisabled(false);
+                     return;
+                   }
+
     try {
       let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/updateComment/`+id, {
         method: 'PUT',
@@ -402,7 +376,7 @@ const json = JSON.stringify({
 
 if (contentType != null){
       setSinglePhoto(`data:${contentType};base64,${base64Data}`);
-      //console.log(singlePhoto);
+      console.log(singlePhoto);
       setStatusReqPhoto(true);}
       setStatusActivityIndicator(false);//чтобы не крутился индикатор загрузки у фото
       
@@ -438,64 +412,26 @@ if (contentType != null){
   }
 }
 
-function base64ToFile(base64String, filename = 'image.jpeg') {
-  // Удаляем префикс "data:image/jpeg;base64,"
-  const base64Data = base64String.split(',')[1];
-  
-  // Преобразуем Base64 в бинарные данные
-  const byteCharacters = atob(base64Data);
-  const byteArrays = [];
-  
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteArrays.push(byteCharacters.charCodeAt(i));
-  }
-  
-  const byteArray = new Uint8Array(byteArrays);
-  const blob = new Blob([byteArray], { type: 'image/jpeg' });
-  
-  // Создаем объект File (если нужен)
-  return new File([blob], filename, { type: 'image/jpeg' });
-}
-function base64ToObjectURL(base64String) {
-  return URL.createObjectURL(
-    new Blob([base64String], { type: 'image/jpeg' })
-  );
-}
   const postPhoto = async () => {
     setDisabled(true);
     try{
-      const body = new FormData();
-
-  // 1. Преобразуем base64 в Blob
-  const base64Data = singlePhoto.split(',')[1];
-  const byteCharacters = atob(base64Data);
-  const byteArrays = new Uint8Array(byteCharacters.length);
-
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteArrays[i] = byteCharacters.charCodeAt(i);
-  }
-
-  const blob = new Blob([byteArrays], { type: 'image/jpeg' });
-  console.log('byteArrays', byteArrays)
-
-  // 2. Создаем File (если нужно имя файла)
-  const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
-
-  // 3. Добавляем в FormData
-  body.append('photo', file); // Ключевое отличие: передаем File, а не URL
-    
-    
+    const photoToUpload = singlePhoto;
+    const body = new FormData();
+          //data.append('name', 'Image Upload');
+    const photoObj = { uri: singlePhoto, type: 'image/*', name: 'photoToUpload' };
+    console.log('photoObj:', photoObj);
+    body.append("photo", photoObj);
     let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/comments/addPhoto/' + id);
     console.log(str);
     
     let res = await fetch(
       str,
       {
-        method: 'POST',
+        method: 'post',
         body: body,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-         
+          'Content-Type': 'multipart/form-data'
         }
       }
     );
@@ -510,7 +446,6 @@ function base64ToObjectURL(base64String) {
     } catch (error) { setDisabled(false);
       console.error('Error:', error);
     } finally {
-      URL.revokeObjectURL(singlePhoto);
       router.replace({pathname: '/(tabs)/two', params: {codeCCS: codeCCS, capitalCSName: capitalCSName }});
       setDisabled(false);
     }
@@ -558,23 +493,43 @@ function base64ToObjectURL(base64String) {
       setBufsystem(editedSystemName);
     }
  
-      }, [ accessToken, editedEndDateFact, codeCCS, req, editedSystemName, updateCom ]);
+    if(editedSystemName!= ' ' && editedSubObject!= '' ){
+      
+      if(editedSystemName != bufsystem){
+        setBufsystem(editedSystemName);
+      console.log(editedSystemName, 'systemName: use if(systemName )');
+      if (editedSystemName != ' ' ){
+        const filtered = array.filter(item => item.subObjectName === editedSubObject);
+        //console.log(filtered[0].data);
+        if(filtered.length != 0){
+          const filteredS = filtered[0].data.filter(item => item.systemName === editedSystemName);
+        // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
+          console.log(filteredS.length, 'filteredS.length');
+          console.log(filteredS, 'filteredS');
+          if(filteredS.length != 0){
+            console.log('1');
+            setEditedIinumber(filteredS[0].numberII);
+            setExecut(filteredS[0].ciwexecutor);
+          }
+          else{
+            setEditedIinumber('');
+            setExecut('');
+            setEditedSystemName(' ');
+            setEditedSubObject('');
+          }
+        // if(filteredS[0].ciwexecutor){
+          setNoteListSystem(false);
+      }
+        //}
+      }
+      }  
+     
+    }
+      }, [ accessToken, editedEndDateFact, codeCCS, req, statusReq, noteListSubobj, editedSubObject, editedSystemName, updateCom, editedSystemName]);
 
       useEffect(() => {
         if (statusDel === true){postPhoto();}
       }, [statusDel]);
-
-useEffect(() => {
-  if (editedSubObject && array.length > 0) {
-    const filtered = array.find(item => item.subObjectName === editedSubObject);
-    setListSystem(filtered?.data.map(system => ({
-      label: system.systemName,
-      value: system.systemName
-    })) || []);
-  } else {
-    setListSystem([]);
-  }
-}, [editedSubObject, array]);
 
    // Для подобъектов
 useEffect(() => {
@@ -601,22 +556,11 @@ useEffect(() => {
 
   const handleSubObjectChange = (selectedSubObject: string) => {
     setEditedSubObject(selectedSubObject);
-    setEditedSystemName(''); // Явный сброс системы
+    setEditedSystemName(' '); // Явный сброс системы
     setEditedIinumber('');
     setExecut('');
 };
 
-const handleSystemChange = (selectedSystem: string) => {
-  setEditedSystemName(selectedSystem);
-  // Обновляем номер ИИ сразу при выборе системы
-  if (selectedSystem && editedSubObject) {
-    const filtered = array.find(item => item.subObjectName === editedSubObject);
-    if (filtered) {
-      const systemData = filtered.data.find(item => item.systemName === selectedSystem);
-      setEditedIinumber(systemData?.numberII || '');
-    }
-  }
-};
 
     //зумирование фото
   
@@ -666,28 +610,9 @@ const handleSystemChange = (selectedSystem: string) => {
       if (signature.startsWith('R0lGOD')) return 'image/gif';
       return 'image/jpeg'; // default
     }
-
+  
+  
     //скачивание фото
-    
-const handleDownload = async (contentType = 'image/jpeg', bytes) => {
-    try {
-    
-      const fileExtension = contentType.split('/')[1] || 'jpeg';
-
-      const link = document.createElement('a');
-      link.href = singlePhoto;
-      link.download =  `photo_${Date.now()}.${fileExtension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(bytes);
-
-    } catch (error) {
-      console.error('Ошибка при скачивании файла:', error);
-    } 
-  };
-
-
     async function downloadBase64Image(contentType = 'image/jpeg', bytes) {
       try {
         // 1. Запрашиваем разрешения
@@ -705,7 +630,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
         const fileUri = `${FileSystem.documentDirectory}${fileName}`;
     
         // 3. Записываем base64 в файл (без префикса data:...)
-        const base64Data = String((undefined) || bytes.startsWith('data:')) 
+        const base64Data = bytes.startsWith('data:') 
           ? bytes.split(',')[1] 
           : bytes;
         
@@ -773,8 +698,6 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
       }
     }
 
-   // console.log('singlePhoto', singlePhoto);
-
   return (
      <KeyboardAwareScrollView
       style={styles.container}
@@ -783,19 +706,15 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}
     >
-        <View style={[styles.container, {
-                alignItems: 'center',
-                justifyContent: 'center',
-                alignSelf: 'center'
-              }]}>
-             <>   
-                <View style={{flex: 1, alignItems: 'center',
-                width: isDesktopWeb? '146%' :'100%'}}>
-        
+        <View style={[styles.container]}>
+
+
+          <>
+            <View style={[styles.container]}>
 
               <View style={{ flex: 1, alignItems: 'center' }}>
 
-              <View style={{flexDirection: 'row', width: isDesktopWeb? '143%' :'98%', marginBottom: 0 }}>
+              <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
             <View style={{width: '20%', alignItems: 'center'}}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>№</Text>
             </View>
@@ -809,11 +728,11 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
             </View>
           </View>
 
-          <View style={{flexDirection: 'row',  width: isDesktopWeb? '146%' :'98%', marginBottom: 0 }}>
+          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
              
             <View style={{width: '20%', alignItems: 'center'}}>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6, width: '85%'}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6}]}
             //placeholder="№ акта ИИ"
             placeholderTextColor="#111"
             value={editedSerialNumber.toString()}
@@ -848,7 +767,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
               </View>
 
           </View>  
-            <View style={{ width: isDesktopWeb? '148%' :'98%', alignItems: 'center'}}>
+            
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <ListOfSystem 
               list={listSystem} 
@@ -857,18 +776,11 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
               status={statusReq} */
               buf={bufsystem} 
               post={editedSystemName} 
-              onChange={(system) => handleSystemChange(system)}
+              onChange={(system) => setEditedSystemName(system)}
           />
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Содержание замечания</Text>
           <TextInput
-            style={[styles.input,  
-              {fontSize: ts(14),
-                minHeight: 42, // минимальная высота
-                //maxHeight: 100, // максимальная высота (можно увеличить при необходимости)
-                height: inputHeight, // динамическая высота
-                lineHeight: ts(22),
-                alignContent: 'center',
-                textAlignVertical: 'center' }]} // Минимальная высота 40
+            style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight), fontSize: ts(14) }]} // Минимальная высота 40
                         
             placeholderTextColor="#111"
             value={editedDescription}
@@ -905,7 +817,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
             editable={false}
           />*/}
 
-          <View style={{flexDirection: 'row',width: '96%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
                   <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата выдачи</Text>
                  </View>
@@ -915,17 +827,13 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
                  </View>
           </View>
 
-          <View  style={{flexDirection: 'row', width: '98%'}}>{/* Дата выдачи и Плановая дата устранения */}
-            <View style={{width: '50%', alignSelf: 'center'}}>
-              <CalendarWithoutDel theme='min' statusreq={true} post={startD} onChange={(dateString) => setEditedStartDate(dateString)}/>
+          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата выдачи и Плановая дата устранения */}
+            <CalendarWithoutDel theme='min' statusreq={true} post={startD} onChange={(dateString) => setEditedStartDate(dateString)}/>
             {/*<CalendarWithoutDel theme='min' statusreq={true} post={editedStartDate} onChange={(dateString) => setEditedStartDate(dateString)}/>*/}
-            </View>
-            <View style={{width: '50%'}}>
-              <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
-            </View>
+            <Calendar theme='min' statusreq={true} post={editedEndDatePlan} onChange={(dateString) => setEditedEndDatePlan(dateString)}/>
           </View>
 
-          <View style={{flexDirection: 'row',width: '96%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+          <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
                 <View style={{width: '50%', }}>
                   <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Дата устранения</Text>
                  </View>
@@ -937,20 +845,20 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
 
           
 
-          <View  style={{flexDirection: 'row', width: '98%'}}>{/* Дата факта устранения и фото */}
-            <View style={{width: '50%', alignSelf: 'center'}}>
-              <Calendar theme='min' statusreq={true} post={editedEndDateFact} onChange={(dateString) => setEditedEndDateFact(dateString)}/>
-            </View>
+          <View  style={{flexDirection: 'row', width: '100%'}}>{/* Дата факта устранения и фото */}
+            
+            <Calendar theme='min' statusreq={true} post={editedEndDateFact} onChange={(dateString) => setEditedEndDateFact(dateString)}/>
             <View style={{width: '50%', paddingTop: 12}}>
             {singlePhoto  ? (
-                <View style={{ flexDirection: 'row', marginBottom: 8, alignSelf: 'center', width: '100%', justifyContent: 'center'}}> 
-                  <View style={{width: '69%'}}>
+                <View style={{ flexDirection: 'row', marginBottom: 8, alignSelf: 'center', width: '90%'}}> 
+                  <View style={{width: '73%'}}>
                     <TouchableOpacity onPress={() => setModalVisible(true)}> 
                       <Image
                       source={{ uri: singlePhoto }}
                       style={{
                         height: 42,
                         borderRadius: 8,}}
+                      //style={styles.image}
                       />
                     </TouchableOpacity>
                     <Modal
@@ -963,24 +871,24 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
                         <View style={styles.modalContainer}>
                           <View style={styles.modalContent}>
 
-                            <View style={{flexDirection: 'row', justifyContent: 'space-around', width: '100%'}}>
+                            <View style={{flexDirection: 'row', }}>
                               <TouchableOpacity 
-                                onPress={() => handleDownload( 'image/jpeg', singlePhoto)}
+                                onPress={() => downloadBase64Image( 'image/jpeg', singlePhoto)}
                                 style={{alignItems: 'center', width: '33%', }}
                               >
                                  <Ionicons name='download-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-{/*}
+
                               <TouchableOpacity 
                                 onPress={() => shareImage(singlePhoto)}
                                 style={{alignItems: 'center', width: '33%' }}
                               >
                                  <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
-*/}
+
                               <TouchableOpacity 
                                 onPress={() => setModalVisible(false)} 
-                                style={{alignItems: 'center', width: '10%' }}
+                                style={{alignItems: 'center', width: '33%' }}
                               >
                                 <Ionicons name='close-outline' size={30} color={"#57CBF5"} />
                               </TouchableOpacity>
@@ -1002,7 +910,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
                     </Modal>
 
                     </View>
-                  <View style={{alignSelf: 'center', paddingStart: 3}}>
+                  <View style={{width: '24%' ,alignSelf: 'center'}}>
                     <TouchableOpacity onPress={cancelPhoto} style={{alignItems: 'flex-end'}}>
                       <Ionicons name='close-outline' size={30} />
                     </TouchableOpacity>
@@ -1014,7 +922,7 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
                 (
                 <View style={{ marginBottom: 8}}>
                   <View style={{width: '100%'}}>
-                    <TouchableOpacity onPress={selectFile} style={{alignSelf: 'flex-end', width: '20%'}}>
+                    <TouchableOpacity onPress={chooseCameraOrPhoto} style={{alignSelf: 'flex-end', width: '20%'}}>
                       <Ionicons name='image-outline' size={30}></Ionicons>
                     </TouchableOpacity> 
                     </View>
@@ -1027,21 +935,16 @@ const handleDownload = async (contentType = 'image/jpeg', bytes) => {
           </View>
 
                 <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: 400, marginBottom: 8 }}>Категория замечания</Text>
-           <ListOfSystem 
-            list={listCategories}
-            title='Категория замечания'
-            post={editedCommentCategory} 
-            onChange={(category) => setEditedCommentCategory(category)}/>
-            {/*  <DropdownComponent2 post = {editedCommentCategory} onChange={(category) => setEditedCommentCategory(category)}/>
-*/}
+                <DropdownComponent2 post = {editedCommentCategory} onChange={(category) => setEditedCommentCategory(category)}/>
+
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Комментарий</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14)}]}
             placeholderTextColor="#111"
             value={editedCommentExplanation}
-            onChange={()=>setEditedCommentExplanation}
+            onChangeText={setEditedCommentExplanation}
           />
-</View>
+
           <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
 
                 <CustomButton

@@ -1,16 +1,17 @@
 import CustomButton from "@/components/CustomButton";
 import HeaderForTabs from "@/components/HeaderForTabs";
-import Note from "@/components/Note";
 import SystemsForTwo from "@/components/SystemsForTwo";
-import useDevice from "@/hooks/useDevice";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGlobalSearchParams, useRouter } from "expo-router";
+import type { PropsWithChildren } from "react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  StyleSheet,
   Text,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View
@@ -33,8 +34,6 @@ type Note = {
 };
 
 const DirectionLayout = () => {
-  const { isDesktopWeb, screenWidth } = useDevice();
-
   const router = useRouter();
   const [accessToken, setAccessToken] = useState<any>("");
   const { codeCCS } = useGlobalSearchParams(); //получение кода ОКС
@@ -95,7 +94,7 @@ const DirectionLayout = () => {
       setData(json);
       setOriginalData(json);
       console.log("ResponseGetNotes:", response);
-     // console.log("ResponseGetNotes:", json);
+      //console.log("ResponseGetNotes:", json);
     } catch (error) {
       console.error(error);
     } finally {
@@ -131,11 +130,9 @@ const DirectionLayout = () => {
   useEffect(() => {
     if (codeCCS && accessToken && status) {
       getNotes();
-      //getStructure();
       setStatus(false);
     }
     if (data.length > 0 && statusStructure) {
-      //getNotes();
       getStructure();
       setStatusStructure(false);
     }
@@ -168,7 +165,7 @@ const DirectionLayout = () => {
     ) {
       const item = { label: "Все системы", value: "Все системы" };
       setListSystem((prev) => [...prev, item]);
-      //console.log("new ListSystem", listSystem);
+      console.log("new ListSystem", listSystem);
     }
     if (
       chooseSubobject !== "" &&
@@ -177,7 +174,7 @@ const DirectionLayout = () => {
     ) {
       const item = { label: "Все подобъекты", value: "Все подобъекты" };
       setListSubObj((prev) => [...prev, item]);
-      //console.log("new ListSystem", listSubObj);
+      console.log("new ListSystem", listSubObj);
     }
   }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
 
@@ -212,33 +209,33 @@ const DirectionLayout = () => {
       <View
         style={{
           flex: 1,
-          alignItems: "center"}}>
-
-        <HeaderForTabs capitalCSName={capitalCSName} nameTab="Замечания"/>
+          alignItems: "center"}}
+      >
+        <HeaderForTabs nameTab="Замечания" capitalCSName={capitalCSName}/>
 
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            width: isDesktopWeb&& screenWidth>900? 900 : '96%',
+            width: "96%",
           }}
         >
           <SystemsForTwo
             list={listSubObj}
             nameFilter="Все подобъекты"
-            width={isDesktopWeb? 130: 80}
+            width={135}
             onChange={(system) => setChooseSubobject(system)}
           />
           <SystemsForTwo
             list={listSystem}
             nameFilter="Все системы"
-            width={isDesktopWeb? 130: 80}
+            width={100}
             onChange={(system) => setChooseSystem(system)}
           />
           <SystemsForTwo
             list={statusList}
             nameFilter="Все"
-            width={isDesktopWeb? 130: 80}
+            width={100}
             onChange={(status) => setChooseStatus(status)}
           />
         </View>
@@ -246,28 +243,23 @@ const DirectionLayout = () => {
         <View
           style={{
             flexDirection: "row",
-            width: isDesktopWeb && screenWidth>900? 900 : '95%',
+            width: "96%",
             height: 32,
-            paddingTop: 12,
+            paddingTop: 6,
+            justifyContent: "space-between",
           }}
         >
-          <View style = {{width: '12%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center'}}>№</Text>
-          </View>
-          <View style = {{width: '73%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Содержание</Text>
-          </View>
-          <View style = {{width: '14%' }}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Статус</Text>
-          </View>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>№</Text>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Содержание</Text>
+          <Text style={{ fontSize: ts(14), color: "#1E1E1E" }}>Статус</Text>
         </View>
 
-        <View style={{ flex: 15, marginTop: 12, width: isDesktopWeb&& screenWidth>900? 900 : '96%', }}>
+        <View style={{ flex: 15, marginTop: 12 }}>
           {isLoading ? (
             <ActivityIndicator />
           ) : (
             <FlatList
-              style={{ width: "100%" }}
+              style={{ width: "96%" }}
               data={data}
               keyExtractor={({ commentId }) => commentId}
               renderItem={({ item }) => (
@@ -288,18 +280,18 @@ const DirectionLayout = () => {
                       backgroundColor: "#E0F2FE",
                       flexDirection: "row",
                       width: "100%",
-                      height: 42,
+                      height: 37,
                       justifyContent: "center",
-                      marginBottom: 15,
+                      marginBottom: "5%",
                       borderRadius: 8,
                     }}
                   >
-                    <View style={{ width: "12%", justifyContent: "center" }}>
+                    <View style={{ width: "15%", justifyContent: "center" }}>
                       <Text
                         style={{
                           fontSize: ts(14),
                           color: "#334155",
-                          textAlign: "center",
+                          textAlign: "left",
                         }}
                       >
                         {item.serialNumber}
@@ -309,11 +301,11 @@ const DirectionLayout = () => {
                     <View
                       style={{
                         width: "75%",
+                        marginStart: 2,
                         justifyContent: "center",
                       }}
                     >
                       <Text
-                      numberOfLines={2}
                         style={{
                           fontSize: ts(14),
                           color: "#334155",
@@ -326,9 +318,9 @@ const DirectionLayout = () => {
 
                     <View
                       style={{
-                        width: "12%",
+                        width: "7%",
+                        marginStart: 2,
                         justifyContent: "center",
-                        alignItems: 'center',
                       }}
                     >
                       {item.commentStatus == "Устранено" ? (
@@ -345,13 +337,15 @@ const DirectionLayout = () => {
                         <Ionicons name="square" size={25} color="#F0F9FF" />
                       ) : (
                         ""
-                      )}    
+                      )}
                       {item.commentStatus == "Не устранено с просрочкой" ? (
                         <Ionicons name="square" size={25} color="#F0F9FF" />
                       ) : (
                         ""
-                      )}
+                      )}{/**color="#F59E0B" */}
 
+                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
+                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -373,5 +367,120 @@ const DirectionLayout = () => {
     </View>
   );
 };
+
+type PreviewLayoutProps = PropsWithChildren<{
+  // label: string;
+  // values: string[];
+  selectedValue: string;
+  setSelectedValue: (value: string) => void;
+}>;
+
+type PreviewNameProps = PropsWithChildren<{
+  values: string[];
+}>;
+
+const PreviewName = ({
+  //childern,
+  values,
+}: PreviewNameProps) => (
+  <View style={styles.row}>
+    {values.map((value) => (
+      <Text key={value} style={styles.title}>
+        {value}
+      </Text>
+    ))}
+  </View>
+);
+
+const PreviewLayout = ({
+  //  label,
+  children,
+  values,
+  selectedValue,
+  setSelectedValue,
+}: PreviewLayoutProps) => (
+  <View style={{ padding: 6, flex: 1 }}>
+    <View style={styles.row}>
+      {values.map((value) => (
+        <TouchableOpacity
+          key={value}
+          onPress={() => setSelectedValue(value)}
+          style={[styles.button, selectedValue === value && styles.selected]}
+        >
+          <Text
+            style={[
+              styles.buttonLabel,
+              selectedValue === value && styles.selectedLabel,
+            ]}
+          >
+            {value}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+    <View
+      style={styles.separator}
+      lightColor="#eee"
+      darkColor="rgba(255,255,255,0.1)"
+    />
+    <View style={[styles.container]}>{children}</View>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "normal",
+    textAlign: "center",
+    letterSpacing: 0.2,
+  },
+  separator: {
+    marginVertical: 5,
+
+    height: 1,
+    width: "100%",
+  },
+  box: {
+    width: 50,
+    height: 50,
+  },
+  row: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  button: {
+    backgroundColor: "#E0F2FE",
+    marginHorizontal: "10%",
+    marginBottom: 16,
+    width: 103,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: "center",
+  },
+  selected: {
+    backgroundColor: "#E0F2FE",
+    borderWidth: 0,
+  },
+  buttonLabel: {
+    fontFamily: "Inter",
+    fontSize: 14,
+    fontWeight: "400",
+    color: "#334155",
+    textAlign: "center",
+  },
+  selectedLabel: {
+    color: "#334155",
+  },
+  label: {
+    textAlign: "center",
+    marginBottom: 10,
+    fontSize: 24,
+  },
+});
 
 export default DirectionLayout;

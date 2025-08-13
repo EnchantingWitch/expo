@@ -3,7 +3,6 @@ import FormField from '@/components/FormField';
 import ListOfOrganizations from '@/components/ListOfOrganizations';
 import ListOfRegion from '@/components/ListOfRegion';
 import { } from '@/components/Themed';
-import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
@@ -15,7 +14,6 @@ type Object = {
 };
 
 export default function TabOneScreen() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const fontScale = useWindowDimensions().fontScale;
@@ -54,7 +52,8 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     if(codeCCS){setOks(capitalCSName);
-    setKey(codeCCS);
+    setKey(codeCCS);}
+    if(ciwexecutor){
     setRegion(locationRegion);
     setTypeObj(objectType);
     setCharterer(customer);
@@ -66,7 +65,7 @@ export default function TabOneScreen() {
     setStatus(true);
     }
     
-  }, [codeCCS]);
+  }, [codeCCS, ciwexecutor]);
   
     
   const getToken = async () => {
@@ -281,12 +280,9 @@ useEffect(() => {
     }
   };
 
-  console.log(region, 'region');
-  console.log(locationRegion, 'locationRegion');
-
   return (
     <KeyboardAwareScrollView
-     style={{ flex: 1, backgroundColor: 'white' }}
+     style={{ flex: 1 }}
   enableOnAndroid={true}
   extraScrollHeight={100}
   keyboardShouldPersistTaps="handled"
@@ -296,7 +292,7 @@ useEffect(() => {
     justifyContent: 'center',  // ← Перенесено сюда
   }}
         >
-    <View style={[styles.container, {alignSelf: 'center', width: isDesktopWeb && screenWidth>900? 900 : '100%'}]}>
+    <View style={styles.container}>
       {/** value={} для динамической подгрузки, передавать в компонент и через useEffect изменять, запрос нужен ли? */}
        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Объект капитального строительства</Text>
         <TextInput
@@ -315,19 +311,19 @@ useEffect(() => {
             value={key}
             // editable={false}
         />
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Регион</Text>
+     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Регион</Text>
         <ListOfRegion items={listRegion} modalTitle='Регион'  selectedValue={region} isEnabled={statusRegion} onValueChange={(value) => setRegion(value)}/>
     
        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Тип объекта</Text>
-       <ListOfOrganizations data={listTypeObj} label='Тип объекта' title={typeObj!=''?  typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
+        <ListOfOrganizations label='Тип объекта' data={listTypeObj} title={typeObj!=''? typeObj:'Тип объекта'} post={typeObj} status={statusTypeObj} onChange={(value) => setTypeObj(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заказчик</Text>
-      <ListOfOrganizations data={listOrganization} label='Заказчик' title={charterer!=''? charterer:''} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
+      <ListOfOrganizations label='Заказчик' data={listOrganization} title={charterer!=''? charterer:''} post={charterer} status={statusOrg} onChange={(value) => setCharterer(value)}/>
       <FormField title='Куратор от заказчика' post={cuCharterer} onChange={(value) => setCuCharterer(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations data={listOrganization} label='Исполнитель ПНР' title={executorPnr!=''? executorPnr:''} post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
+      <ListOfOrganizations label='Исполнитель ПНР' data={listOrganization} title={executorPnr!=''? executorPnr:''} post={executorPnr} status={statusOrg} onChange={(value) => setExecutorPnr(value)}/>
       <FormField title='Руководитель ПНР' post={dirPnr} onChange={(value) => setDirPnr(value)}/>
       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-      <ListOfOrganizations data={listOrganization} label='Исполнитель СМР' title={executorCmr!=''? executorCmr:''} post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
+      <ListOfOrganizations label='Исполнитель СМР' data={listOrganization} title={executorCmr!=''? executorCmr:''} post={executorCmr} status={statusOrg} onChange={(value) => setExecutorCmr(value)}/>
       <FormField title='Куратор СМР' post={cuCmr} onChange={(value) => setCuCmr(value)}/>
     </View>
     

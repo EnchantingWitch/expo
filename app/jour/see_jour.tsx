@@ -9,7 +9,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //import { Image } from 'expo-image';
 //import * as MediaLibrary from 'expo-media-library';
 //import * as Sharing from 'expo-sharing';
-import useDevice from '@/hooks/useDevice';
 import { Dimensions } from 'react-native';
 
 export type SystemGET = {
@@ -29,8 +28,6 @@ export type SystemGET = {
 }
 const { width, height } = Dimensions.get('window');
 const DetailsScreen = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
   const {codeCCS} = useLocalSearchParams();//получение кода ОКС 
@@ -50,7 +47,7 @@ const textInputRef = useRef<TextInput>(null);
   const [subObj, setSubObj] = useState<string>('');//подобъект
   const [systemN, setSystemN] = useState<string>('');//система
   const [comment, setComment] = useState<string>('');//содержание замечания
-  const [commentStat, setCommentStat] = useState<string>('');//статус замечания 
+  const [commentStat, setCommentStat] = useState<string>('');//статус замечания
   const [organisation, setOrganisation] = useState<string>('');//organisation где работает сотрудник
   const [fullName, setFullName] = useState<string>('');//фио сотрудника
 
@@ -126,19 +123,16 @@ const textInputRef = useRef<TextInput>(null);
         setStatusReq(true);
       }
     };
-  
+
 
   return (
 
-    <ScrollView style={{flex: 1, backgroundColor: '#fff',  }}>
-      <View style={[styles.container, {minHeight: Dimensions.get('window').height-BOTTOM_SAFE_AREA-54, alignItems: 'center',
-    justifyContent: 'center',
-    //width: '120%',
-    alignSelf: 'center'}]}>
+    <ScrollView>
+      <View style={[styles.container, {minHeight: Dimensions.get('window').height-BOTTOM_SAFE_AREA-54}]}>
         
-        <View style={{flex: 1, alignItems: 'center', width: isDesktopWeb? '188%' :'100%'}}>
+        <View style={{flex: 1, alignItems: 'center'}}>
 
-          <View style={{flexDirection: 'row', width: '100%', marginBottom: 0 }}>
+          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
             <View style={{width: '40%', alignItems: 'center'}}>
             <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>№</Text>
             </View>
@@ -148,7 +142,7 @@ const textInputRef = useRef<TextInput>(null);
             </View>
           </View>
 
-          <View style={{flexDirection: 'row', width: '100%', marginBottom: 0 }}>
+          <View style={{flexDirection: 'row', width: '98%', marginBottom: 0 }}>
              
             <View style={{width: '40%', alignItems: 'center'}}>
             <TextInput
@@ -171,22 +165,20 @@ const textInputRef = useRef<TextInput>(null);
 
             <View style={{width: '60%', alignItems: 'center'}}>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(22),alignContent: 'center', width: '50%',
-                textAlignVertical: 'center',}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(19)}]}
             placeholderTextColor="#111"
             value={date}//должна быть дата
             multiline
             editable={false}
+            maxLength={45}
             />
             </View>
 
           </View>  
 
-           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400',}}>Подобъект</Text>
+           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Подобъект</Text>
             <TextInput
-            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(22),
-                alignContent: 'center',
-                textAlignVertical: 'center',}]}
+            style={[styles.input, {fontSize: ts(14), marginTop: 6, lineHeight: ts(19)}]}
             placeholderTextColor="#111"
             value={subObj}
             multiline
@@ -197,44 +189,16 @@ const textInputRef = useRef<TextInput>(null);
             
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Система</Text>
           <TextInput
-            style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
-                alignContent: 'center',
-                textAlignVertical: 'center', }]}
+            style={[styles.input, {fontSize: ts(14), lineHeight: 19 }]}
             placeholderTextColor="#111"
             value={systemN}
             multiline
             editable={false}
           />     
           
-          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, textAlign: 'center' }}>Краткое описание работ и условия выполнения</Text>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Краткое описание работ и условия выполнения</Text>
           <TextInput
-          //показывает все поле макс высотой даже если оно не полное
-           style={[styles.input, { 
-                         fontSize: ts(14),
-                         minHeight: 42, // минимальная высота
-                         //maxHeight: 100, // максимальная высота (можно увеличить при необходимости)
-                         height: inputHeight, // динамическая высота
-                         lineHeight: ts(22),
-                          alignContent: 'center',
-                          textAlignVertical: 'center'
-                     }]}
-                     maxLength={1000}
-                     placeholderTextColor="#111"
-                     value={comment}
-                  //   onChangeText={setComment}
-                  editable={false}
-                     multiline
-                     onContentSizeChange={(e) => {
-                         // Добавляем небольшой отступ к высоте контента
-                      /*   const newHeight = e.nativeEvent.contentSize.height + 10;
-                         setInputHeight(Math.min(Math.max(newHeight, 42), ));
-                         */
-                        let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-                       if(inputH>200) inputH =200
-                       setInputHeight(inputH)
-                     }}
-        /*                
-         ref={textInputRef}
+          ref={textInputRef}
                   style={[
             styles.input, 
             {
@@ -242,24 +206,22 @@ const textInputRef = useRef<TextInput>(null);
               minHeight: 42,
               maxHeight: 250,
               fontSize: ts(14),
-              lineHeight: 22,
-                alignContent: 'center',
-                textAlignVertical: 'center',
+              
            //   textAlignVertical: 'top'
             }
             
           ]}
-            placeholderTextColor="#111"
-            multiline
-            value={comment}
       /*    autoFocus
             onFocus={() => {
                 textInputRef.current?.setNativeProps({
                 selection: { start: 0, end: 0 }
                 });
             }}*/
-          
+           placeholderTextColor="#111"
+            multiline
+            value={comment}
           />
+
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Ответственное лицо</Text>
           <TextInput
             style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
@@ -280,7 +242,6 @@ const textInputRef = useRef<TextInput>(null);
             multiline
             editable={false}
           />  
-          
        
         </View> 
         <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20}}>

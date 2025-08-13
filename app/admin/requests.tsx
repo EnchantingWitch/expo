@@ -1,9 +1,8 @@
-import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
  
 type Reqs = {
   id: number;//айди заявки
@@ -21,7 +20,8 @@ type Reqs = {
 };
 
 const DirectionLayout = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth, screenHeight } = useDevice();
+ const BOTTOM_SAFE_AREA =
+    Platform.OS === "android" ? StatusBar.currentHeight : 0;
   const router = useRouter();
 
   const fontScale = useWindowDimensions().fontScale;
@@ -73,8 +73,7 @@ const DirectionLayout = () => {
     <View style={{ flex: 1, backgroundColor: 'white' }}>
 
       <View style={{
-        flex: 1, alignSelf: 'center'
-        , width: isDesktopWeb && screenWidth>900? 900 : '100%'
+        flex: 1, alignItems: 'center'
         // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
       }}>
           
@@ -91,29 +90,27 @@ const DirectionLayout = () => {
            {/*} <Text style={{ fontSize: ts(14), color: '#1E1E1E' }}>Дата заявки</Text>*/}
           </View>
 
-          <View style={{ flex: 15, marginVertical: 12, width: '100%', alignItems: 'center'}}>
+          <View style={{ flex: 15, marginTop: 12}}>
 
                { isLoading ? (
               <ActivityIndicator />
             ) : (
-
+<View style={{paddingBottom: BOTTOM_SAFE_AREA + 20, alignItems: 'center'}}>
               <FlatList
-                      style={{width: '96%'}}
+                      style={{width: '98%'}}
                       data={data}
                       keyExtractor={({id}) => id}
                       renderItem={({item}) => (
              
                   <TouchableWithoutFeedback onPress={() =>{ router.push({pathname: '/admin/acpt_req', params: {idReq: item.id }})}  }>
-                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 42, justifyContent: 'center', marginBottom: 15, borderRadius: 8}}>
+                  <View style={{ backgroundColor: '#E0F2FE', flexDirection: 'row', width: '100%', height: 37, justifyContent: 'center', marginBottom: '5%', borderRadius: 8}}>
           
                       <View style={{width: '43%', justifyContent: 'center', paddingLeft: 5}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }} numberOfLines={2} // ограничивает 2 строками
-  ellipsizeMode="tail">{item.fullName}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'left' }}>{item.fullName}</Text>
                       </View>
           
                       <View style={{width: '35%', marginStart: 0, justifyContent: 'center'}}>
-                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }} numberOfLines={2} // ограничивает 2 строками
-  ellipsizeMode="tail">{item.organisation}</Text>
+                      <Text style={{ fontSize: ts(14), color: '#334155', textAlign: 'center' }}>{item.organisation}</Text>
                       </View>
                       
                       <View style={{width: '22%', marginStart: 0, justifyContent: 'center'}}>
@@ -124,6 +121,7 @@ const DirectionLayout = () => {
                   </TouchableWithoutFeedback>
  )}
  />
+ </View>
        
             )}
         

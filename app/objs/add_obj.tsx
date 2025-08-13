@@ -1,12 +1,10 @@
 import CustomButton from '@/components/CustomButton';
-import useDevice from '@/hooks/useDevice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 import { router, useLocalSearchParams } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
 import { Alert, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
-import { getGlobalStyles } from '../../constants/globalStyles';
 
 type Object = {
   capitalCSName: string;
@@ -22,8 +20,6 @@ type Object = {
 };
 
 const CheckboxList = () => {
-  
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
     const [checkedItems, setCheckedItems] = useState({});
@@ -97,7 +93,6 @@ const CheckboxList = () => {
 
     const ts = (fontSize: number) => {
         return (fontSize / fontScale)};
-    const globalStyles = getGlobalStyles(fontScale);
 
 //что-то делает для отображения чекбоксов для каждого объекта по состоянию
     const toggleCheckbox = (id) => {
@@ -185,14 +180,16 @@ const CheckboxList = () => {
           flex: 1, // Занимает всё доступное пространство
           justifyContent: 'center', 
           paddingHorizontal: 8, // Добавляем отступы
-          backgroundColor: '#E0F2FE', minHeight: 42, borderRadius: 5, 
+          backgroundColor: '#E0F2FE', minHeight: 37, borderRadius: 8, 
         }}>
           <Text 
             numberOfLines={2}
             ellipsizeMode="tail"
-            style={globalStyles.text
-              /*{flexShrink: 1, // Позволяет тексту сжиматься и переноситься
-            }*/}
+            style={{
+              fontSize: ts(14),
+              // textAlign: 'left', // Выравнивание текста (по умолчанию 'left')
+              flexShrink: 1, // Позволяет тексту сжиматься и переноситься
+            }}
           >
             {item.capitalCSName}
           </Text>
@@ -202,14 +199,14 @@ const CheckboxList = () => {
 
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-        <View style={[styles.container, {width: isDesktopWeb && screenWidth>900? 900 : '96%'}]}>
+        <View style={styles.container}>
            <TextInput 
-            style={globalStyles.search}
-            placeholder="Поиск по объекту строительства"                    
-            placeholderTextColor={'#B2B3B3'}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
+                      style={{ marginBottom: 12, borderWidth: 1, borderColor: '#D9D9D9', borderRadius: 8, fontSize: ts(14) }}
+                      placeholder="Поиск по объекту строительства"
+                      placeholderTextColor={'#B2B3B3'}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                    />
             <FlatList
                 data={filteredData}
                 renderItem={renderItem}
@@ -226,11 +223,9 @@ const CheckboxList = () => {
 
 const styles = StyleSheet.create({
     container: {
-    paddingTop: 6,
-    flex: 1,
-    alignSelf: 'center',
-    width: '96%',
-    //height: '100%',
+        flex: 1,
+        //justifyContent: 'center',
+        padding: '2%',
     },
     checkboxContainer: {
         flexDirection: 'row',
