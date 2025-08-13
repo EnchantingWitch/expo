@@ -1,11 +1,12 @@
 import CustomButton from '@/components/CustomButton';
 import MonoSizeText from '@/components/FontSize';
+import HeaderForTabs from '@/components/HeaderForTabs';
 import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import { default as React, useEffect, useState } from 'react';
-import { Modal, Platform, SectionList, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { Modal, SectionList, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 
 export type Structure = {
   id: number;
@@ -35,16 +36,10 @@ export type Structure = {
 
 
 const Struct = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
-    
-  const [isSelected, setSelected] = useState(true);
+  const { isDesktopWeb, screenWidth } = useDevice();
   const router = useRouter();
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
-  console.log(codeCCS, 'codeCCS structure');
-  console.log(capitalCSName, 'capitalCSName structure');
-  const [inputHeight, setInputHeight] = useState(40);
   const [accessToken, setAccessToken] = useState<any>('');
   const [visible, setVisible] = useState<boolean>(false);
   
@@ -52,18 +47,6 @@ const Struct = () => {
 
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
-
-  const navigation = useNavigation();
-  
-  useEffect(() => {
-      navigation.setOptions({
-        headerLeft: () => (
-          <TouchableOpacity onPress={() => router.replace('/objs/objects')} >
-            <Ionicons name='home-outline' size={25} />
-          </TouchableOpacity>
-        ),
-      });
-  }, [navigation]);
 
   const [isLoading, setLoading] = useState(true);
   const [data_, setData] = useState<Structure[]>([]);
@@ -80,8 +63,7 @@ const Struct = () => {
         const json = await response.json();
         setData(json);
         console.log('ResponseSeeStructure:', response);
-        console.log('json:', json);
-        //console.log('ResponseSeeStructure json:', json );
+        //console.log('json:', json);
       } catch (error) {
         console.error(error);
       } finally {
@@ -92,12 +74,9 @@ const Struct = () => {
     const getToken = async () => {
       try {
           const token = await AsyncStorage.getItem('accessToken');
-          //setAccessToken(token);
           if (token !== null) {
               console.log('Retrieved token:', token);
               setAccessToken(token);
-              //вызов getAuth для проверки актуальности токена
-              //authUserAfterLogin();
           } else {
               console.log('No token found');
               router.push('/sign/sign_in');
@@ -238,33 +217,9 @@ const Struct = () => {
       </TouchableOpacity>
     )};
 
-const str = `${capitalCSName}\nСтруктура`
     return(
       <View style={{ backgroundColor: 'white', flex: 1 }}>
-         <View style={{flexDirection: 'row', paddingTop: BOTTOM_SAFE_AREA +15, marginBottom: 10}}>
-    <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
-              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
-            </TouchableOpacity>
-    <TextInput
-        style={{
-          flex: 1,
-          paddingTop:  0,
-          fontWeight: 500,
-          height: Math.max(42,inputHeight), // min: 42, max: 100
-          fontSize: ts(20),
-          textAlign: 'center',          // Горизонтальное выравнивание.
-          textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
-        }}
-        multiline
-        editable={false}
-        onContentSizeChange={e => {
-          const newHeight = e.nativeEvent.contentSize.height;
-          setInputHeight(Math.max(42, newHeight));
-        }}
-      >
-        {str}
-      </TextInput>
-      </View>
+        <HeaderForTabs capitalCSName={capitalCSName} nameTab='Структура'/>
       <View style={[styles.container, {width: isDesktopWeb&& screenWidth>900? 900 : '98%', alignSelf: 'center'}]}>
 
         <View style={{width:  '98%', alignSelf: 'center',  flexDirection: 'row', height: 40,}}>
@@ -357,10 +312,7 @@ const str = `${capitalCSName}\nСтруктура`
         <Text style={{ fontSize: ts(14), height: 25, color: '#1E1E1E', textAlign: 'left' , marginBottom: 11.2 }}>Акт КО подписан</Text>
 
       </View> 
-
-
-
-        </View>  
+  </View>  
                       </View>
                     </View>
                   </Modal>
@@ -376,8 +328,6 @@ const str = `${capitalCSName}\nСтруктура`
       
     );
   };
-
-
 
 const styles = StyleSheet.create({
   container: {

@@ -1,42 +1,19 @@
 import CustomButton from '@/components/CustomButton';
-import Note from '@/components/Note';
+import HeaderForTabs from '@/components/HeaderForTabs';
 import SystemsForTwo from '@/components/SystemsForTwo';
 import useDevice from '@/hooks/useDevice';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useGlobalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useGlobalSearchParams, useRouter } from 'expo-router';
 import type { PropsWithChildren } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native';
 import type { Structure } from './structure';
- 
-type Note = {
-  id: number; //Идентификатор
-  serialNumber: number;//Серийный номер
-  subObject: string;
-  systemName: string;
-  equipment: string; //Оборудование
-  description: string; // Описание
-  defectiveActStatus: string; // Статус дефектного акта
-  executor: string; // Исполнитель
-  userName: string; // Имя пользователя
-  startDate: string;// Дата начала
-  endDatePlan: string; // Плановая дата завершения
-  endDateFact: string;// Фактическая дата 
-  defectiveActExplanation: string;//комментарий к дефектному акту
-  //userName: string;//не увидела в бд у Сергея
-  iiNumber: string;//номер акта ИИ
-};
-
 
 const Defacts = () => {
-  const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-
+  const { isDesktopWeb, screenWidth } = useDevice();
   const router = useRouter();
-  const currentDate = new Date; //console.log(currentDate);
   const [accessToken, setAccessToken] = useState<any>('');
-const [inputHeight, setInputHeight] = useState(40);
   const {codeCCS} = useGlobalSearchParams();//получение кода ОКС 
   const {capitalCSName} = useGlobalSearchParams();//получение наименование ОКС 
   const [chooseSubobject, setChooseSubobject] = useState('');
@@ -57,20 +34,6 @@ const [inputHeight, setInputHeight] = useState(40);
   const ts = (fontSize: number) => {
     return (fontSize / fontScale)};
 
-  const navigation = useNavigation();
-    
-  useEffect(() => {
-        navigation.setOptions({
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.replace('/objs/objects')}>
-              <Ionicons name='home-outline' size={25} style={{alignSelf: 'center'}}/>
-            </TouchableOpacity>
-          ),
-        });
-  }, [navigation]);
- 
-  const [direction, setDirection] = useState('Объект');
-
   const getToken = async () => {
     try {
         const token = await AsyncStorage.getItem('accessToken');
@@ -78,8 +41,6 @@ const [inputHeight, setInputHeight] = useState(40);
         if (token !== null) {
             console.log('Retrieved token:', token);
             setAccessToken(token);
-            //вызов getAuth для проверки актуальности токена
-            //authUserAfterLogin();
         } else {
             console.log('No token found');
             router.push('/sign/sign_in');
@@ -90,8 +51,8 @@ const [inputHeight, setInputHeight] = useState(40);
 };
 
   const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState<Note[]>([]);
-  const [originalData, setOriginalData] = useState<Note[]>([]);
+  const [data, setData] = useState<[]>([]);
+  const [originalData, setOriginalData] = useState<[]>([]);
   const [structure, setStructure] = useState<Structure[]>([]);
 
   const getNotes = async () => {
@@ -140,11 +101,9 @@ const [inputHeight, setInputHeight] = useState(40);
   useEffect(() => {
     if(codeCCS && accessToken && status){
      getNotes();
-      //getStructure();
       setStatus(false);
     }
     if(data.length > 0 && statusStructure){
-      //getNotes();
       getStructure();
       setStatusStructure(false);
     }
@@ -206,52 +165,15 @@ const [inputHeight, setInputHeight] = useState(40);
     setData(filteredData);
   }, [filteredData]);
 
-  //console.log('chooseSystem',chooseSystem);
-  //console.log('listSystem',listSystem);
-  //console.log('data',data);
-    const str = `${capitalCSName}\nДефекты`
-
   return (
 <View style={{ flex: 1, backgroundColor: "white" }}>
       <View
         style={{
           flex: 1,
           alignItems: "center",
-          // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
         }}
       >
-        <View
-          style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, width: '100%' }}
-        >
-          <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-            <Ionicons
-              name="home-outline"
-              size={25}
-              style={{ alignSelf: "center" }}
-            />
-          </TouchableOpacity>
-
-          <TextInput
-            style={{
-              flex: 1,
-              paddingTop: 0,
-              fontWeight: 500,
-              paddingBottom: 8,
-              height: Math.max(42, inputHeight), // min: 42, max: 100
-              fontSize: ts(20),
-              textAlign: "center", // Горизонтальное выравнивание.
-              textAlignVertical: "center", // Вертикальное выравнивание (Android/iOS).
-            }}
-            multiline
-            editable={false}
-            onContentSizeChange={(e) => {
-              const newHeight = e.nativeEvent.contentSize.height;
-              setInputHeight(Math.max(42, newHeight));
-            }}
-          >
-              {str}
-          </TextInput>
-        </View>
+        <HeaderForTabs capitalCSName={capitalCSName} nameTab='Дефекты'/>
 
         <View
           style={{
@@ -286,17 +208,16 @@ const [inputHeight, setInputHeight] = useState(40);
             width: isDesktopWeb && screenWidth>900? 900 : '95%',
             height: 32,
             paddingTop: 12,
-            //justifyContent: "space-between",
           }}
         >
           <View style = {{width: '12%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center'}}>№</Text>
+            <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center'}}>№</Text>
           </View>
           <View style = {{width: '73%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Содержание</Text>
+            <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Содержание</Text>
           </View>
           <View style = {{width: '14%' }}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Статус</Text>
+            <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Статус</Text>
           </View>
         </View>
 
@@ -325,7 +246,6 @@ const [inputHeight, setInputHeight] = useState(40);
                     <View style={{ width: "12%", justifyContent: "center" }}>
                       <Text
                         style={{
-                          //marginStart: 18,
                           fontSize: ts(14),
                           color: "#334155",
                           textAlign: "center",
@@ -338,9 +258,7 @@ const [inputHeight, setInputHeight] = useState(40);
                     <View
                       style={{
                         width: "75%",
-                       // marginStart: 2,
                         justifyContent: "center",
-                      //  backgroundColor: 'red'
                       }}
                     >
                       <Text
@@ -358,34 +276,25 @@ const [inputHeight, setInputHeight] = useState(40);
                     <View
                       style={{
                         width: "12%",
-                        //marginStart: 2,
                         justifyContent: "center",
                         alignItems: 'center',
-                        //backgroundColor: 'green'
                       }}
                     >
                         {(item.defectiveActStatus =='Устранено') ? ( <Ionicons name="checkbox" size={25} color="#0072C8" />): ''} 
                         
                         {(item.defectiveActStatus =='Не устранено') ? <Ionicons name="square" size={25} color="#F0F9FF" />:''}
 
-
-                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
-                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
               )}
             />
-            )}
+          )}
 
-          </View>
-
-          
-            <CustomButton
-              title="Добавить дефект"
-              handlePress={() =>router.push({pathname: '/defacts/create_defact', params: { codeCCS: codeCCS, capitalCSName: capitalCSName }})} />
-         
-        
+        </View>
+        <CustomButton
+          title="Добавить дефект"
+          handlePress={() =>router.push({pathname: '/defacts/create_defact', params: { codeCCS: codeCCS, capitalCSName: capitalCSName }})} />
       </View >
     </View >
 

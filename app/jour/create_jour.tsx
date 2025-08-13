@@ -1,27 +1,15 @@
 import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
+import ListOfSubobj from '@/components/ListOfOrganizations';
+import ListOfSystem from '@/components/ListOfSystem';
+import useDevice from '@/hooks/useDevice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Platform, StatusBar, Text, TextInput, useWindowDimensions, View } from 'react-native';
-//import { Video } from 'react-native-video';
-import ListOfSubobj from '@/components/ListOfOrganizations';
-//import ListOfSubobj from '@/components/ListOfSubobj';
-import ListOfSystem from '@/components/ListOfSystem';
-import { Structure } from '../(tabs)/structure';
-//import { setSeconds } from 'date-fns';
-import useDevice from '@/hooks/useDevice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createPortal } from 'react-dom';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Structure } from '../(tabs)/structure';
 import { styles } from '../notes/create_note';
-
-const WebDatePickerPortal = ({ children }: { children: React.ReactNode }) => {
-  if (typeof document === 'undefined') return null;
-  const portalRoot = document.getElementById('portal-root');
-  if (!portalRoot) return null;
-  return createPortal(children, portalRoot);
-};
-
 export type ListToDrop = {
   label: string;
   value: string; 
@@ -29,7 +17,7 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+  const { isDesktopWeb } = useDevice();
    
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
@@ -54,7 +42,6 @@ export default function CreateNote() {
   const [bufsystem, setBufsystem] = useState('');
 
   const [accessToken, setAccessToken] = useState<any>('');
-  const [organisationFrAsync, setOrganisationFrAsync] = useState<any>('');
   const [fullNameFrAsync, setFullNameFrAsync] = useState<any>('');
 
   const fontScale = useWindowDimensions().fontScale;
@@ -71,12 +58,9 @@ export default function CreateNote() {
   const getToken = async (keyToken, setF) => {
     try {
         const token = await AsyncStorage.getItem(keyToken);
-        //setAccessToken(token);
         if (token !== null) {
             console.log('Retrieved token:', keyToken, '-', token);
             setF(token);
-            //вызов getAuth для проверки актуальности токена
-            //authUserAfterLogin();
         } else {
             console.log('No token found');
             router.push('/sign/sign_in');
@@ -102,8 +86,6 @@ export default function CreateNote() {
           const json = await response.json();
           setArray(json);
           console.log('ResponseSeeStructure:', response);
-          console.log(typeof(json));
-          console.log('array of subobj',array);
           if (response.status === 200){
             setStatusReq(true);//для выпадающего списка
           }
@@ -112,14 +94,10 @@ export default function CreateNote() {
           console.error(error);
         } 
       };
-/*console.log('accessToken', accessToken );
-console.log('req', req );
-console.log('codeCCS', codeCCS );
-console.log('codeCCS && req&& accessToken', codeCCS && req&& accessToken );*/
+
   useEffect(() => {
     getToken('accessToken', setAccessToken); 
     getToken('userID', setFullNameFrAsync); 
-   // getToken('organisation', setOrganisationFrAsync);
     //запрос на структура для получение данных на выпадающие списки и прочее
     if(codeCCS && req&& accessToken){getStructure(); setReq(false); }//вызов происходит только один раз
     if (systemName){
@@ -127,7 +105,6 @@ console.log('codeCCS && req&& accessToken', codeCCS && req&& accessToken );*/
     }
       if(systemName != bufsystem){
         setBufsystem(systemName);
-      console.log(systemName, 'systemName: use if(systemName )');
       if (systemName != ' ' ){
         const filtered = array.filter(item => item.subObjectName === subObject);
         const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
@@ -170,15 +147,6 @@ useEffect(() => {
   }
 }, [subObject, array]);
 
-console.log(JSON.stringify({
-          subObject: subObject,
-          system: systemName,
-          description: description,
-          user: fullNameFrAsync.toString(), //id пользователя
-          capitalCS: capitalCSName,
-          date: dateWork.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
-        }))
-
 // Обновление номера АИИ и исполнителя при изменении системы
 useEffect(() => {
   if (systemName !== ' ' && systemName !== bufsystem && subObject) {
@@ -193,12 +161,10 @@ useEffect(() => {
   }
 }, [systemName, subObject, array]);
 
-
   const handleSubObjectChange = (selectedSubObject: string) => {
     setSubObject(selectedSubObject);
     setSystemName(' '); // Явный сброс системы
   }
-
 
   const submitData = async () => {
     setDisabled(true);
@@ -215,7 +181,6 @@ useEffect(() => {
                   setDisabled(false);
                   return;
                 }
-     // const user = fullNameFrAsync +',' + ' ' +organisationFrAsync;
     try {
       console.log(JSON.stringify({
           subObject: subObject,
@@ -258,30 +223,24 @@ useEffect(() => {
     } finally {
       setDisabled(false);
       setUpLoading(false);
-      //  alert(id);
       router.replace({pathname: '/(tabs)/jour', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
     }
   }
-  console.log(description.length % 10);
-  console.log(description.length );
 
   return (
-    <KeyboardAwareScrollView
+  <KeyboardAwareScrollView
           style={[styles.container, ]}
           enableOnAndroid={true}
           extraScrollHeight={100}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1 }}
-        >
-      <View style={[styles.container, {alignItems: 'center',
-    justifyContent: 'center',
-    //backgroundColor: 'green',
-    width: isDesktopWeb || width>900? '100%' : '90%',
-    alignSelf: 'center'
-    }]}>
+  >
+    <View style={[styles.container, {alignItems: 'center',
+      justifyContent: 'center',
+      width: isDesktopWeb || width>900? '100%' : '90%',
+      alignSelf: 'center'
+      }]}>
         <View style={{ flex: 1, alignItems: 'center',
-          //height: 1,
-         //width: isDesktopWeb? '188%' :'100%'
          width: isDesktopWeb || width>900? 550:'110%',
          }}>
 
@@ -300,7 +259,7 @@ useEffect(() => {
               <ListOfSubobj 
                   data={listSubObj} 
                   post={subObject} 
-                  title=''
+                  title = {subObject? subObject : 'Не выбрано'}
                   label={'Подобъект'}
                   status={statusReq} 
                   onChange={(subobj) => handleSubObjectChange(subobj)}
@@ -311,9 +270,6 @@ useEffect(() => {
           <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8, paddingTop: 6 }}>Система</Text>
           <ListOfSystem 
             list={listSystem} 
-          /*  title=''
-            status={statusReq} 
-            label={'Система'}*/
             buf={bufsystem} 
             post={systemName} 
             onChange={(system) => setSystemName(system)}/>
@@ -323,17 +279,12 @@ useEffect(() => {
             multiline
             onContentSizeChange={e=>{
                 setInputHeight(e.nativeEvent.contentSize.height);
-            /*  let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-              if(inputH>120) inputH =100
-              setInputHeight(inputH)*/
           }}
           maxLength={1000}
           style={[
               styles.input, 
               {
                 height: Math.max(42, inputHeight),
-               // minHeight: 42, // Минимальная высота
-               // maxHeight: 100, // Максимальная высота
                 fontSize: ts(14),
                 lineHeight: ts(22),
                 alignContent: 'center',
@@ -356,13 +307,12 @@ useEffect(() => {
         </View>
       </View>
       <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-            <CustomButton
-              title="Сохранить"
-              disabled={disabled}
-              handlePress={TwoFunction} // Вызов функции отправки данных
-            />
+        <CustomButton
+          title="Сохранить"
+          disabled={disabled}
+          handlePress={TwoFunction} // Вызов функции отправки данных
+        />
       </View>
-      
-      </KeyboardAwareScrollView>
+  </KeyboardAwareScrollView>
   );
 }

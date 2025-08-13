@@ -5,11 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
 //import * as Sharing from 'expo-sharing';
+import HeaderForTabs from "@/components/HeaderForTabs";
 import useDevice from "@/hooks/useDevice";
-import * as FileSystem from "expo-file-system";
-import * as Sharing from 'expo-sharing';
 import { openBrowserAsync } from "expo-web-browser";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   //Linking, 
@@ -24,29 +23,22 @@ import {
   useWindowDimensions,
   View
 } from 'react-native';
-import RNFetchBlob from 'react-native-blob-util';
 
 
 export default function Docs() {
   const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();  
-  const { StorageAccessFramework } = FileSystem
   const BOTTOM_SAFE_AREA =
     Platform.OS === "android" ? StatusBar.currentHeight : 0;
 
   const router = useRouter();
   const { codeCCS } = useGlobalSearchParams(); //получение код ОКС
   const { capitalCSName } = useGlobalSearchParams(); //получение код ОКС
-  const [inputHeight, setInputHeight] = useState(40);
-  // const {capitalCSName} = useGlobalSearchParams();//получение код ОКС
-  /* console.log(Id, 'Id object');
-  const ID = Id;*/
-  console.log(codeCCS, "codeCCS object");
+
   const [accessToken, setAccessToken] = useState<any>("");
   const [nameLink, setNameLink] = useState<any>("");
   const [urlFetch, setUrlFetch] = useState<any>("");
   const [modalStatus, setModalStatus] = useState<boolean>(false);
   
-  //router.setParams({ ID: ID });
   const [urlWork, setUrlWork] = useState<any>("");
   const [urlOperate, setUrlOperate] = useState<any>("");
   const [urlExecute, setUrlExecute] = useState<any>("");
@@ -58,20 +50,10 @@ export default function Docs() {
   const [statusJournal, setStatusJournal] = useState<boolean>(false);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-          <Ionicons
-            name="home-outline"
-            size={25}
-            style={{ alignSelf: "center" }}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
+  const scrollRef = useRef(null); //для скрола заголовка
+  const [lineCount, setLineCount] = useState(1);//количество строк в заголовке 
+  const textRef = useRef(null); //для скрола заголовка
+  
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem("accessToken");
@@ -285,126 +267,6 @@ export default function Docs() {
     setModalStatus(true);
   };
 
-  // Функция для конвертации Blob в base64
-const blobToBase64 = (blob) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64data = reader.result.split(',')[1];
-      resolve(base64data);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
-const saveF = async () => {
-  try {
-    // 1. Запрашиваем разрешение на доступ к директории
-    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-
-    if (!permissions.granted) {
-      Alert.alert('',"Вы должны предоставить разрешение для сохранения файла.",
-      [
-        { text: 'OK' }
-      ]
-       );
-      return;
-    }
-
-    const directoryUri = permissions.directoryUri; 
-    console.log('const directoryUri ',directoryUri)
-
-    // Проверяем возможность записи тестовым файлом
-    try {
-      const testFileUri = await StorageAccessFramework.createFileAsync(
-        directoryUri,
-        "test_write_check",
-        "text/plain"
-      );
-      
-      await FileSystem.writeAsStringAsync(testFileUri, "test", {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-      
-      await FileSystem.deleteAsync(testFileUri);
-    } catch (testError) {
-       Alert.alert('',"Выбранная директория недоступна для записи. Пожалуйста, выберите другую.",
-      [
-        { text: 'OK' }
-      ]
-       );
-      return;
-    }
-   
-    // 2. Получаем данные с сервера
-    const response = await fetch(
-      `https://xn----7sbpwlcifkq8d.xn--p1ai:8443/excelForms/getMonitoring/${codeCCS}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Ошибка сервера: ${response.status}`);
-    }
-    
-    // 3. Получаем бинарные данные
-    const blob = await response.blob();
-    const base64data = await blobToBase64(blob);
-
-    // 4. Создаем файл с правильным расширением
-    const fileUri = await StorageAccessFramework.createFileAsync(
-      directoryUri,
-      `Мониторинг ПНР по объекту ${capitalCSName}.xlsx`, // имя файла с расширением
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // MIME тип для Excel
-    );
-    
-
-    // 5. Записываем бинарные данные в файл
-    await FileSystem.writeAsStringAsync(fileUri, base64data, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
-    console.log("Файл успешно сохранен:", fileUri);
-    if (Platform.OS === 'android') {
-          await RNFetchBlob.android.actionViewIntent( fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        } else {
-          await Sharing.shareAsync(fileUri, {
-            mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            dialogTitle: 'Открыть файл',
-            UTI: 'org.openxmlformats.spreadsheetml.sheet' // или 'com.microsoft.excel.xlsx'
-          });
-        }
-  /*  Alert.alert(
-      '','Файл сохранен',
-      
-     // `Файл сохранен по пути: ${response.path()}`, //можно прописать, если предусмотреть возврат пути из saveFileWithSAF
-      [
-        {
-          text: 'Открыть', //по-хорошему наверное здесь также поменять путь файла на открытие 
-          onPress: () => RNFetchBlob.android.actionViewIntent(fileUri, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        },
-        { text: 'OK' }
-      ]
-    );*/
-  } catch (err) {
-    console.error("Ошибка при сохранении файла:", err);
-    Alert.alert(
-      '','"Произошла ошибка:' + err,
-      [
-        { text: 'OK' }
-      ]
-    );
-  } finally {
-    setStatusPressGetExcel(false);
-  }
-};
-
 const handleDownload = async (toFetch: string, fileName: string, extands: string, setF) => {
   setF(true);
     try {
@@ -414,7 +276,6 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
         method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-        //  Accept: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // для Excel
         },
       }
     );
@@ -436,41 +297,10 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
     }
   };
 
-
- 
-  const str = `${capitalCSName}\nДокументация`
-
   return (
     <View style={{ flex: 1, backgroundColor: "white",  }}>
-      <View style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, marginBottom: 10 }}>
-        <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-          <Ionicons
-            name="home-outline"
-            size={25}
-            style={{ alignSelf: "center" }}
-          />
-        </TouchableOpacity>
-        <TextInput
-          style={{
-            flex: 1,
-            paddingTop: 0,
-            fontWeight: 500,
-            height: Math.max(42, inputHeight), // min: 42, max: 100
-            fontSize: ts(20),
-            textAlign: "center", // Горизонтальное выравнивание.
-            textAlignVertical: "center", // Вертикальное выравнивание (Android/iOS).
-          }}
-          multiline
-          editable={false}
-          onContentSizeChange={(e) => {
-            const newHeight = e.nativeEvent.contentSize.height;
-            setInputHeight(Math.max(42, newHeight));
-          }}
-        >
-            {str}
-        </TextInput>
-      </View>
-<View style={{width: isDesktopWeb&& screenWidth>900? 900 : '100%', alignSelf: 'center',}}>
+      <HeaderForTabs nameTab="Документация" capitalCSName={capitalCSName}/>
+      <View style={{width: isDesktopWeb&& screenWidth>900? 900 : '100%', alignSelf: 'center',}}>
       <ScrollView>
         {isMobile? 
         <View style={styles.container}>
@@ -483,7 +313,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 100, height: 100, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/WorkDocs.svg")}
                 />
                 <TouchableOpacity
@@ -519,7 +351,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 100, height: 100, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/factoryDocs.svg")}
                 />
                 <TouchableOpacity
@@ -557,7 +391,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 100, height: 100, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/preparationDocs.svg")}
                 />
                 <TouchableOpacity
@@ -594,7 +430,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 100, height: 100, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/executionDocs.svg")}
                 />
                 <TouchableOpacity
@@ -627,13 +465,15 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
               onPress={(event) => {
                 handleLink(
                   event,
-                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
+                  "https://drive.google.com/drive/folders/14d62EIGcNx4Qre6TYaJ4nDBad9f7ItZq"
                 );
               }}
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7 }}
+                style={{ width: 100, height: 100, marginLeft: -7,
+                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                 }}
                 source={require("../../assets/images/standartDocs.svg")}
               />
 
@@ -659,17 +499,12 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 'xlsx',
                 setStatusPressGetExcel
               )
-              //  getExcelFile(), setStatusPressGetExcel(true)
               ]}
-             /* onPress={(event) => {
-                handleLink(
-                  event,
-                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
-                );
-              }}*/
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7 }}
+                style={{ width: 100, height: 100, marginLeft: -7,
+                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                 }}
                 source={require("../../assets/images/monitoring.svg")}
               />
               <Text
@@ -688,7 +523,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             <View
               style={{ width: "50%", alignItems: "center", marginBottom: 15 }}>
               <Image
-                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5}}
+                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5,
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                  }}
                   source={require("../../assets/images/monitoring.svg")}
                 />
                 <Text
@@ -711,9 +548,14 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             <TouchableOpacity
               onPress={(event) => {
              handleDownload(
-                '/journal/getJournal/', 
+              '/excelForms/getJournal/', 
                 'Журнал ПНР по объекту', 
-                'docx',
+                'xlsx',
+                 /*  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'org.openxmlformats.spreadsheetml.sheet', 
+             '/journal/getJournal/', 
+                'Журнал ПНР по объекту', 
+                'docx',*/
                 setStatusJournal
                 );
               }}
@@ -748,7 +590,7 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <Image
               
-                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",
+                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",  opacity: 0.5,
                   filter: Platform.select({
                   web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
                   default: undefined
@@ -783,7 +625,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 120, height: 120, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/WorkDocs.svg")}
                 />
                 <TouchableOpacity
@@ -819,7 +663,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 120, height: 120, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/factoryDocs.svg")}
                 />
                 <TouchableOpacity
@@ -857,15 +703,11 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 'xlsx',
                 setStatusPressGetExcel
               )]}
-             /* onPress={(event) => {
-                handleLink(
-                  event,
-                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
-                );
-              }}*/
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7 }}
+                style={{ width: 120, height: 120, marginLeft: -7,
+                  filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                 }}
                 source={require("../../assets/images/monitoring.svg")}
               />
               <Text
@@ -884,7 +726,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             <View
               style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}>
               <Image
-                  style={{ width: 100, height: 100, marginLeft: -7,  opacity: 0.5}}
+                  style={{ width: 120, height: 120, marginLeft: -7,  opacity: 0.5,
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                  }}
                   source={require("../../assets/images/monitoring.svg")}
                 />
                 <Text
@@ -911,7 +755,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 120, height: 120, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/preparationDocs.svg")}
                 />
                 <TouchableOpacity
@@ -948,7 +794,9 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
             >
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  style={{ width: 100, height: 100, marginLeft: "15%" }}
+                  style={{ width: 120, height: 120, marginLeft: "15%",
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                   }}
                   source={require("../../assets/images/executionDocs.svg")}
                 />
                 <TouchableOpacity
@@ -975,80 +823,87 @@ const handleDownload = async (toFetch: string, fileName: string, extands: string
                 Исполнительная
               </Text>
             </TouchableOpacity>
- {statusJournal===false?
-            <TouchableOpacity
-              onPress={(event) => {
-             handleDownload(
-                '/journal/getJournal/', 
+            {statusJournal===false?
+              <TouchableOpacity
+                onPress={(event) => {
+              handleDownload(
+                '/excelForms/getJournal/', 
                 'Журнал ПНР по объекту', 
-                'docx',
+                'xlsx',
+                 /*  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'org.openxmlformats.spreadsheetml.sheet', 
+             '/journal/getJournal/', 
+                'Журнал ПНР по объекту', 
+                'docx',*/
                 setStatusJournal
-                );
-              }}
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <Image
-              
-                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",  
-                  filter: Platform.select({
-      web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-      default: undefined
-    }),}}
-                source={require("../../assets/images/journal.svg")}
-              />
-
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
+                  );
                 }}
+                style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
               >
-                Журнал ПНР
-              </Text>
-            </TouchableOpacity>
+                <Image
+                
+                  style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",  
+                    filter: Platform.select({
+                    web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
+                    default: undefined
+                  }),}}
+                  source={require("../../assets/images/journal.svg")}
+                />
+
+                <Text
+                  style={{
+                    fontSize: ts(14),
+                    color: "#0072C8",
+                    fontWeight: "500",
+                    textAlign: "center",
+                    marginLeft: -7,
+                  }}
+                >
+                  Журнал ПНР
+                </Text>
+              </TouchableOpacity>
             :
-             <View
-              style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
-            >
-              <Image
-              
-                style={{ width: 100, height: 104, marginLeft: -7, tintColor: "#0072C8",  
-                  filter: Platform.select({
-      web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
-      default: undefined
-    }),}}
-                source={require("../../assets/images/journal.svg")}
-              />
+              <View
+                style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}>
+                <Image
+                
+                  style={{ width: 120, height: 124, marginLeft: -7, tintColor: "#0072C8",  opacity: 0.5, 
+                    filter: Platform.select({
+                      web: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)',
+                      default: undefined
+                    }),}}
+                  source={require("../../assets/images/journal.svg")}
+                />
 
-              <Text
-                style={{
-                  fontSize: ts(14),
-                  color: "#0072C8",
-                  fontWeight: "500",
-                  textAlign: "center",
-                  marginLeft: -7,
-                }}
-              >
-                Журнал ПНР
-              </Text>
-            </View>
-}
+                <Text
+                  style={{
+                    fontSize: ts(14),
+                    color: "#0072C8",
+                    fontWeight: "500",
+                    textAlign: "center",
+                    marginLeft: -7,
+                  }}
+                >
+                  Журнал ПНР
+                </Text>
+              </View>
+            }
           </View>
           <View style={{ flexDirection: "row" }}>
-<TouchableOpacity
+          <TouchableOpacity
               onPress={(event) => {
                 handleLink(
                   event,
-                  "https://drive.google.com/drive/folders/1JAYL2fHQ5aRSj3t9WPz8xHdaw8EYJ6jS?usp=sharing"
+                  "https://drive.google.com/drive/folders/14d62EIGcNx4Qre6TYaJ4nDBad9f7ItZq"
                 );
               }}
               style={{ width: "33.3%", alignItems: "center", marginBottom: 15 }}
             >
               <Image
-                style={{ width: 100, height: 100, marginLeft: -7 }}
+                style={{ width: 120, height: 120, marginLeft: -7,  
+                    filter: 'brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(2036%) hue-rotate(183deg) brightness(89%) contrast(101%)', 
+                }}
+                
                 source={require("../../assets/images/standartDocs.svg")}
               />
 

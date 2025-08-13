@@ -61,6 +61,7 @@ export default function TabOneScreen() {
   const [koplan, setKoplan] = useState<string | null>('');
   const [kofact, setKofact] = useState<string | null>('');
   const [comment, setComments] = useState<string>('');
+  const [defect, setDefect] = useState<string>('');
   const [system, setSystem] = useState<string>('');//наименование системы
   const [rd, setRd] = useState<string>('');//наименование системы
   const [statusRequest, setstatusRequest] = useState<boolean>(false);//ограничение на передачу дат пока запрос не выполнен
@@ -158,6 +159,7 @@ export default function TabOneScreen() {
       setKofact(json.kofactDate);
       setRd(json.systemRD);
       setComments(''+json.comments.toString());
+      setDefect(''+json.defectiveActs.toString());
       
       console.log(json.systemName, 'json.systemName');
       console.log('ResponseSeeSystem:', response);
@@ -194,22 +196,6 @@ export default function TabOneScreen() {
    
   }, [accessToken, post, statusRequest]);
 
- /* useEffect(() => {
-    if (pnrfact){
-      console.log(conditionII, 'ConditionII');
-      console.log(pnrfact, 'pnrfact');
-      if (pnrfact != ' '){setConditionII(false); }
-
-        setIifact(' '); setConditionII(true);
-    }
-    if (iifact){
-      if (iifact != ' '){setConditionKO(false);}
-        setKofact(' ');setConditionII(true);}
-    if (kofact){
-      if (pnrfact != ' '){setConditionII(false); setConditionKO(false);}
-      else{setIifact(' '); setConditionII(true); setConditionKO(true);}
-  }
-  }, [pnrfact, iifact]);*/
   const [statusOrg, setStatusOrg] = useState(false);
 
   const getOrganisations = async () => {
@@ -254,117 +240,102 @@ export default function TabOneScreen() {
     return (fontSize / fontScale)};
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-      
-    <View style={[styles.container, {alignItems: 'center',
-    justifyContent: 'center',
-   // width: '50%',
-    alignSelf: 'center'}]}>
-   {/* <Text style={{ fontSize: ts(20), color: '#1E1E1E', fontWeight: '500', textAlign: 'center', marginBottom: '23' }}>{system}</Text> */}
-<View style={{ flex: 1, alignItems: 'center',
-          //height: 1,
-         width: isDesktopWeb? '138%' :'100%'
-         }}>
+  <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+  <View style={[styles.container, {alignItems: 'center', justifyContent: 'center',alignSelf: 'center'}]}>
+    <View style={{ flex: 1, alignItems: 'center', width: isDesktopWeb? '138%' :'100%'}}>
       <View style={[styles.separator,{}]}/>
-      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
-      <DropdownComponent post = {systemStat} statusreq={statusRequest} pnrPlan={pnrplan} pnrFact={pnrfact} iiPlan={iiplan} iiFact={iifact} koPlan={koplan} koFact={kofact} onChange={(status) => setSystemStat(status)}/>
+        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8  }}>Статус системы</Text>
+        <DropdownComponent post = {systemStat} statusreq={statusRequest} pnrPlan={pnrplan} pnrFact={pnrfact} iiPlan={iiplan} iiFact={iifact} koPlan={koplan} koFact={kofact} onChange={(status) => setSystemStat(status)}/>
 
-<View style={{flexDirection: 'row',width: isDesktopWeb ? '100%' : '96%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
-      <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
-       </View>
+        <View style={{flexDirection: 'row',width: isDesktopWeb ? '100%' : '96%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи в ПНР */}
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План в ПНР</Text>
+          </View>
 
-       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт в ПНР</Text>
-       </View>
-</View>
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт в ПНР</Text>
+          </View>
+        </View>
 
-<View style={{flexDirection: 'row', width: '100%'}}>
-<DateInputWithPicker theme = 'min' post={pnrplan} statusreq={statusRequest} onChange={(dateString) => setPnrplan(dateString)}/>{/* Дата плана передачи в ПНР*/}
-<DateInputWithPicker theme = 'min'post={pnrfact} statusreq={statusRequest} onChange={(dateString) => setPnrfact(dateString)}/>{/* Дата факта передачи в ПНР*/}
-</View>
+        <View style={{flexDirection: 'row', width: '100%'}}>
+          <DateInputWithPicker theme = 'min' post={pnrplan} statusreq={statusRequest} onChange={(dateString) => setPnrplan(dateString)}/>{/* Дата плана передачи в ПНР*/}
+          <DateInputWithPicker theme = 'min'post={pnrfact} statusreq={statusRequest} onChange={(dateString) => setPnrfact(dateString)}/>{/* Дата факта передачи в ПНР*/}
+        </View>
 
-<View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
-      <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
-       </View>
+        <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта ИИ */}
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План ИИ</Text>
+          </View>
 
-       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт ИИ</Text>
-       </View>
-</View>
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт ИИ</Text>
+          </View>
+        </View>
 
-<View style={{flexDirection: 'row',width: '100%',}}>
-<DateInputWithPicker theme = 'min' post = {iiplan} statusreq={statusRequest} onChange={(dateString) => setIiplan(dateString)}/>{/* Дата плана ИИ*/}
-<DateInputWithPicker theme = 'min' post = {iifact} statusreq={statusRequest} diseditable = {conditionII} onChange={(dateString) => setIifact(dateString)}/>{/* Дата факта ИИ*/}
-</View>
+        <View style={{flexDirection: 'row',width: '100%',}}>
+          <DateInputWithPicker theme = 'min' post = {iiplan} statusreq={statusRequest} onChange={(dateString) => setIiplan(dateString)}/>{/* Дата плана ИИ*/}
+          <DateInputWithPicker theme = 'min' post = {iifact} statusreq={statusRequest} diseditable = {conditionII} onChange={(dateString) => setIifact(dateString)}/>{/* Дата факта ИИ*/}
+        </View>
 
-<View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
-      <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
-       </View>
+        <View style={{flexDirection: 'row',width: '100%',}}>{/* Объявление заголовков в строку для дат плана и факта передачи КО */}
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>План КО</Text>
+          </View>
 
-       <View style={{width: '50%', }}>
-        <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт КО</Text>
-       </View>
-</View>
+          <View style={{width: '50%', }}>
+            <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center' }}>Факт КО</Text>
+          </View>
+        </View>
 
-<View style={{flexDirection: 'row', width: '100%',}}>
-  
-<DateInputWithPicker theme = 'min' post = {koplan} statusreq={statusRequest} onChange={(dateString) => setKoplan(dateString)}/>{/* Дата плана КО*/}
-<DateInputWithPicker theme = 'min' post = {kofact} statusreq={statusRequest} diseditable = {conditionKO} onChange={(dateString) => setKofact(dateString)}/>{/* Дата факта КО*/}
-</View>
+        <View style={{flexDirection: 'row', width: '100%',}}>
+    
+          <DateInputWithPicker theme = 'min' post = {koplan} statusreq={statusRequest} onChange={(dateString) => setKoplan(dateString)}/>{/* Дата плана КО*/}
+          <DateInputWithPicker theme = 'min' post = {kofact} statusreq={statusRequest} diseditable = {conditionKO} onChange={(dateString) => setKofact(dateString)}/>{/* Дата факта КО*/}
+        </View>
 
-
-
-      <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', }}>
+          <View style={{ alignSelf: 'center',  flexDirection: 'row', width: '96%', }}>
           
-                      <View style={{width: '50.5%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
-                      <TextInput
-                        style={[styles.input, {fontSize: ts(14)}]}
-                        placeholderTextColor="#111"
-                        //onChangeText={setComments}
-                        value={comment}
-                        editable={false}
-                        />
-                        
-                      </View>
+            <View style={{width: '50.5%'}}>
+              <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено замечаний</Text>
+              <TextInput
+                style={[styles.input, {fontSize: ts(14)}]}
+                placeholderTextColor="#111"
+                value={comment}
+                editable={false}
+              />
+                          
+            </View>
+            <View style={{width: '50.5%'}}>
+              <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
+              <TextInput
+                style={[styles.input, {fontSize: ts(14)}]}
+                placeholderTextColor="#111"
+                editable={false}
+                value={defect}
+              />        
+            </View>
+          </View>
 
-                      <View style={{width: '50.5%'}}>
-                      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Не устранено дефектов</Text>
-                      <TextInput
-                  style={[styles.input, {fontSize: ts(14)}]}
-                  placeholderTextColor="#111"
-                  editable={false}
-                />
-                      
-                      </View>
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Шифр РД</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14)}]}
+            placeholderTextColor="#111"
+            value={rd}
+            editable={false}
+          />
+
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
+          <ListOfOrganizations label='Исполнитель СМР' data={listOrganization} title={ciwexecut} post={ciwexecut} status={statusOrg} onChange={(value) => setCiwexecut(value)}/>
+         
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
+          <ListOfOrganizations label='Исполнитель ПНР' data={listOrganization} title={cwexecut} post={cwexecut} status={statusOrg} onChange={(value) => setCwexecut(value)}/>
+               
+          <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
+            <CustomButton title='Подтвердить' disabled={disabled} handlePress={() => putSystem() }/>
+            <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
+          </View>
+        </View>
       </View>
-
-      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', textAlign: 'center', marginBottom: 8  }}>Шифр РД</Text>
-                      <TextInput
-                        style={[styles.input, {fontSize: ts(14)}]}
-                        placeholderTextColor="#111"
-                        //onChangeText={setComments}
-                        value={rd}
-                        editable={false}
-                        />
-      
-
-       <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель СМР</Text>
-       <ListOfOrganizations label='Исполнитель СМР' data={listOrganization} title={ciwexecut} post={ciwexecut} status={statusOrg} onChange={(value) => setCiwexecut(value)}/>
-               
-
-
-      <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Исполнитель ПНР</Text>
-      <ListOfOrganizations label='Исполнитель ПНР' data={listOrganization} title={cwexecut} post={cwexecut} status={statusOrg} onChange={(value) => setCwexecut(value)}/>
-               
- <View style={{ paddingBottom: BOTTOM_SAFE_AREA + 20 }}>
-      <CustomButton title='Подтвердить' disabled={disabled} handlePress={() => putSystem() }/>
-      <CustomButton title='Отменить'  handlePress={() => router.push({pathname: '/(tabs)/structure', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}})} />
-    </View>
-    </View></View>
     </ScrollView>
   );
 }

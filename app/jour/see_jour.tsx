@@ -50,7 +50,10 @@ const textInputRef = useRef<TextInput>(null);
   const [subObj, setSubObj] = useState<string>('');//подобъект
   const [systemN, setSystemN] = useState<string>('');//система
   const [comment, setComment] = useState<string>('');//содержание замечания
-  const [commentStat, setCommentStat] = useState<string>('');//статус замечания
+  const [commentStat, setCommentStat] = useState<string>('');//статус замечания 
+  const [organisation, setOrganisation] = useState<string>('');//organisation где работает сотрудник
+  const [fullName, setFullName] = useState<string>('');//фио сотрудника
+
   const bufCommentStat = commentStat;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
   const [date, setDate] = useState<string>('');
 
@@ -112,6 +115,8 @@ const textInputRef = useRef<TextInput>(null);
         setSubObj(json.subObject);
         setSystemN(json.system);
         setComment(json.description);
+        setOrganisation(json.organisation);
+        setFullName(json.user);
        // setCode(json.capitalCS);{/**Если это код окс */}
         
       } catch (error) {
@@ -121,49 +126,7 @@ const textInputRef = useRef<TextInput>(null);
         setStatusReq(true);
       }
     };
-    
-const timeoutRef = useRef(null); // Храним ID таймера
-
-/*
-  useEffect(() => {
-    const setCursorToStart = () => {
-      if (textInputRef.current) {
-        // 1. Попытка сразу установить курсор
-        textInputRef.current.setNativeProps({
-          selection: { start: 0, end: 0 }
-        });
-
-        // 2. Для Android - повтор через несколько фреймов
-        if (Platform.OS === 'android') {
-          // Очищаем предыдущий таймер
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-          }
-
-          let attempts = 0;
-          const intervalId = setInterval(() => {
-            textInputRef.current?.setNativeProps({
-              selection: { start: 0, end: 0 }
-            });
-            attempts++;
-            if (attempts >= 3) clearInterval(intervalId);
-          }, 50);
-
-          timeoutRef.current = intervalId;
-        }
-      }
-    };
-
-    setCursorToStart();
-    
-    // Очистка при размонтировании
-    return () => {
-      if (timeoutRef.current) {
-        clearInterval(timeoutRef.current);
-      }
-    };
-  }, [comment]);
-  */
+  
 
   return (
 
@@ -297,7 +260,26 @@ const timeoutRef = useRef(null); // Храним ID таймера
             }}*/
           
           />
-
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Ответственное лицо</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center', }]}
+            placeholderTextColor="#111"
+            value={fullName}
+            multiline
+            editable={false}
+          />  
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center', }]}
+            placeholderTextColor="#111"
+            value={organisation}
+            multiline
+            editable={false}
+          />  
           
        
         </View> 
@@ -312,7 +294,9 @@ const timeoutRef = useRef(null); // Храним ID таймера
             date: date,
             id: post,
             codeCCS: codeCCS, 
-            capitalCSName: capitalCSName
+            capitalCSName: capitalCSName,
+            name: fullName,
+            org: organisation
            }})} />
         </View>
       </View>

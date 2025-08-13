@@ -49,14 +49,6 @@ export default function TabLayout() {
       library: 'FontAwesome'
     },
     {
-      name: 'jour',
-      label: 'Журнал ПНР',
-      icon: 'notebook',
-      library: 'SimpleLineIcons'
-      /* icon: 'journal-outline',
-      library: 'Ionicons'*/
-    },
-    {
       name: 'docs',
       label: 'Документы',
       icon: 'folder-open-o',
@@ -80,6 +72,14 @@ export default function TabLayout() {
       icon: 'build-outline',
       library: 'Ionicons'
     },
+    {
+      name: 'jour',
+      label: 'Журнал ПНР',
+      icon: 'notebook',
+      library: 'SimpleLineIcons'
+      /* icon: 'journal-outline',
+      library: 'Ionicons'*/
+    }
   ];
 
   const activeTab = segments[segments.length - 1] || 'object';

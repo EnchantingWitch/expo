@@ -1,69 +1,28 @@
 import CustomButton from "@/components/CustomButton";
-import Note from "@/components/Note";
+import CustomModal from "@/components/CustomModal";
+import HeaderForTabs from "@/components/HeaderForTabs";
+import ListOfSubobj from '@/components/ListOfOrganizations';
+import ListOfSystem from "@/components/ListOfSystem";
+import MultilineTextInput from "@/components/MultilineTextInput";
 import SystemsForTwo from "@/components/SystemsForTwo";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
-import useDevice from '../../hooks/useDevice';
-//import type { PropsWithChildren } from "react";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Platform,
-  StatusBar,
-  StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
+import useDevice from '../../hooks/useDevice';
 import type { Structure } from "./structure";
 
-type UserInfo = {
-  id: number;
-  organisation: string;
-  fullName: string;
-  phoneNumber: string;
-  registrationDate: string;
-};
-
-type Users = {
-  username: string;
-  id: string;
-  isEnabled: boolean;
-  role: string;
-  userInfo: UserInfo; // Теперь это объект, а не массив
-}; 
-
-type Note = {
-  commentId: number; //id замечания , генерируется на сервере
-  serialNumber: number; //номер замечания
-  subObject: string;
-  systemName: string;
-  description: string;
-  commentStatus: string;
-  commentCategory: string;
-  startDate: string;
-  endDatePlan: string;
-  endDateFact: string;
-  commentExplanation: string; //комментарий к замечанию
-  //userName: string;//не увидела в бд у Сергея
-  iinumber: number; //номер акта ИИ
-};
-
 const DirectionLayout = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-    
-  const BOTTOM_SAFE_AREA =
-    Platform.OS === "android" ? StatusBar.currentHeight : 0;
-
+  const { isDesktopWeb, screenWidth, isMobileWeb } = useDevice();
   const router = useRouter();
-  const currentDate = new Date(); //console.log(currentDate);
   const [accessToken, setAccessToken] = useState<any>("");
-  const [inputHeight, setInputHeight] = useState(40);
   const { codeCCS } = useGlobalSearchParams(); //получение кода ОКС
   const { capitalCSName } = useGlobalSearchParams(); //получение наименование ОКС
   const [chooseSubobject, setChooseSubobject] = useState("");
@@ -73,29 +32,34 @@ const DirectionLayout = () => {
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [listUsers, setListUsers] = useState<ListToDrop[]>([]);
   const [status, setStatus] = useState(true);
-  const [statusStructure, setStatusStructure] = useState(true);
 
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<[]>([]);
+  const [originalData, setOriginalData] = useState<[]>([]);
+  const [structure, setStructure] = useState<Structure[]>([]);
+  const [users, setUsers] = useState<[]>([]);
+
+  //МОДАЛЬНОЕ ОКНО
+  const [visibleCustomModal, setVisibleCustomModal] = useState(false);
+  const [modalChange, setModalChange] = useState(false);//переход в режим редактирования в модальном окне
+  //значения для модального окна
+  const [number, setNumber] = useState('');
+  const [date, setDate] = useState('');
+  const [subobj, setSubobj] = useState('');
+  const [system, setSystem] = useState('');
+  const [description, setDescription] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [organisation, setOrganisation] = useState('');
+  //вспомогательные состояния для компонентов в модальном окне
+  const [disabled, setDisabled] = useState(false); //для кнопки
+  const [listSystemFromSubobj, setListSystemFromSubobj] = useState<[]>([]) //выпадающий списк для систем
+  const [statusSystemModal, setStatusSystemModal] = useState(false); //для отправки в компонент списка для выпадающего списка систем
+ 
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
     return fontSize / fontScale;
   };
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-          <Ionicons
-            name="home-outline"
-            size={25}
-            style={{ alignSelf: "center" }}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   const getToken = async () => {
     try {
@@ -109,12 +73,6 @@ const DirectionLayout = () => {
       console.error("Error retrieving token:", error);
     }
   };
-
-  const [isLoading, setLoading] = useState(true);
-  const [data, setData] = useState<Note[]>([]);
-  const [originalData, setOriginalData] = useState<Note[]>([]);
-  const [structure, setStructure] = useState<Structure[]>([]);
-  const [users, setUsers] = useState<Users[]>([]);
 
   const getNotes = async () => {
     try {
@@ -130,8 +88,10 @@ const DirectionLayout = () => {
         }
       );
       const json = await response.json();
-      setData(json);
-      setOriginalData(json);
+      setData(json.journal);
+      setOriginalData(json.journal);
+      setUsers(json.users)
+      console.log('json.users', json.users);
       console.log("ResponsegetEntryList:", response);
       console.log("ResponsegetEntryList:", json);
     } catch (error) {
@@ -161,27 +121,6 @@ const DirectionLayout = () => {
       console.error(error);
     }
   };
-  const getUsers = async () => {
-    try {
-      const response = await fetch(
-        "https://xn----7sbpwlcifkq8d.xn--p1ai:8443/user/getUsers",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("ResponseGetUsers:", response);
-      const json = await response.json();
-      setUsers(json);
-      console.log(json)
-      
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     getToken();
@@ -190,7 +129,6 @@ const DirectionLayout = () => {
   useEffect(() => {
     if (codeCCS && accessToken && status) {
       getNotes();
-      getUsers();
       getStructure();
       setStatus(false);
     }
@@ -203,7 +141,7 @@ const DirectionLayout = () => {
         value: item.subObjectName,
       }));
       setListSubObj(buf);
-
+      
       const allSystemNames = structure.flatMap((structure) =>
         structure.data.map((item) => item.systemName)
       );
@@ -218,11 +156,10 @@ const DirectionLayout = () => {
 
   useEffect(() => {
     if (users.length > 0) {
-      const buf = users.map(user => ({
-        label: user.userInfo.fullName,
-        value: String(user.id)
-      }));
-      setListUsers(buf);
+      setListUsers([...new Set(users)].map(user => ({
+        label: user,
+        value: user
+      })));
     }
   }, [users]); // Только users как зависимость
 
@@ -258,7 +195,7 @@ const DirectionLayout = () => {
       result = result.filter((item) => item.system === chooseSystem);
     }
 
-    // Фильтрация по статусу
+    // Фильтрация по специалисту
     if (chooseUser && chooseUser !== "Все специалисты") {
       result = result.filter((item) => item.user === chooseUser); {/**изменить поле по которому сравниваю */}
     }
@@ -266,63 +203,101 @@ const DirectionLayout = () => {
     return result;
   }, [originalData, chooseSubobject, chooseSystem, chooseUser]);
 
-  const str = `${capitalCSName}\nЖурнал ПНР`
-
   // Обновление данных при изменении фильтров
   useEffect(() => {
     setData(filteredData);
   }, [filteredData]);
-console.log(chooseUser);
+
+  //изменение статуса при закрытии модального окна
+  useEffect(() => {
+    if(!visibleCustomModal){
+    setStatusSystemModal(false);}
+  }, [!visibleCustomModal]);
+  
+    const updateComment = async () => {
+      setDisabled(true);
+      try {
+        let response = await fetch(`https://xn----7sbpwlcifkq8d.xn--p1ai:8443/journal/updateEntry`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: number,
+            description: description,
+            subObject: subobj,
+            system: system,
+            capitalCS: capitalCSName,
+            date: date.replace(/(\d{2})\.(\d{2})\.(\d{4})/, '$3-$2-$1')
+          }),
+        });
+        console.log('updateComment', response);
+      } catch (error) {
+        setStatus(true);
+        setVisibleCustomModal(false)
+        setDisabled(false);
+        setStatusSystemModal(false)//для сброса выпадающего списка систем
+        console.error('Ошибка при сохранении данных:', error);
+      } finally{
+        setStatus(true);
+        setVisibleCustomModal(false)
+        setDisabled(false);
+        setStatusSystemModal(false)//для сброса выпадающего списка систем
+        //setModalChange(false);
+      }
+  
+    };
+
+    const deleteNote = async () => {
+        setDisabled(true);
+        try {
+          let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/journal/deleteEntry/'+number, {
+              method: "DELETE",
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+        console.log('ResponseDeleteEntry:', response);
+          setDisabled(false);
+        } finally {
+         setStatus(true);
+        setVisibleCustomModal(false)
+        setDisabled(false);
+        setStatusSystemModal(false)//для сброса выпадающего списка систем
+        }
+      }
+
+  // Для систем
+useEffect(() => {
+  if (visibleCustomModal && subobj && structure.length > 0) {
+    const filtered = structure.find(item => item.subObjectName === subobj);
+    if (filtered) {
+      const systemList = filtered.data.map(system => ({
+        label: system.systemName,
+        value: system.systemName
+      }));
+      setListSystemFromSubobj(systemList);
+      setStatusSystemModal(true);
+    }
+  }
+}, [subobj, structure, visibleCustomModal]); // Добавили visibleCustomModal в зависимости
+
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View
         style={{
           flex: 1,
-          alignItems: "center",
-          // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
+          alignItems: "center"
         }}
       >
-        <View
-          style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, width: '100%' }}
-        >
-          <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-            <Ionicons
-              name="home-outline"
-              size={25}
-              style={{ alignSelf: "center" }}
-            />
-          </TouchableOpacity>
-
-            <TextInput
-            
-                  style={{
-                    flex: 1,
-                    width: '100%',
-                    paddingTop:  0,
-                    paddingBottom: 8,
-                    fontWeight: 500,
-                    height: Math.max(42,inputHeight), // min: 42, max: 100
-                    fontSize:  ts(20),
-                    textAlign: 'center',          // Горизонтальное выравнивание.
-                    textAlignVertical: 'center',  // Вертикальное выравнивание (Android/iOS).
-                  }}
-                  multiline
-                  editable={false}
-                  onContentSizeChange={e => {
-                    const newHeight = e.nativeEvent.contentSize.height;
-                    setInputHeight(Math.max(42, newHeight));
-                  }}
-                >
-                  {str}
-                </TextInput>
-        </View>
-        
+        <HeaderForTabs nameTab="Журнал ПНР" capitalCSName={capitalCSName}/>
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
             width: isDesktopWeb && screenWidth>900? 900 :'98%',
-           // position: 'absolute'
           }}
         >
           <SystemsForTwo
@@ -351,7 +326,6 @@ console.log(chooseUser);
             width: isDesktopWeb && screenWidth>900? 900 :'98%',
             height: 32,
             paddingTop: 15,
-            //justifyContent: "space-between",
           }}
         >
             <View style = {{width: '20%'}}>
@@ -361,17 +335,7 @@ console.log(chooseUser);
           <View style = {{width: '80%'}}>
           <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Краткое описание работ</Text>
         </View>
-
-       {/*} <View style = {{width: '20%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Подобъект</Text>
         </View>
-
-        <View style = {{width: '20%'}}>
-          <Text style={{ fontSize: ts(14), color: "#1E1E1E", textAlign: 'center' }}>Система</Text>
-        </View>*/}
-        </View>
-
-        
 
         <View style={{ flex: 15, marginTop: 12,  width: isDesktopWeb && screenWidth>900? 900 :'98%', }}>
           {isLoading ? (
@@ -384,6 +348,16 @@ console.log(chooseUser);
               renderItem={({ item }) => (
                 <TouchableWithoutFeedback
                   onPress={() => {
+                  {isDesktopWeb?
+                    [setVisibleCustomModal(true),
+                    setNumber(item.id),
+                    setDate(item.date),
+                    setSubobj(item.subObject),
+                    setSystem(item.system),
+                    setDescription(item.description),
+                    setFullName(item.user),
+                    setOrganisation(item.organisation)]
+                    :
                     router.push({
                       pathname: "/jour/see_jour",
                       params: {
@@ -392,7 +366,8 @@ console.log(chooseUser);
                         codeCCS: codeCCS,
                       },
                     });
-                  }}
+                  }
+                }}
                 >
                   <View
                     style={{
@@ -436,47 +411,96 @@ console.log(chooseUser);
                         {item.description}
                       </Text>
                     </View>
-                {/*}    <View
-                      style={{
-                        width: '20%',
-                        marginStart: 2,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Text
-                      numberOfLines={2}
-                        style={{
-                          fontSize: ts(14),
-                          color: "#334155",
-                          textAlign: "center",
-                        }}
-                      >
-                        {item.subObject}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '20%',
-                        marginStart: 2,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Text
-                      numberOfLines={2}
-                        style={{
-                          fontSize: ts(14),
-                          color: "#334155",
-                          textAlign: "center",
-                        }}
-                      >
-                        {item.system}
-                      </Text>
-                    </View>*/}
+               
                   </View>
                 </TouchableWithoutFeedback>
               )}
             />
           )}
+          <CustomModal 
+            setReadOnlyToFrame={(value)=> setModalChange(value)}
+            initiallyReadOnly={!modalChange}
+            visible={visibleCustomModal}
+            onRequestClose={() => setVisibleCustomModal(false)}
+            onValuesChange={(values) => {
+              setDate(values[0]);
+              setFullName(values[1]);
+              setOrganisation(values[2]);
+            }}
+            inputTitles={[ 'Дата работы',  'Ответственное лицо', 'Организация']}
+            arrayToReadOnly={[false, false, false]}
+            inputValues={[date,  fullName, organisation]}
+            func={updateComment}
+            additionalComponents={//modalChange ? [] :
+               [
+              {
+                component: (
+                  <ListOfSubobj 
+                    width='100%'
+                    data={listSubObj} 
+                    editable={!modalChange}
+                    Title="Подобъект"
+                    post={subobj} 
+                    title={'Не выбрано'}
+                    label={'Подобъект'}
+                    status={true} 
+                    onChange={setSubobj}
+                  />
+                ),
+                key: "subobj",
+              },
+              {
+                component: (
+                  <ListOfSystem 
+                  list={statusSystemModal ? listSystemFromSubobj : []} 
+                  post={system} 
+                  onChange={(system) => setSystem(system)}
+                  editable={!modalChange}
+                  statusreq={!modalChange}
+                  width={'100%'}
+                  Title="Система"
+                  />
+                ),
+                key: 'system',
+              },
+               {component: (
+                  <MultilineTextInput 
+                    post={description} 
+                    setPost={setDescription} 
+                    maxLength={1000} 
+                    warningLength={900}
+                    editable={!modalChange}
+                    title ={'Краткое описание работ и условий выполнения'}
+                  />
+                ),
+                key: "description",
+                },
+                ...(!modalChange ? [{
+                component: (
+                  <CustomButton 
+                    title="Сохранить изменения" 
+                    handlePress={updateComment} 
+                    disabled={disabled}
+                  />
+                ),
+                key: 'SaveButton'
+              },
+              {
+                 component: (
+                  <CustomButton 
+                    title="Удалить" 
+                    handlePress={deleteNote} 
+                    disabled={disabled}
+                  />
+                ),
+                key: 'DelButton'
+              }
+              ] : [])
+            ]}
+            componentOrder={
+              //modalChange ? [] :
+               [0, 0, 0]} // Позиция для дополнительного компонента
+          />
         </View>
 
         <CustomButton
@@ -489,73 +513,10 @@ console.log(chooseUser);
           }
         />
       </View>
+
+
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: "normal",
-    textAlign: "center",
-    letterSpacing: 0.2,
-  },
-  separator: {
-    marginVertical: 5,
-
-    height: 1,
-    width: "100%",
-  },
-  box: {
-    width: 50,
-    height: 50,
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    //alignItems: 'center',
-  },
-  button: {
-    /* paddingVertical: 6,
-    paddingBottom: 6,
-    paddingRight: 8,
-    paddingLeft: 8,*/
-    backgroundColor: "#E0F2FE",
-    marginHorizontal: "10%",
-    marginBottom: 16,
-    width: 103,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: "center",
-  },
-  //background: #F8FAFC;
-
-  selected: {
-    backgroundColor: "#E0F2FE",
-    // justifyContent: 'center',
-    borderWidth: 0,
-  },
-  buttonLabel: {
-    fontFamily: "Inter",
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#334155",
-    textAlign: "center",
-  },
-  selectedLabel: {
-    color: "#334155",
-    //textAlign: 'center',
-  },
-  label: {
-    textAlign: "center",
-    marginBottom: 10,
-    fontSize: 24,
-  },
-});
 
 export default DirectionLayout;

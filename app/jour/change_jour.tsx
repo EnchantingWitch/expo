@@ -51,6 +51,8 @@ const EditDataScreen: React.FC = () => {
     const {codeCCS} = useLocalSearchParams();
     const {capitalCSName} = useLocalSearchParams();
     const {date} = useLocalSearchParams();
+    const {name} = useLocalSearchParams();
+    const {org} = useLocalSearchParams();
 
     const [accessToken, setAccessToken] = useState<any>('');
  
@@ -82,6 +84,9 @@ const EditDataScreen: React.FC = () => {
   const [updateCom, setUpdateCom] = useState<boolean>(false);//вызов функции запроса после изменения АИИ и исполнителя
   const bufCommentStat = status;//хранит статус замечания из бд, чтобы вывести его в случае отмены выбранной даты устранения (изначально пустой)
 
+  const [organisation, setOrganisation] = useState<string>('');//organisation где работает сотрудник
+  const [fullName, setFullName] = useState<string>('');//фио сотрудника
+  
   const fontScale = useWindowDimensions().fontScale;
 
   const ts = (fontSize: number) => {
@@ -98,6 +103,8 @@ const EditDataScreen: React.FC = () => {
           setBufsystem(system);
           setEditedDescription(comment);
           setEditedDate(date);
+          setOrganisation(org);
+          setFullName(name);
       }
   }, [codeCCS]);
 
@@ -440,7 +447,26 @@ useEffect(() => {
                           : <Text>символов</Text>}
                         </Text>
                       : '' }
-
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Ответственное лицо</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center', }]}
+            placeholderTextColor="#111"
+            value={fullName}
+            multiline
+            editable={false}
+          />  
+          <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Организация</Text>
+          <TextInput
+            style={[styles.input, {fontSize: ts(14), lineHeight: ts(22),
+                alignContent: 'center',
+                textAlignVertical: 'center', }]}
+            placeholderTextColor="#111"
+            value={organisation}
+            multiline
+            editable={false}
+          />  
           
         </View>
       </View>

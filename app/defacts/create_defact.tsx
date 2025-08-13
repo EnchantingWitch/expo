@@ -1,31 +1,26 @@
 import DateInputWithPicker2 from '@/components/Calendar+';
 import DateInputWithPicker from '@/components/CalendarOnWrite';
 import CustomButton from '@/components/CustomButton';
+import ListOfOrganizations from '@/components/ListOfOrganizations';
+import ListOfSystem from '@/components/ListOfSystem';
+import useDevice from '@/hooks/useDevice';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DocumentPicker from "expo-document-picker";
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-//import { Video } from 'react-native-video';
-//import ListOfSubobj from '@/components/ListOfSubobj';
-import ListOfSystem from '@/components/ListOfSystem';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { Structure } from '../(tabs)/structure';
-//import { setSeconds } from 'date-fns';
-import ListOfOrganizations from '@/components/ListOfOrganizations';
-import useDevice from '@/hooks/useDevice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
-import { Image } from 'expo-image';
-import * as Sharing from 'expo-sharing';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Animated, {
   clamp,
   useAnimatedStyle,
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
+import { Structure } from '../(tabs)/structure';
 
 export type ListToDrop = {
   label: string;
@@ -34,7 +29,7 @@ export type ListToDrop = {
 const { width, height } = Dimensions.get('window');
 
 export default function CreateNote() {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
+  const { isDesktopWeb } = useDevice();
   
   const BOTTOM_SAFE_AREA = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
@@ -42,9 +37,7 @@ export default function CreateNote() {
   const [listSystem, setListSystem] = useState<ListToDrop[]>([]);
   const [upLoading, setUpLoading] = useState(false);
   const [array, setArray] = useState<Structure[]>([]);//данные по структуре
-  //const listSubObj = [];//список подобъектов из структуры
   const [noteListSubobj, setNoteListSubobj] = useState<boolean>(true);//ограничение на получение листа подобъектов только единожды 
-  //const listSystem = [];//список систем из структуры на соответствующий выбранный подобъект
   const [noteListSystem, setNoteListSystem] = useState<boolean>(false);//ограничение на отправку листа систем в компонент
   const [exit, setExit] = useState<boolean>(false);//если true нельзя создать замечание, проверка на наличие структуры - работает ли?
   const [statusReq, setStatusReq] = useState(false);//для выпадающих списков, передача данных, когда True
@@ -54,20 +47,15 @@ export default function CreateNote() {
   const [systemName, setSystemName] = useState(' ');
   const [description, setDescription] = useState('');
   const [execut, setExecut] = useState('');
-  const [userName, setUserName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [equipment, setEquipment] = useState('');//Оборудование
   const [comExp, setComExp] = useState('');
   const [manufacturerNumber, setManufacturerNumber] = useState('');//заводской номер
   const [manufacturer, setManufacturer] = useState(''); // изготовитель
   const [planDate, setPlanDate] = useState(' ');//добавить в json
-  //const [id, setId] = useState('0');
   const [inputHeight, setInputHeight] = useState(40);
-  const [bufsubobj, setBufsubobj] = useState('');
-  const [bufsubobjS, setBufsubobjS] = useState('');
   const [bufsystem, setBufsystem] = useState('');
   const [modalVisible, setModalVisible] = useState(false);//для открытия фото полностью
-  const [click, setClick] = useState(false);//
   const [wayToGetPhoto, setWayToGetPhoto] = useState<number>(0); //2- фото, 1 - камера
 
   const [accessToken, setAccessToken] = useState<any>('');
@@ -89,12 +77,9 @@ export default function CreateNote() {
   const getToken = async (keyToken, setF) => {
     try {
         const token = await AsyncStorage.getItem(keyToken);
-        //setAccessToken(token);
         if (token !== null) {
             console.log('Retrieved token:', keyToken, '-', token);
             setF(token);
-            //вызов getAuth для проверки актуальности токена
-            //authUserAfterLogin();
         } else {
             console.log('No token found');
             router.push('/sign/sign_in');
@@ -104,10 +89,7 @@ export default function CreateNote() {
     }
 };
 
-  const [form, setForm] = useState({ video: null, image: null });
-
   const TwoFunction = () => {
-
     submitData();
   };
 
@@ -131,17 +113,11 @@ export default function CreateNote() {
   const selectPhoto = async () => {
     // Opening Document Picker to select one file
     try {
-   
       const res = await ImagePicker.launchImageLibraryAsync({
-
       });
-
-      // Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
         setSinglePhoto(res.assets[0].uri)
       }
-      // Setting the state to show single file attributes
 
     } catch (err) {
       setSinglePhoto('');
@@ -164,10 +140,8 @@ export default function CreateNote() {
       });
 
       // Printing the log realted to the file
-      console.log('res : ' + JSON.stringify(res));
       if (res.assets && res.assets[0].uri) {
         setSinglePhoto(res.assets[0].uri)
-        console.log(res.assets[0].uri)
       }
       // Setting the state to show single file attributes
 
@@ -202,8 +176,6 @@ export default function CreateNote() {
           const json = await response.json();
           setArray(json);
           console.log('ResponseSeeStructure:', response);
-          console.log(typeof(json));
-          console.log('array of subobj',array);
           if (response.status === 200){
             setStatusReq(true);//для выпадающего списка
           }
@@ -231,11 +203,9 @@ export default function CreateNote() {
           
         });
         // Printing the log realted to the file
-        console.log('res of DocumentPicker : ' + JSON.stringify(res));
         // Setting the state to show single file attributes
         if (!res.canceled) {
         setSinglePhoto(res.assets[0].uri); }
-        console.log('RES PHOTO', res);
       } catch (err) {
         setSinglePhoto('');
         // Handling any exception (If any)
@@ -252,7 +222,7 @@ export default function CreateNote() {
 
   useEffect(() => {
     getToken('accessToken', setAccessToken);
-    getToken('fullName', setFullNameFrAsync);
+    getToken('userID', setFullNameFrAsync);
     getToken('organisation', setOrganisationFrAsync);
   }, []);
 
@@ -266,16 +236,10 @@ export default function CreateNote() {
 
       if(systemName != bufsystem){
         setBufsystem(systemName);
-      console.log(systemName, 'systemName: use if(systemName )');
       if (systemName != ' ' ){
         const filtered = array.filter(item => item.subObjectName === subObject);
-        console.log(filtered[0].data);
-        const filteredS = filtered[0].data.filter(item => item.systemName === systemName);
-       // console.log(filteredS[0].numberII, 'filteredS[0].numberII');
-        console.log(filteredS.length, 'filteredS.length');
-        console.log(filteredS, 'filteredS');
+        const filteredS = filtered[0].data.filter(item => item.systemName === systemName);;
         if(filteredS.length != 0){
-          console.log('1');
           setNumber(filteredS[0].numberII);
           setExecut(filteredS[0].ciwexecutor);
         }
@@ -340,28 +304,6 @@ useEffect(() => {
     setExecut('');
 };
 
-console.log(JSON.stringify({
-  //iiNumber: '1',
-          iiNumber: numberII,
-          subObject: subObject,
-          //systemName: 'Сети связи',
-          systemName: systemName,
-          equipment: 'Оборудование', //поменять
-          description: description,
-          defectiveActStatus: "Не устранено",
-          executor: execut,
-          userName: 'userName',
-          startDate: startDate,
-          //commentCategory: category,
-         // commentExplanation: comExp,
-          codeCCS: codeCCS,
-          endDatePlan: planDate,
-          endDateFact: ' ',
-          defectiveActExplanation: "Комментарий", //поменять
-          manufacturer: 'Изготовитель',
-          manufacturerNumber : 'заводской номер'
-}));
-
   const submitData = async () => {
     setDisabled(true);
     if(subObject ==='' && systemName===' ' &&  description!=='' && manufacturerNumber!=='' && manufacturer!=='' && equipment!==''){
@@ -379,7 +321,6 @@ console.log(JSON.stringify({
                 }
 
     try {
-      const user = fullNameFrAsync +',' + ' ' +organisationFrAsync;
       let response = await fetch('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/createDefAct', {
         method: 'POST',
         headers: {
@@ -388,23 +329,19 @@ console.log(JSON.stringify({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          //iiNumber: '1',
           iiNumber: numberII,
           subObject: subObject,
-          //systemName: 'Сети связи',
           systemName: systemName,
-          equipment: equipment, //поменять
+          equipment: equipment, 
           description: description,
           defectiveActStatus: "Не устранено",
           executor: execut,
-          userName: user,
+          userName: fullNameFrAsync.toString(),
           startDate: startDate,
-          //commentCategory: category,
-         // commentExplanation: comExp,
           codeCCS: codeCCS,
           endDatePlan: planDate,
           endDateFact: ' ',
-          defectiveActExplanation: comExp, //поменять
+          defectiveActExplanation: comExp, 
           manufacturer: manufacturer,
           manufacturerNumber : manufacturerNumber
         }),
@@ -418,45 +355,24 @@ console.log(JSON.stringify({
       }
 
       const id = await response.text()
-
-      // Обработка ответа, если необходимо
-      console.log(id);
-      let numId = Number(id);
-      console.log(numId);
-      //setId(id);
-      //не выводится в консоль
-      
-      
-      //Тут добавила
      if(singlePhoto!=''){
       const body = new FormData();
-      //data.append('name', 'Image Upload');
-      // 1. Преобразуем base64 в Blob
-  const base64Data = singlePhoto.split(',')[1];
-  const byteCharacters = atob(base64Data);
-  const byteArrays = new Uint8Array(byteCharacters.length);
+      const base64Data = singlePhoto.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteArrays = new Uint8Array(byteCharacters.length);
 
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteArrays[i] = byteCharacters.charCodeAt(i);
-  }
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteArrays[i] = byteCharacters.charCodeAt(i);
+      }
 
-  const blob = new Blob([byteArrays], { type: 'image/jpeg' });
-  console.log('byteArrays', byteArrays)
+      const blob = new Blob([byteArrays], { type: 'image/jpeg' });
+      console.log('byteArrays', byteArrays)
 
-  // 2. Создаем File (если нужно имя файла)
-  const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
+      // 2. Создаем File (если нужно имя файла)
+      const file = new File([blob], 'uploaded_photo.jpeg', { type: 'image/jpeg' });
 
-  // 3. Добавляем в FormData
-  body.append('photo', file); // Ключевое отличие: передаем File, а не URL
-    /*  for (let [key, value] of body) {
-        console.log(key);
-        console.log(value);
-    }*/
-  //  console.log(singlePhoto.uri, 'singlePhoto');
-  //  console.log(photoToUpload.uri, 'photoToUpload');
-      //body.append("photo", photoToUpload);
-      // Please change file upload URL
-      //alert(id);
+      // 3. Добавляем в FormData
+      body.append('photo', file); // Ключевое отличие: передаем File, а не URL
 
       let str = String('https://xn----7sbpwlcifkq8d.xn--p1ai:8443/defectiveActs/addPhoto/' + id);
       console.log(str);
@@ -474,28 +390,15 @@ console.log(JSON.stringify({
       );
       console.log('ResponsePhoto:', res);
       }
-      
-      //до сюда
-      
-      
     } catch (error) {
       setDisabled(false);
       console.error('Error:', error);
     } finally {
       setDisabled(false);
       setUpLoading(false);
-      //  alert(id);
       router.replace({pathname: '/(tabs)/defacts', params: { codeCCS: codeCCS, capitalCSName: capitalCSName}});
     }
   }
-
-  const chooseCameraOrPhoto =  () => {
-       Alert.alert('', 'С помощью чего хотите добавить фотографию?', [
-             //{text: 'Отмена', onPress: () => console.log('OK Pressed')},
-             {text: 'Камера', onPress: () => setWayToGetPhoto(1)}, 
-             {text: 'Альбом', onPress: () => setWayToGetPhoto(2)}
-          ],)
-  };
 
    //зумирование фото
 
@@ -537,48 +440,7 @@ console.log(JSON.stringify({
     ],
   }));
 
-   //перессылка фотографии
-    async function shareImage(imageUri: string) {
-      let tempUri = imageUri;
-    
-      try {
-        if (!(await Sharing.isAvailableAsync())) {
-          alert('Sharing не доступен');
-          return;
-        }
-    
-        // Обработка base64
-        if (imageUri.startsWith('data:')) {
-          const mimeType = imageUri.match(/^data:(image\/\w+);/)?.[1] || 'image/jpeg';
-          const ext = mimeType.split('/')[1] || 'jpg';
-          const base64Data = imageUri.split(',')[1];
-    
-          if (base64Data.length > 10 * 1024 * 1024) {
-            alert('Изображение должно быть меньше 10MB');
-            return;
-          }
-    
-          tempUri = `${FileSystem.cacheDirectory}image_${Date.now()}.${ext}`;
-          await FileSystem.writeAsStringAsync(tempUri, base64Data, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-        }
-    
-        await Sharing.shareAsync(tempUri, {
-          mimeType: 'image/*', 
-          dialogTitle: 'Поделиться изображением',
-          UTI: 'public.image',
-        });
-    
-      } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось отправить');
-      } finally {
-        if (tempUri !== imageUri) {
-          await FileSystem.deleteAsync(tempUri).catch(console.warn);
-        }
-      }
-    }
+  
 
      const [statusOrg, setStatusOrg] = useState(false);
        const [listOrganization, setListOrganization] = useState<[]>();
@@ -646,9 +508,6 @@ console.log(JSON.stringify({
       list={listSystem} 
       buf={bufsystem} 
       post={systemName} 
-     // status={statusReq} 
-    //  title = ''
-     // label='Система'
       onChange={(system) => setSystemName(system)}
     />
     
@@ -662,39 +521,33 @@ console.log(JSON.stringify({
     
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Дефект</Text>
      <TextInput
-                //style={[styles.input,  {flex: 1, height: Math.max(42, inputHeight),fontSize: ts(14)}]} // Минимальная высота 40
-                multiline
-                onContentSizeChange={e=>{
-                  let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
-                  if(inputH>120) inputH =100
-                  setInputHeight(inputH)
-              }}
-              style={[
-                  styles.input, 
-                  {
-                     height: Math.max(42, inputHeight),
-               // minHeight: 42, // Минимальная высота
-               // maxHeight: 100, // Максимальная высота
-                fontSize: ts(14),
-                lineHeight: ts(22),
-                alignContent: 'center',
-                textAlignVertical: 'center',
-                  }
-                ]}
-                //placeholder="Содержание замечания"
-                maxLength={250}
-                placeholderTextColor="#111"
-                onChangeText={setDescription}
-                value={description}
-              />
-    {description.length >=200? 
-                          <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
-                            Можете ввести еще {250-description.length}{' '}
-                            {(250-description.length) % 10 === 1? <Text>символ</Text>
-                            : (250-description.length) % 10 === 2 || (250-description.length) % 10 === 3 || (250-description.length) % 10 === 4? <Text>символа</Text>
-                            : <Text>символов</Text>}
-                          </Text>
-                        : '' }
+      multiline
+      onContentSizeChange={e=>{
+        let inputH = Math.max(e.nativeEvent.contentSize.height, 35)
+        if(inputH>120) inputH =100
+          setInputHeight(inputH)
+        }}
+      style={[styles.input, 
+        {height: Math.max(42, inputHeight),
+        fontSize: ts(14),
+        lineHeight: ts(22),
+        alignContent: 'center',
+        textAlignVertical: 'center',
+        }
+      ]}
+      maxLength={250}
+      placeholderTextColor="#111"
+      onChangeText={setDescription}
+      value={description}
+      />
+      {description.length >=200? 
+        <Text style={{ fontSize: ts(11),  color: '#B3B3B3', fontWeight: '400', marginTop: -14.6}}>
+          Можете ввести еще {250-description.length}{' '}
+          {(250-description.length) % 10 === 1? <Text>символ</Text>
+          : (250-description.length) % 10 === 2 || (250-description.length) % 10 === 3 || (250-description.length) % 10 === 4? <Text>символа</Text>
+          : <Text>символов</Text>}
+        </Text>
+      : '' }
     
     <Text style={{ fontSize: ts(14), color: '#1E1E1E', fontWeight: '400', marginBottom: 8 }}>Заводской номер</Text>
     <TextInput
@@ -749,16 +602,10 @@ console.log(JSON.stringify({
               visible={modalVisible}
               onRequestClose={() => setModalVisible(false)}
             >
-<GestureHandlerRootView style={{ flex: 1 }}>
+              <GestureHandlerRootView style={{ flex: 1 }}>
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContent}>
                     <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
-             {/*}         <TouchableOpacity 
-                        onPress={() => shareImage(singlePhoto)}
-                        style={{alignItems: 'center', width: '50%' }}
-                      >
-                        <Ionicons name='share-social-outline' size={30} color={"#57CBF5"} />
-                      </TouchableOpacity>*/}
                       <TouchableOpacity 
                         onPress={() => setModalVisible(false)} 
                         style={{alignItems: 'center', width: '50%' }}
@@ -840,12 +687,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
   image: {
-    //width: '100%',
     height: 42,
     borderRadius: 8,
-    //justifyContent: 'center'
-    //alignItems: 'center',
-    //left: 38
   },
   imageModal: {
     height: height,
@@ -857,13 +700,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)', // Полупрозрачный фон
-    
   },
   modalContent: {
     width: '100%',
     height: '100%',
     padding: 5,
-    //backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
     

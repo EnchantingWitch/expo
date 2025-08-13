@@ -1,24 +1,19 @@
 import CustomButton from "@/components/CustomButton";
+import HeaderForTabs from "@/components/HeaderForTabs";
 import Note from "@/components/Note";
 import SystemsForTwo from "@/components/SystemsForTwo";
 import useDevice from "@/hooks/useDevice";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useGlobalSearchParams, useNavigation, useRouter } from "expo-router";
-import type { PropsWithChildren } from "react";
+import { useGlobalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Platform,
-  StatusBar,
-  StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   useWindowDimensions,
-  View,
+  View
 } from "react-native";
 import type { Structure } from "./structure";
 
@@ -34,19 +29,14 @@ type Note = {
   endDatePlan: string;
   endDateFact: string;
   commentExplanation: string; //комментарий к замечанию
-  //userName: string;//не увидела в бд у Сергея
   iinumber: number; //номер акта ИИ
 };
 
 const DirectionLayout = () => {
-  const { isMobile, isDesktopWeb, isMobileWeb, screenWidth } = useDevice();
-  const BOTTOM_SAFE_AREA =
-    Platform.OS === "android" ? StatusBar.currentHeight : 0;
+  const { isDesktopWeb, screenWidth } = useDevice();
 
   const router = useRouter();
-  const currentDate = new Date(); //console.log(currentDate);
   const [accessToken, setAccessToken] = useState<any>("");
-  const [inputHeight, setInputHeight] = useState(40);
   const { codeCCS } = useGlobalSearchParams(); //получение кода ОКС
   const { capitalCSName } = useGlobalSearchParams(); //получение наименование ОКС
   const [chooseSubobject, setChooseSubobject] = useState("");
@@ -68,33 +58,12 @@ const DirectionLayout = () => {
     return fontSize / fontScale;
   };
 
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-          <Ionicons
-            name="home-outline"
-            size={25}
-            style={{ alignSelf: "center" }}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
-  const [direction, setDirection] = useState("Объект");
-
   const getToken = async () => {
     try {
       const token = await AsyncStorage.getItem("accessToken");
-      //setAccessToken(token);
       if (token !== null) {
         console.log("Retrieved token:", token);
         setAccessToken(token);
-        //вызов getAuth для проверки актуальности токена
-        //authUserAfterLogin();
       } else {
         console.log("No token found");
         router.push("/sign/sign_in");
@@ -126,7 +95,7 @@ const DirectionLayout = () => {
       setData(json);
       setOriginalData(json);
       console.log("ResponseGetNotes:", response);
-      console.log("ResponseGetNotes:", json);
+     // console.log("ResponseGetNotes:", json);
     } catch (error) {
       console.error(error);
     } finally {
@@ -199,7 +168,7 @@ const DirectionLayout = () => {
     ) {
       const item = { label: "Все системы", value: "Все системы" };
       setListSystem((prev) => [...prev, item]);
-      console.log("new ListSystem", listSystem);
+      //console.log("new ListSystem", listSystem);
     }
     if (
       chooseSubobject !== "" &&
@@ -208,7 +177,7 @@ const DirectionLayout = () => {
     ) {
       const item = { label: "Все подобъекты", value: "Все подобъекты" };
       setListSubObj((prev) => [...prev, item]);
-      console.log("new ListSystem", listSubObj);
+      //console.log("new ListSystem", listSubObj);
     }
   }, [chooseSystem, listSystem, chooseSubobject, listSubObj]);
 
@@ -238,53 +207,14 @@ const DirectionLayout = () => {
     setData(filteredData);
   }, [filteredData]);
 
-  //console.log('chooseSystem',chooseSystem);
-  //console.log('listSystem',listSystem);
-  //console.log('data',data);
-
-  const str = `${capitalCSName}\nЗамечания`
-
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
       <View
         style={{
           flex: 1,
-          alignItems: "center",
-          // justifyContent: 'center', flexDirection: 'row', height: 80, padding: 20, alignSelf: 'flex-start', alignItems: 'stretch', justifyContent: 'space-around',
-        }}
-      >
-        <View
-          style={{ flexDirection: "row", paddingTop: BOTTOM_SAFE_AREA + 15, width: '100%' }}
-        >
-          <TouchableOpacity onPress={() => router.replace("/objs/objects")}>
-            <Ionicons
-              name="home-outline"
-              size={25}
-              style={{ alignSelf: "center" }}
-            />
-          </TouchableOpacity>
+          alignItems: "center"}}>
 
-          <TextInput
-            style={{
-              flex: 1,
-              paddingTop: 0,
-              fontWeight: 500,
-              paddingBottom: 8,
-              height: Math.max(42, inputHeight), // min: 42, max: 100
-              fontSize: ts(20),
-              textAlign: "center", // Горизонтальное выравнивание.
-              textAlignVertical: "center", // Вертикальное выравнивание (Android/iOS).
-            }}
-            multiline
-            editable={false}
-            onContentSizeChange={(e) => {
-              const newHeight = e.nativeEvent.contentSize.height;
-              setInputHeight(Math.max(42, newHeight));
-            }}
-          >
-              {str}
-          </TextInput>
-        </View>
+        <HeaderForTabs capitalCSName={capitalCSName} nameTab="Замечания"/>
 
         <View
           style={{
@@ -319,7 +249,6 @@ const DirectionLayout = () => {
             width: isDesktopWeb && screenWidth>900? 900 : '95%',
             height: 32,
             paddingTop: 12,
-            //justifyContent: "space-between",
           }}
         >
           <View style = {{width: '12%'}}>
@@ -368,7 +297,6 @@ const DirectionLayout = () => {
                     <View style={{ width: "12%", justifyContent: "center" }}>
                       <Text
                         style={{
-                          //marginStart: 18,
                           fontSize: ts(14),
                           color: "#334155",
                           textAlign: "center",
@@ -381,9 +309,7 @@ const DirectionLayout = () => {
                     <View
                       style={{
                         width: "75%",
-                       // marginStart: 2,
                         justifyContent: "center",
-                      //  backgroundColor: 'red'
                       }}
                     >
                       <Text
@@ -401,10 +327,8 @@ const DirectionLayout = () => {
                     <View
                       style={{
                         width: "12%",
-                        //marginStart: 2,
                         justifyContent: "center",
                         alignItems: 'center',
-                        //backgroundColor: 'green'
                       }}
                     >
                       {item.commentStatus == "Устранено" ? (
@@ -428,8 +352,6 @@ const DirectionLayout = () => {
                         ""
                       )}
 
-                      {/**checkmark-circle-outline , close-circle-outline, square-outline*/}
-                      {/*} <Text style={{ fontSize: ts(16), color: '#334155', textAlign: 'center'  }}>{item.commentStatus} </Text>*/}
                     </View>
                   </View>
                 </TouchableWithoutFeedback>
@@ -451,129 +373,5 @@ const DirectionLayout = () => {
     </View>
   );
 };
-
-type PreviewLayoutProps = PropsWithChildren<{
-  // label: string;
-  // values: string[];
-  selectedValue: string;
-  setSelectedValue: (value: string) => void;
-}>;
-
-type PreviewNameProps = PropsWithChildren<{
-  values: string[];
-}>;
-
-const PreviewName = ({
-  //childern,
-  values,
-}: PreviewNameProps) => (
-  <View style={styles.row}>
-    {values.map((value) => (
-      <Text key={value} style={styles.title}>
-        {value}
-      </Text>
-    ))}
-  </View>
-);
-
-const PreviewLayout = ({
-  //  label,
-  children,
-  values,
-  selectedValue,
-  setSelectedValue,
-}: PreviewLayoutProps) => (
-  <View style={{ padding: 6, flex: 1 }}>
-    <View style={styles.row}>
-      {values.map((value) => (
-        <TouchableOpacity
-          key={value}
-          onPress={() => setSelectedValue(value)}
-          style={[styles.button, selectedValue === value && styles.selected]}
-        >
-          <Text
-            style={[
-              styles.buttonLabel,
-              selectedValue === value && styles.selectedLabel,
-            ]}
-          >
-            {value}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-    <View
-      style={styles.separator}
-      lightColor="#eee"
-      darkColor="rgba(255,255,255,0.1)"
-    />
-    <View style={[styles.container]}>{children}</View>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: "normal",
-    textAlign: "center",
-    letterSpacing: 0.2,
-  },
-  separator: {
-    marginVertical: 5,
-
-    height: 1,
-    width: "100%",
-  },
-  box: {
-    width: 50,
-    height: 50,
-  },
-  row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    //alignItems: 'center',
-  },
-  button: {
-    /* paddingVertical: 6,
-    paddingBottom: 6,
-    paddingRight: 8,
-    paddingLeft: 8,*/
-    backgroundColor: "#E0F2FE",
-    marginHorizontal: "10%",
-    marginBottom: 16,
-    width: 103,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: "center",
-  },
-  //background: #F8FAFC;
-
-  selected: {
-    backgroundColor: "#E0F2FE",
-    // justifyContent: 'center',
-    borderWidth: 0,
-  },
-  buttonLabel: {
-    fontFamily: "Inter",
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#334155",
-    textAlign: "center",
-  },
-  selectedLabel: {
-    color: "#334155",
-    //textAlign: 'center',
-  },
-  label: {
-    textAlign: "center",
-    marginBottom: 10,
-    fontSize: 24,
-  },
-});
 
 export default DirectionLayout;
